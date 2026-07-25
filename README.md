@@ -23,18 +23,21 @@ using standardized FHIR APIs.
 - **National Platform** — Master Patient Index (MPI), Provider Registry, Record Index,
   Auth (JWT + org API keys), Audit Log, and the Exchange/Routing Engine.
 - **Hospital / Lab services** — own PostgreSQL database + an HL7 FHIR read adapter.
-- **National Frontend** — React portal for Super Admin, Org Admin, Doctor, and Patient.
+- **National Frontend** — web portal for Super Admin, Org Admin, Doctor, and Patient.
+
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | React + Vite + Tailwind CSS |
+| Frontend | Vanilla JS SPA (served via nginx) |
 | Backend | Django + Django REST Framework |
+| FHIR adapter | Custom HL7 FHIR R4 mapping layer |
 | Database | PostgreSQL |
 | Interoperability | HL7 FHIR R4 |
 | Auth | JWT (users) + API keys (service-to-service) |
 | Orchestration | Docker Compose |
+
 
 ## Services & Ports
 
@@ -45,7 +48,8 @@ using standardized FHIR APIs.
 | Norvic International Hospital | 8002 | hospital_b_db |
 | Central Diagnostic Laboratory | 9001 | lab_a_db |
 | Pathlabs Nepal | 9002 | lab_b_db |
-| National Frontend | 5173 | — |
+| National Frontend | 3000 | — |
+
 
 ## Repository Layout
 
@@ -53,17 +57,50 @@ using standardized FHIR APIs.
 national-platform/   Django — MPI, registry, index, audit, routing engine
 hospital-service/    Django — reusable hospital data source + FHIR adapter
 lab-service/         Django — reusable lab data source + FHIR adapter
-frontend/            React — national portal
+frontend/            Vanilla-JS national portal (served by nginx)
 docker-compose.yml   Orchestration for all services
+seed-all.sh          Populates every facility with shared demo patients
 ```
 
 ## Getting Started
+
+**1. Start the whole federation** (5 services + 5 databases + frontend):
 
 ```bash
 docker compose up --build
 ```
 
-Then open the frontend at http://localhost:5173
+The National Platform auto-runs its `bootstrap` command on start, creating the
+Super Admin and pre-approving the four demo organizations.
+
+**2. Seed clinical demo data** (once the stack is healthy, in a second terminal):
+
+```bash
+./seed-all.sh
+```
+
+This populates each hospital/lab with records for the shared demo patients and
+pushes their metadata to the National Platform index.
+
+**3. Open the portal:** http://localhost:3000
+
+### Demo Credentials
+
+| Role | Login | Password |
+|---|---|---|
+| Super Admin (Ministry) | `superadmin` | `admin123` |
+| Org Admin (e.g. Mediciti) | `HOSP001-ADM-0001` | `org123` |
+| Patient | activate with `NID-1001` + DOB `1975-04-12` | (you choose) |
+
+### Try the exchange
+
+1. Sign in as an **Org Admin** and create a **Doctor** login.
+2. Sign in as that doctor, search **`NID-1001`** (Ram Bahadur Thapa).
+3. Click **Fetch full unified record** — the routing engine pulls diagnoses from
+   both hospitals and lab reports from both labs into one FHIR bundle, each
+   tagged with its source facility — even though the two hospitals store their
+   data in *different local schemas* (variant A vs B).
+
 
 ## Core Concepts
 

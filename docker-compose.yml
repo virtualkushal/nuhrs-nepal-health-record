@@ -1,0 +1,184 @@
+# NUHRS — Nepal Unified Health Record System
+#
+# Topology:
+#   national-platform (8000)  -> federated exchange, metadata only
+#   hospital-a (8001)         -> Nepal Mediciti, schema variant A
+#   hospital-b (8002)         -> Norvic International, schema variant B
+#   lab-a (9001)              -> Central Diagnostic Lab, schema variant A
+#   lab-b (9002)              -> Pathlabs Nepal, schema variant B
+#
+# Each service has its OWN Postgres database (data sovereignty). The platform
+# never stores clinical data — it only indexes pointers and routes fetches.
+
+services:
+  # ---------------------------------------------------------------- databases
+  db-national:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: national_db
+      POSTGRES_USER: nuhrs
+      POSTGRES_PASSWORD: nuhrs
+    volumes: ["national_pg:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nuhrs"]
+      interval: 5s
+      retries: 10
+
+  db-hospital-a:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: hospital_a_db
+      POSTGRES_USER: nuhrs
+      POSTGRES_PASSWORD: nuhrs
+    volumes: ["hosp_a_pg:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nuhrs"]
+      interval: 5s
+      retries: 10
+
+  db-hospital-b:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: hospital_b_db
+      POSTGRES_USER: nuhrs
+      POSTGRES_PASSWORD: nuhrs
+    volumes: ["hosp_b_pg:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nuhrs"]
+      interval: 5s
+      retries: 10
+
+  db-lab-a:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: lab_a_db
+      POSTGRES_USER: nuhrs
+      POSTGRES_PASSWORD: nuhrs
+    volumes: ["lab_a_pg:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nuhrs"]
+      interval: 5s
+      retries: 10
+
+  db-lab-b:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: lab_b_db
+      POSTGRES_USER: nuhrs
+      POSTGRES_PASSWORD: nuhrs
+    volumes: ["lab_b_pg:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nuhrs"]
+      interval: 5s
+      retries: 10
+
+  # --------------------------------------------------------------- platform
+  national-platform:
+    build: ./national-platform
+    environment:
+      DEBUG: "True"
+      DB_HOST: db-national
+      DB_NAME: national_db
+      DB_USER: nuhrs
+      DB_PASSWORD: nuhrs
+    ports: ["8000:8000"]
+    depends_on:
+      db-national:
+        condition: service_healthy
+
+  # --------------------------------------------------------------- hospitals
+  hospital-a:
+    build: ./hospital-service
+    environment:
+      ORG_NAME: "Nepal Mediciti Hospital"
+      ORG_CODE: "HOSP001"
+      SCHEMA_VARIANT: "A"
+      ORG_API_KEY: "mediciti-demo-key-0001"
+      PLATFORM_URL: "http://national-platform:8000"
+      PORT: "8001"
+      DB_HOST: db-hospital-a
+      DB_NAME: hospital_a_db
+      DB_USER: nuhrs
+      DB_PASSWORD: nuhrs
+    ports: ["8001:8001"]
+    depends_on:
+      db-hospital-a:
+        condition: service_healthy
+      national-platform:
+        condition: service_started
+
+  hospital-b:
+    build: ./hospital-service
+    environment:
+      ORG_NAME: "Norvic International Hospital"
+      ORG_CODE: "HOSP002"
+      SCHEMA_VARIANT: "B"
+      ORG_API_KEY: "norvic-demo-key-0002"
+      PLATFORM_URL: "http://national-platform:8000"
+      PORT: "8002"
+      DB_HOST: db-hospital-b
+      DB_NAME: hospital_b_db
+      DB_USER: nuhrs
+      DB_PASSWORD: nuhrs
+    ports: ["8002:8002"]
+    depends_on:
+      db-hospital-b:
+        condition: service_healthy
+      national-platform:
+        condition: service_started
+
+  # --------------------------------------------------------------- labs
+  lab-a:
+    build: ./lab-service
+    environment:
+      ORG_NAME: "Central Diagnostic Laboratory"
+      ORG_CODE: "LAB001"
+      SCHEMA_VARIANT: "A"
+      ORG_API_KEY: "central-demo-key-0003"
+      PLATFORM_URL: "http://national-platform:8000"
+      PORT: "9001"
+      DB_HOST: db-lab-a
+      DB_NAME: lab_a_db
+      DB_USER: nuhrs
+      DB_PASSWORD: nuhrs
+    ports: ["9001:9001"]
+    depends_on:
+      db-lab-a:
+        condition: service_healthy
+      national-platform:
+        condition: service_started
+
+  lab-b:
+    build: ./lab-service
+    environment:
+      ORG_NAME: "Pathlabs Nepal"
+      ORG_CODE: "LAB002"
+      SCHEMA_VARIANT: "B"
+      ORG_API_KEY: "pathlabs-demo-key-0004"
+      PLATFORM_URL: "http://national-platform:8000"
+      PORT: "9002"
+      DB_HOST: db-lab-b
+      DB_NAME: lab_b_db
+      DB_USER: nuhrs
+      DB_PASSWORD: nuhrs
+    ports: ["9002:9002"]
+    depends_on:
+      db-lab-b:
+        condition: service_healthy
+      national-platform:
+        condition: service_started
+
+  # --------------------------------------------------------------- frontend
+  frontend:
+    build: ./frontend
+    ports: ["3000:80"]
+    depends_on:
+      national-platform:
+        condition: service_started
+
+volumes:
+  national_pg:
+  hosp_a_pg:
+  hosp_b_pg:
+  lab_a_pg:
+  lab_b_pg:
