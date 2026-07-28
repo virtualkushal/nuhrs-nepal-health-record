@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
 import Brand from "../components/Brand.jsx";
+import background from "../assects/background.jpg"
 
 
 // Public home page — Stitch "NUHRS Health Portal" design with a working login card.
@@ -51,7 +52,7 @@ export default function Landing() {
         {/* Hero + login */}
         <section className="relative overflow-hidden bg-surface py-24 md:py-28">
           <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
-            <svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+            <svg height="100%" width="100%" src="http://www.w3.org/2000/svg">
               <defs>
                 <pattern height="40" id="grid" patternUnits="userSpaceOnUse" width="40">
                   <path className="text-primary" d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" />
@@ -279,7 +280,7 @@ function ShowcaseBand({ navigate }) {
               </div>
             ) : (
               <img
-                src="/hero.png"
+                src={background}
                 alt="Unified health data network illustration"
                 onError={() => setBroken(true)}
                 className="w-full max-w-xl rounded-3xl shadow-2xl object-contain"

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import logo from "../assects/logo.png";
 
 // Brand mark. Uses /logo.png from the public folder; if the file is missing,
 // it gracefully falls back to the Material "health_and_safety" glyph so the
@@ -17,7 +18,7 @@ export default function Brand({ size = 32, showText = true, subtitle = false }) 
         </span>
       ) : (
         <img
-          src="/logo.png"
+          src={logo}
           alt="NUHRS logo"
           onError={() => setBroken(true)}
           style={{ height: size, width: "auto" }}
