@@ -1,0 +1,83 @@
+import { useEffect, useState } from "react";
+import { api, currentUser } from "../../lib/api.js";
+import { useToast } from "../../context/ToastContext.jsx";
+import { Card, Table, Field } from "../../components/ui.jsx";
+
+// Organization admin: create and list staff logins.
+export default function OrgAdmin() {
+  const { show } = useToast();
+  const user = currentUser();
+  const [staff, setStaff] = useState(null);
+  const [creds, setCreds] = useState(null);
+  const [f, setF] = useState({ full_name: "", email: "", role: "DOCTOR" });
+  const set = (k) => (v) => setF((s) => ({ ...s, [k]: v }));
+
+  const load = async () => {
+    try {
+      setStaff(await api.listStaff());
+    } catch (e) {
+      show(e.message, "err");
+    }
+  };
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function addStaff(e) {
+    e.preventDefault();
+    try {
+      const res = await api.createStaff(f);
+      setCreds(res);
+      setF({ full_name: "", email: "", role: "DOCTOR" });
+      load();
+    } catch (err) {
+      show(err.message, "err");
+    }
+  }
+
+  return (
+    <Card
+      title={(user?.organization_name || "Organization") + " — Staff"}
+      subtitle="Create logins for doctors and lab technicians."
+    >
+      <form onSubmit={addStaff} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        <Field label="Full name" id="sfName" value={f.full_name} onChange={set("full_name")} />
+        <Field label="Email" id="sfEmail" value={f.email} onChange={set("email")} />
+        <div>
+          <label className="label">Role</label>
+          <select className="field" value={f.role} onChange={(e) => set("role")(e.target.value)}>
+            <option value="DOCTOR">Doctor</option>
+            <option value="LAB_TECHNICIAN">Lab Technician</option>
+          </select>
+        </div>
+        <button type="submit" className="btn-primary">Add staff</button>
+      </form>
+
+      {creds && (
+        <div className="mt-4 p-4 rounded-xl bg-ok/5 border border-ok/30 font-mono text-sm">
+          New login: {creds.username} &nbsp; Temp password: {creds.temporary_password}
+        </div>
+      )}
+
+      <div className="mt-6">
+        {!staff ? (
+          <p className="text-on-surface-variant">Loading staff…</p>
+        ) : (
+          <Table head={["Username", "Name", "Role", "Status"]}>
+            {staff.length === 0 && (
+              <tr><td colSpan={4} className="py-3 text-on-surface-variant">No staff yet</td></tr>
+            )}
+            {staff.map((s) => (
+              <tr key={s.username} className="border-b border-outline-variant/60">
+                <td className="py-2 pr-4">{s.username}</td>
+                <td className="py-2 pr-4">{s.full_name || ""}</td>
+                <td className="py-2 pr-4">{s.role}</td>
+                <td className="py-2 pr-4">{s.is_active ? "Active" : "Disabled"}</td>
+              </tr>
+            ))}
+          </Table>
+        )}
+      </div>
+    </Card>
+  );
+}
