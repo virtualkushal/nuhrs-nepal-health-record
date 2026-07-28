@@ -169,12 +169,17 @@ services:
         condition: service_started
 
   # --------------------------------------------------------------- frontend
+  # React + Vite SPA (modular). The legacy vanilla app remains in ./frontend.
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend-react
+      args:
+        VITE_PLATFORM_API: "http://localhost:8000"
     ports: ["3000:80"]
     depends_on:
       national-platform:
         condition: service_started
+
 
 volumes:
   national_pg:
