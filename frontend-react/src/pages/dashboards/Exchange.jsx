@@ -3,6 +3,8 @@ import { api } from "../../lib/api.js";
 import { useToast } from "../../context/ToastContext.jsx";
 import { Card, Table, Badge } from "../../components/ui.jsx";
 import ResourceCard from "../../components/ResourceCard.jsx";
+import TrendsPanel from "../../components/TrendsPanel.jsx";
+
 
 // Doctor / lab technician record exchange: search by NID, then fetch unified bundle.
 export default function Exchange() {
@@ -97,6 +99,8 @@ export default function Exchange() {
         </Card>
       )}
 
+      {bundle && <TrendsPanel entries={bundle.entry || []} />}
+
       {bundle && (
         <Card>
           <h3 className="font-headline-lg text-[22px] mb-4">
@@ -110,6 +114,7 @@ export default function Exchange() {
           )}
         </Card>
       )}
+
     </div>
   );
 }
