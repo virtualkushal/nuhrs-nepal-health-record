@@ -72,6 +72,19 @@ services:
       interval: 5s
       retries: 10
 
+  db-swastha:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: swastha_db
+      POSTGRES_USER: nuhrs
+      POSTGRES_PASSWORD: nuhrs
+    volumes: ["swastha_pg:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nuhrs"]
+      interval: 5s
+      retries: 10
+
+
   # --------------------------------------------------------------- platform
   national-platform:
     build: ./national-platform
@@ -168,6 +181,39 @@ services:
       national-platform:
         condition: service_started
 
+  # --------------------------------------------------------------- swastha ehr
+  # Third hospital (HOSP003): standalone SwasthyaEHR app with its own React SPA.
+  # Its backend joins the NUHRS federation via the NID-keyed FHIR adapter and
+  # pushes record metadata to the national index at startup.
+  swastha-backend:
+    build: ./swastha-ehr/backend
+    environment:
+      DJANGO_DEBUG: "True"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,swastha-backend"
+      DB_HOST: db-swastha
+      DB_NAME: swastha_db
+      DB_USER: nuhrs
+      DB_PASSWORD: nuhrs
+      PORT: "8090"
+      NUHRS_ENABLED: "True"
+      NUHRS_PLATFORM_URL: "http://national-platform:8000"
+      NUHRS_API_KEY: "swastha-demo-key-0005"
+      NUHRS_ORG_CODE: "HOSP003"
+      CORS_ALLOWED_ORIGINS: "http://localhost:3090,http://127.0.0.1:3090"
+    ports: ["8090:8090"]
+    depends_on:
+      db-swastha:
+        condition: service_healthy
+      national-platform:
+        condition: service_started
+
+  swastha-frontend:
+    build: ./swastha-ehr/frontend
+    ports: ["3090:80"]
+    depends_on:
+      swastha-backend:
+        condition: service_started
+
   # --------------------------------------------------------------- frontend
   # React + Vite SPA (modular). The legacy vanilla app remains in ./frontend.
   frontend:
@@ -181,9 +227,13 @@ services:
         condition: service_started
 
 
+
 volumes:
   national_pg:
   hosp_a_pg:
   hosp_b_pg:
   lab_a_pg:
   lab_b_pg:
+  swastha_pg:
+
+
