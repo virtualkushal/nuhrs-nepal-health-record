@@ -5,6 +5,7 @@ import ChangePassword from "./ChangePassword.jsx";
 import SuperAdmin from "./dashboards/SuperAdmin.jsx";
 import OrgAdmin from "./dashboards/OrgAdmin.jsx";
 import Exchange from "./dashboards/Exchange.jsx";
+import DoctorPortal from "./dashboards/DoctorPortal.jsx";
 import PatientPortal from "./dashboards/PatientPortal.jsx";
 
 // Authenticated area: picks the right dashboard based on the user's role.
@@ -23,6 +24,8 @@ export default function Dashboard() {
       body = <OrgAdmin />;
       break;
     case "DOCTOR":
+      body = <DoctorPortal />;
+      break;
     case "LAB_TECHNICIAN":
       body = <Exchange />;
       break;
