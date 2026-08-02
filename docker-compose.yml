@@ -19,6 +19,7 @@ services:
       POSTGRES_DB: national_db
       POSTGRES_USER: nuhrs
       POSTGRES_PASSWORD: nuhrs
+    ports: ["5437:5432"]  # host 5437 (5432 is taken by a local Postgres) -> pgAdmin: localhost:5437
     volumes: ["national_pg:/var/lib/postgresql/data"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U nuhrs"]
@@ -31,6 +32,7 @@ services:
       POSTGRES_DB: hospital_a_db
       POSTGRES_USER: nuhrs
       POSTGRES_PASSWORD: nuhrs
+    ports: ["5433:5432"]  # host 5433 -> pgAdmin: localhost:5433
     volumes: ["hosp_a_pg:/var/lib/postgresql/data"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U nuhrs"]
@@ -43,6 +45,7 @@ services:
       POSTGRES_DB: hospital_b_db
       POSTGRES_USER: nuhrs
       POSTGRES_PASSWORD: nuhrs
+    ports: ["5434:5432"]  # host 5434 -> pgAdmin: localhost:5434
     volumes: ["hosp_b_pg:/var/lib/postgresql/data"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U nuhrs"]
@@ -55,6 +58,7 @@ services:
       POSTGRES_DB: lab_a_db
       POSTGRES_USER: nuhrs
       POSTGRES_PASSWORD: nuhrs
+    ports: ["5435:5432"]  # host 5435 -> pgAdmin: localhost:5435
     volumes: ["lab_a_pg:/var/lib/postgresql/data"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U nuhrs"]
@@ -71,6 +75,7 @@ services:
       MYSQL_USER: nuhrs
       MYSQL_PASSWORD: nuhrs
       MYSQL_ROOT_PASSWORD: nuhrs
+    ports: ["3307:3306"]  # host 3307 (3306 is taken by a local MySQL) -> DBeaver/Workbench: localhost:3307
     volumes: ["lab_b_mysql:/var/lib/mysql"]
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-unuhrs", "-pnuhrs"]
@@ -83,6 +88,7 @@ services:
       POSTGRES_DB: swastha_db
       POSTGRES_USER: nuhrs
       POSTGRES_PASSWORD: nuhrs
+    ports: ["5436:5432"]  # host 5436 -> pgAdmin: localhost:5436
     volumes: ["swastha_pg:/var/lib/postgresql/data"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U nuhrs"]
