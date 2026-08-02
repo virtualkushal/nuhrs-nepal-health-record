@@ -9,6 +9,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from . import services
 from .models import AuditLog, Organization, PatientIdentity, RecordIndex, User
+from .validators import is_valid_nid, normalize_nid
+
 from .serializers import (
     AuditLogSerializer,
     OrganizationRegisterSerializer,
@@ -225,11 +227,17 @@ class PatientActivateView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        nid = request.data.get("nid")
+        nid = normalize_nid(request.data.get("nid"))
         dob = request.data.get("date_of_birth")
         phone = request.data.get("phone")
         password = request.data.get("password")
+        if not is_valid_nid(nid):
+            return Response(
+                {"detail": "National ID must be exactly 11 digits (Nepal NIN)."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         try:
+
             patient = PatientIdentity.objects.get(nid=nid, date_of_birth=dob, phone=phone)
         except PatientIdentity.DoesNotExist:
             return Response({"detail": "Identity verification failed"}, status=status.HTTP_400_BAD_REQUEST)
@@ -271,9 +279,15 @@ class IndexIngestView(APIView):
             return Response({"detail": "Invalid API key"}, status=status.HTTP_401_UNAUTHORIZED)
 
         p = request.data.get("patient", {})
-        nid = request.data.get("nid") or p.get("nid")
+        nid = normalize_nid(request.data.get("nid") or p.get("nid"))
+        if not is_valid_nid(nid):
+            return Response(
+                {"detail": "National ID must be exactly 11 digits (Nepal NIN)."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         patient, _ = PatientIdentity.objects.get_or_create(
             nid=nid,
+
             defaults={
                 "full_name": p.get("full_name", ""),
                 "date_of_birth": p.get("date_of_birth"),

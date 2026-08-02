@@ -13,26 +13,30 @@ from clinical.models import Condition, LocalPatient, Observation
 
 VARIANT = settings.SCHEMA_VARIANT
 
-# Shared demo patients (same NIDs everywhere)
+# Shared demo patients — the SAME 11-digit Nepal NIN is used across every
+# hospital/lab so one patient has a cross-organization history. These NINs are
+# valid by format (11 numeric digits, non-intelligible) per the National
+# Identity Card and Registration Act, 2076.
 PATIENTS = {
     "HOSP001": [
-        {"nid": "NID-1001", "name": "Ram Bahadur Thapa", "dob": "1975-04-12", "gender": "MALE", "phone": "9841000001",
+        {"nid": "12345678901", "name": "Ram Bahadur Thapa", "dob": "1975-04-12", "gender": "MALE", "phone": "9841000001",
          "conditions": [("Type 2 Diabetes Mellitus", "E11.9", "2021-06-01")],
          "observations": [("Fasting Blood Glucose", "182", "mg/dL", "2024-01-10"),
                           ("HbA1c", "8.4", "%", "2024-01-10")]},
-        {"nid": "NID-1002", "name": "Sita Kumari Sharma", "dob": "1988-09-23", "gender": "FEMALE", "phone": "9841000002",
+        {"nid": "12345678902", "name": "Sita Kumari Sharma", "dob": "1988-09-23", "gender": "FEMALE", "phone": "9841000002",
          "conditions": [("Essential Hypertension", "I10", "2022-03-15")],
          "observations": [("Blood Pressure Systolic", "148", "mmHg", "2024-02-05")]},
     ],
     "HOSP002": [
-        {"nid": "NID-1001", "name": "Ram Bahadur Thapa", "dob": "1975-04-12", "gender": "MALE", "phone": "9841000001",
+        {"nid": "12345678901", "name": "Ram Bahadur Thapa", "dob": "1975-04-12", "gender": "MALE", "phone": "9841000001",
          "conditions": [("Diabetic Nephropathy", "E11.2", "2023-11-20")],
          "observations": [("Serum Creatinine", "1.6", "mg/dL", "2024-03-01")]},
-        {"nid": "NID-1003", "name": "Hari Prasad Koirala", "dob": "1962-01-30", "gender": "MALE", "phone": "9841000003",
+        {"nid": "12345678903", "name": "Hari Prasad Koirala", "dob": "1962-01-30", "gender": "MALE", "phone": "9841000003",
          "conditions": [("Ischemic Heart Disease", "I25.9", "2020-08-10")],
          "observations": [("LDL Cholesterol", "162", "mg/dL", "2024-01-22")]},
     ],
 }
+
 
 
 class Command(BaseCommand):

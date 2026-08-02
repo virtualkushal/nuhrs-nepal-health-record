@@ -12,16 +12,19 @@ from lab.models import LabPatient, LabReport, LabResult
 
 VARIANT = settings.SCHEMA_VARIANT
 
+# Shared 11-digit Nepal NINs — identical to the hospital seed so a patient's
+# lab reports appear alongside their hospital diagnoses in the exchange view.
 REPORTS = {
     "LAB001": [
-        {"nid": "NID-1001", "name": "Ram Bahadur Thapa", "dob": "1975-04-12", "gender": "MALE", "phone": "9841000001",
+        {"nid": "12345678901", "name": "Ram Bahadur Thapa", "dob": "1975-04-12", "gender": "MALE", "phone": "9841000001",
+
          "panel": "Lipid Profile", "doctor": "Dr. Sharma", "date": "2024-02-15", "conclusion": "Dyslipidemia",
          "results": [
              {"name": "Total Cholesterol", "value": "245", "unit": "mg/dL", "range": "<200"},
              {"name": "Triglycerides", "value": "210", "unit": "mg/dL", "range": "<150"},
              {"name": "HDL", "value": "38", "unit": "mg/dL", "range": ">40"},
          ]},
-        {"nid": "NID-1002", "name": "Sita Kumari Sharma", "dob": "1988-09-23", "gender": "FEMALE", "phone": "9841000002",
+        {"nid": "12345678902", "name": "Sita Kumari Sharma", "dob": "1988-09-23", "gender": "FEMALE", "phone": "9841000002",
          "panel": "Complete Blood Count", "doctor": "Dr. Gurung", "date": "2024-02-20", "conclusion": "Mild anemia",
          "results": [
              {"name": "Hemoglobin", "value": "10.5", "unit": "g/dL", "range": "12-16"},
@@ -29,13 +32,13 @@ REPORTS = {
          ]},
     ],
     "LAB002": [
-        {"nid": "NID-1001", "name": "Ram Bahadur Thapa", "dob": "1975-04-12", "gender": "MALE", "phone": "9841000001",
+        {"nid": "12345678901", "name": "Ram Bahadur Thapa", "dob": "1975-04-12", "gender": "MALE", "phone": "9841000001",
          "panel": "Renal Function Test", "doctor": "Dr. Adhikari", "date": "2024-03-05", "conclusion": "Impaired renal function",
          "results": [
              {"name": "Urea", "value": "58", "unit": "mg/dL", "range": "15-40"},
              {"name": "Creatinine", "value": "1.7", "unit": "mg/dL", "range": "0.6-1.2"},
          ]},
-        {"nid": "NID-1003", "name": "Hari Prasad Koirala", "dob": "1962-01-30", "gender": "MALE", "phone": "9841000003",
+        {"nid": "12345678903", "name": "Hari Prasad Koirala", "dob": "1962-01-30", "gender": "MALE", "phone": "9841000003",
          "panel": "Cardiac Markers", "doctor": "Dr. Rai", "date": "2024-01-25", "conclusion": "Elevated markers",
          "results": [
              {"name": "Troponin I", "value": "0.9", "unit": "ng/mL", "range": "<0.04"},

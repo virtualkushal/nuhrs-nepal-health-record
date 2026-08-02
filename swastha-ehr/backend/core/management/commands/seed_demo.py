@@ -71,8 +71,11 @@ DEMO_PATIENTS = [
      [], RegisteredBy.SELF, "gita@demo.np", Department.NEPHROLOGY),
 ]
 
-# National IDs (10-digit) assigned in order to the demo patients.
-DEMO_NIDS = ["1234500001", "1234500002", "1234500003", "1234500004"]
+# National IDs (11-digit Nepal NIN) assigned in order to the demo patients.
+# The first three match the NUHRS hospital/lab seed NIDs so the same patient is
+# recognisable across SwasthyaEHR and the national exchange demo.
+DEMO_NIDS = ["12345678901", "12345678902", "12345678903", "12345678904"]
+
 
 
 class Command(BaseCommand):

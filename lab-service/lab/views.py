@@ -11,6 +11,8 @@ from rest_framework.response import Response
 
 from . import fhir, services
 from .models import LabPatient, LabReport, LabResult
+from .validators import NIDValidationError, validate_nid
+
 
 VARIANT = settings.SCHEMA_VARIANT
 
@@ -34,8 +36,10 @@ def _get_or_create_patient(data):
         defaults["surname"] = parts[1] if len(parts) > 1 else ""
     else:
         defaults["patient_name"] = name
-    patient, _ = LabPatient.objects.get_or_create(nid=data["nid"], defaults=defaults)
+    nid = validate_nid(data.get("nid"))
+    patient, _ = LabPatient.objects.get_or_create(nid=nid, defaults=defaults)
     return patient
+
 
 
 @api_view(["GET"])
@@ -62,9 +66,13 @@ def create_report(request):
             results: [ {name, value, unit, range}, ... ] }
     """
     data = request.data
-    patient = _get_or_create_patient(data)
+    try:
+        patient = _get_or_create_patient(data)
+    except NIDValidationError as exc:
+        return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
     panel = data.get("panel", "")
+
     doctor = data.get("doctor", "")
     date = data.get("date")
     conclusion = data.get("conclusion", "")

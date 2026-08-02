@@ -47,7 +47,10 @@ Staff = get_user_model()
 NAME_RE = re.compile(r"^[A-Za-z][A-Za-z\s.'-]{1,49}$")
 # Nepali mobile: +977-98XXXXXXXX or 98XXXXXXXX (10 digits starting 97/98).
 PHONE_RE = re.compile(r"^(\+977[-\s]?)?9[78]\d{8}$")
-NID_RE = re.compile(r"^\d{10,12}$")
+# Nepal National Identity Number (NIN): exactly 11 non-intelligible digits,
+# no checksum (National Identity Card and Registration Act, 2076).
+NID_RE = re.compile(r"^\d{11}$")
+
 
 
 def validate_person_name(value):
@@ -286,11 +289,12 @@ class PatientSerializer(serializers.ModelSerializer):
         return validate_dob(value)
 
     def validate_national_id(self, value):
-        value = (value or "").strip()
+        value = re.sub(r"[\s-]", "", (value or "").strip())
         if not NID_RE.match(value):
             raise serializers.ValidationError(
-                "National ID must be 10–12 digits."
+                "National ID must be exactly 11 digits (Nepal NIN)."
             )
+
         qs = Patient.objects.filter(national_id=value)
         if self.instance:
             qs = qs.exclude(pk=self.instance.pk)

@@ -87,7 +87,8 @@ export default function PatientForm({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className={lbl}>National ID</label>
-          <input className={field} value={form.national_id} onChange={(e) => update("national_id", e.target.value)} placeholder="10–12 digits" required />
+          <input className={field} value={form.national_id} onChange={(e) => update("national_id", e.target.value.replace(/\D/g, "").slice(0, 11))} placeholder="11 digits" inputMode="numeric" maxLength={11} pattern="\d{11}" title="National ID must be exactly 11 digits" required />
+
         </div>
         <div>
           <label className={lbl}>Phone number</label>
