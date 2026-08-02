@@ -4,11 +4,12 @@
 #   national-platform (8000)  -> federated exchange, metadata only
 #   hospital-a (8001)         -> Nepal Mediciti, schema variant A
 #   hospital-b (8002)         -> Norvic International, schema variant B
-#   lab-a (9001)              -> Central Diagnostic Lab, schema variant A
-#   lab-b (9002)              -> Pathlabs Nepal, schema variant B
+#   lab-a (9001)              -> Central Diagnostic Lab, schema variant A (PostgreSQL)
+#   lab-b (9002)              -> Pathlabs Nepal, schema variant B (MySQL)
 #
-# Each service has its OWN Postgres database (data sovereignty). The platform
-# never stores clinical data — it only indexes pointers and routes fetches.
+# Each service has its OWN database (data sovereignty) — a mix of PostgreSQL and
+# MySQL, proving the FHIR adapter is storage-engine agnostic. The platform never
+# stores clinical data — it only indexes pointers and routes fetches.
 
 services:
   # ---------------------------------------------------------------- databases
@@ -60,17 +61,34 @@ services:
       interval: 5s
       retries: 10
 
+  # Pathlabs Nepal runs on MySQL (not PostgreSQL) to demonstrate that the FHIR
+  # adapter is database-engine agnostic: the National Platform fetches identical
+  # HL7 FHIR R4 whether the lab stores its data in Postgres or MySQL.
   db-lab-b:
+    image: mysql:8
+    environment:
+      MYSQL_DATABASE: lab_b_db
+      MYSQL_USER: nuhrs
+      MYSQL_PASSWORD: nuhrs
+      MYSQL_ROOT_PASSWORD: nuhrs
+    volumes: ["lab_b_mysql:/var/lib/mysql"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-unuhrs", "-pnuhrs"]
+      interval: 5s
+      retries: 15
+
+  db-swastha:
     image: postgres:16
     environment:
-      POSTGRES_DB: lab_b_db
+      POSTGRES_DB: swastha_db
       POSTGRES_USER: nuhrs
       POSTGRES_PASSWORD: nuhrs
-    volumes: ["lab_b_pg:/var/lib/postgresql/data"]
+    volumes: ["swastha_pg:/var/lib/postgresql/data"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U nuhrs"]
       interval: 5s
       retries: 10
+
 
   # --------------------------------------------------------------- platform
   national-platform:
@@ -157,7 +175,9 @@ services:
       ORG_API_KEY: "pathlabs-demo-key-0004"
       PLATFORM_URL: "http://national-platform:8000"
       PORT: "9002"
+      DB_ENGINE: "django.db.backends.mysql"
       DB_HOST: db-lab-b
+      DB_PORT: "3306"
       DB_NAME: lab_b_db
       DB_USER: nuhrs
       DB_PASSWORD: nuhrs
@@ -166,6 +186,39 @@ services:
       db-lab-b:
         condition: service_healthy
       national-platform:
+        condition: service_started
+
+  # --------------------------------------------------------------- swastha ehr
+  # Third hospital (HOSP003): standalone SwasthyaEHR app with its own React SPA.
+  # Its backend joins the NUHRS federation via the NID-keyed FHIR adapter and
+  # pushes record metadata to the national index at startup.
+  swastha-backend:
+    build: ./swastha-ehr/backend
+    environment:
+      DJANGO_DEBUG: "True"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,swastha-backend"
+      DB_HOST: db-swastha
+      DB_NAME: swastha_db
+      DB_USER: nuhrs
+      DB_PASSWORD: nuhrs
+      PORT: "8090"
+      NUHRS_ENABLED: "True"
+      NUHRS_PLATFORM_URL: "http://national-platform:8000"
+      NUHRS_API_KEY: "swastha-demo-key-0005"
+      NUHRS_ORG_CODE: "HOSP003"
+      CORS_ALLOWED_ORIGINS: "http://localhost:3090,http://127.0.0.1:3090"
+    ports: ["8090:8090"]
+    depends_on:
+      db-swastha:
+        condition: service_healthy
+      national-platform:
+        condition: service_started
+
+  swastha-frontend:
+    build: ./swastha-ehr/frontend
+    ports: ["3090:80"]
+    depends_on:
+      swastha-backend:
         condition: service_started
 
   # --------------------------------------------------------------- frontend
@@ -181,9 +234,13 @@ services:
         condition: service_started
 
 
+
 volumes:
   national_pg:
   hosp_a_pg:
   hosp_b_pg:
   lab_a_pg:
-  lab_b_pg:
+  lab_b_mysql:
+  swastha_pg:
+
+

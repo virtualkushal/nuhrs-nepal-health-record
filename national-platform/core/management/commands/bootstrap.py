@@ -34,6 +34,17 @@ SEED_ORGS = [
         "contact_email": "admin@norvic.example", "contact_phone": "01-5555002",
     },
     {
+        "organization_name": "SwasthyaEHR Hospital",
+        "organization_type": Organization.OrgType.HOSPITAL,
+        "organization_code": "HOSP003",
+        "license_number": "NMC-HOSP-003",
+        "api_base_url": "http://swastha-backend:8090/fhir",
+        "api_key": "swastha-demo-key-0005",
+        "district": "Kathmandu", "province": "Bagmati",
+        "contact_email": "admin@swastha.example", "contact_phone": "01-5555005",
+    },
+
+    {
         "organization_name": "Central Diagnostic Laboratory",
         "organization_type": Organization.OrgType.LAB,
         "organization_code": "LAB001",
