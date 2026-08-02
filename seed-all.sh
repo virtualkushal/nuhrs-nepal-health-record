@@ -19,6 +19,9 @@ echo "Done. Demo credentials:"
 echo "  Super Admin      superadmin / admin123"
 echo "  Org Admins       HOSP001-ADM-0001 / org123  (also HOSP002, LAB001, LAB002)"
 echo ""
-echo "Shared demo patients: NID-1001 (Ram Bahadur Thapa), NID-1002, NID-1003"
-echo "Log in as an org admin, create a doctor, then search NID-1001 to see the"
+echo "Shared demo patients (11-digit NIN): 12345678901 (Ram Bahadur Thapa),"
+echo "  12345678902 (Sita Kumari Sharma), 12345678903 (Hari Prasad Koirala)"
+echo "Log in as an org admin, create a doctor, then search 12345678901 to see the"
 echo "unified cross-organization record."
+
+
