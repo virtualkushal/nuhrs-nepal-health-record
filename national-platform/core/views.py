@@ -296,15 +296,23 @@ class IndexIngestView(APIView):
                 "email": p.get("email", ""),
             },
         )
-        record = RecordIndex.objects.create(
-            patient=patient,
+        # Upsert on the natural key of a record so re-indexing the same source
+        # row (e.g. re-running a seed) updates in place instead of creating a
+        # duplicate index entry — otherwise the same reading appears many times
+        # and clutters the trend chart / timeline.
+        record, created = RecordIndex.objects.update_or_create(
             organization=org,
             resource_type=request.data.get("resource_type"),
             local_record_id=request.data.get("local_record_id"),
-            service_date=request.data.get("service_date"),
-            summary=request.data.get("summary", ""),
+            defaults={
+                "patient": patient,
+                "service_date": request.data.get("service_date"),
+                "summary": request.data.get("summary", ""),
+            },
         )
-        return Response({"detail": "indexed", "record_index_id": record.id}, status=status.HTTP_201_CREATED)
+        code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+        return Response({"detail": "indexed", "record_index_id": record.id}, status=code)
+
 
 
 # ---------------------------------------------------------------------------
