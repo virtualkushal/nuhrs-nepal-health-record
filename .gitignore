@@ -3,6 +3,10 @@
 # Local design/planning docs (kept local, NOT pushed to GitHub per project decision)
 /docs/
 
+# Stitch design reference exports (throwaway, kept local only)
+stitch-*.html
+
+
 # Python / Django
 __pycache__/
 *.py[cod]
