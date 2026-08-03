@@ -158,5 +158,8 @@ NUHRS_PLATFORM_URL = os.getenv("NUHRS_PLATFORM_URL", "http://localhost:8000")
 NUHRS_API_KEY = os.getenv("NUHRS_API_KEY", "swastha-demo-key-0005")
 NUHRS_ORG_CODE = os.getenv("NUHRS_ORG_CODE", "HOSP003")
 NUHRS_ENABLED = env_bool("NUHRS_ENABLED", True)
+# Display name stamped on FHIR resources so records fetched by the National
+# Platform are tagged with their source facility (mirrors hospital/lab services).
+ORG_NAME = os.getenv("ORG_NAME", "SwasthyaEHR Hospital")
 
 

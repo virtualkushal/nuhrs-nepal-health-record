@@ -6,6 +6,8 @@ resources (with contained result Observations).
 """
 from django.conf import settings
 
+from . import terminology
+
 NID_SYSTEM = settings.NID_SYSTEM
 VARIANT = settings.SCHEMA_VARIANT
 
@@ -44,26 +46,41 @@ def to_fhir_patient(p):
     }
 
 
-def _result_observation(res):
+def _to_number(value):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _result_observation(res, index):
     f = result_fields(res)
-    return {
+    value = _to_number(f["value"])
+    loinc = terminology.observable_coding(f["name"])
+    obs = {
         "resourceType": "Observation",
+        "id": f"obs-{index}",
         "status": "final",
-        "code": {"text": f["name"]},
-        "valueQuantity": {"value": f["value"], "unit": f["unit"]},
+        "code": {"coding": [loinc] if loinc else [], "text": f["name"]},
         "referenceRange": [{"text": f["range"]}] if f["range"] else [],
     }
+    if value is not None:
+        obs["valueQuantity"] = {"value": value, "unit": f["unit"]}
+    else:
+        obs["valueString"] = str(f["value"])
+    return obs
 
 
 def to_fhir_diagnostic_report(r):
     f = report_fields(r)
-    contained = [_result_observation(res) for res in r.results.all()]
+    contained = [_result_observation(res, i) for i, res in enumerate(r.results.all())]
+    panel = terminology.panel_coding(f["panel"])
     return {
         "resourceType": "DiagnosticReport",
         "id": str(r.id),
         "status": "final",
         "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v2-0074", "code": "LAB"}]}],
-        "code": {"text": f["panel"]},
+        "code": {"coding": [panel] if panel else [], "text": f["panel"]},
         "subject": _subject(r.patient.nid),
         "effectiveDateTime": f["date"].isoformat() if f["date"] else None,
         "conclusion": f["conclusion"],

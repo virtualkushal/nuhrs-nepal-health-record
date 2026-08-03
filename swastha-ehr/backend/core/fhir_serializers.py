@@ -9,10 +9,14 @@ Resources: Patient, Encounter, Observation (lab), Condition (diagnosis),
 MedicationRequest (prescription), and a Bundle ($everything).
 """
 
+from django.conf import settings
+
+from . import terminology
 from .constants import Department, LabResultType
 
-PATIENT_ID_SYSTEM = "http://mohp.gov.np/nid"
+PATIENT_ID_SYSTEM = "https://nid.gov.np"
 HOSPITAL_ID_SYSTEM = "https://hospital.swasthya.org.np/ids"
+SOURCE = settings.ORG_NAME
 
 
 def patient_to_fhir(patient):
@@ -50,6 +54,7 @@ def patient_to_fhir(patient):
         resource["birthDate"] = patient.date_of_birth.isoformat()
     if patient.address:
         resource["address"] = [{"text": patient.address}]
+    resource["_source"] = SOURCE
     return resource
 
 
@@ -85,8 +90,14 @@ def encounter_to_fhir(encounter):
             ],
             "text": dept_display,
         },
-        "subject": {"reference": f"Patient/{encounter.patient_id}"},
+        "subject": {
+            "identifier": {
+                "system": PATIENT_ID_SYSTEM,
+                "value": encounter.patient.national_id,
+            }
+        },
         "period": {"start": encounter.created_at.isoformat()},
+        "_source": SOURCE,
     }
 
 
@@ -114,7 +125,12 @@ def observation_to_fhir(result):
             "coding": [],
             "text": result.test_name,
         },
-        "subject": {"reference": f"Patient/{result.patient_id}"},
+        "subject": {
+            "identifier": {
+                "system": PATIENT_ID_SYSTEM,
+                "value": result.patient.national_id,
+            }
+        },
         "effectiveDateTime": result.created_at.isoformat(),
     }
     if result.loinc_code:
@@ -125,6 +141,12 @@ def observation_to_fhir(result):
                 "display": result.test_name,
             }
         )
+    else:
+        # No catalog LOINC: resolve the test name against the federation's
+        # canonical terminology so synonyms emit the same code everywhere.
+        canonical = terminology.observable_coding(result.test_name)
+        if canonical:
+            resource["code"]["coding"].append(canonical)
 
     if result.result_type == LabResultType.QUANTITATIVE and result.result_value is not None:
         resource["valueQuantity"] = {
@@ -165,6 +187,7 @@ def observation_to_fhir(result):
             ]
     else:
         resource["valueString"] = result.report_text
+    resource["_source"] = SOURCE
     return resource
 
 
@@ -194,11 +217,17 @@ def condition_to_fhir(diagnosis):
             ],
             "text": diagnosis.disease_name,
         },
-        "subject": {"reference": f"Patient/{diagnosis.patient_id}"},
+        "subject": {
+            "identifier": {
+                "system": PATIENT_ID_SYSTEM,
+                "value": diagnosis.patient.national_id,
+            }
+        },
         "recordedDate": diagnosis.created_at.isoformat(),
     }
     if diagnosis.onset_date:
         resource["onsetDateTime"] = diagnosis.onset_date.isoformat()
+    resource["_source"] = SOURCE
     return resource
 
 
@@ -211,9 +240,15 @@ def medicationrequest_to_fhir(prescription):
         "status": status,
         "intent": "order",
         "medicationCodeableConcept": {"text": prescription.medication_name},
-        "subject": {"reference": f"Patient/{prescription.patient_id}"},
+        "subject": {
+            "identifier": {
+                "system": PATIENT_ID_SYSTEM,
+                "value": prescription.patient.national_id,
+            }
+        },
         "authoredOn": prescription.created_at.isoformat(),
         "dosageInstruction": [{"text": prescription.dosage_instruction}],
+        "_source": SOURCE,
     }
 
 

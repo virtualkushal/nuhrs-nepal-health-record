@@ -7,12 +7,23 @@ normalized into identical FHIR output.
 """
 from django.conf import settings
 
+from . import terminology
+
 NID_SYSTEM = settings.NID_SYSTEM
 VARIANT = settings.SCHEMA_VARIANT
+ACT_CODE_SYSTEM = "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+CLINICAL_SYSTEM = "http://terminology.hl7.org/CodeSystem/condition-clinical"
 
 
 def _subject(nid):
     return {"identifier": {"system": NID_SYSTEM, "value": nid}}
+
+
+def _to_number(value):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -60,11 +71,16 @@ def to_fhir_patient(p):
 
 def to_fhir_encounter(e):
     f = encounter_fields(e)
+    category = f["category"] or "AMB"
     return {
         "resourceType": "Encounter",
         "id": str(e.id),
         "status": "finished",
-        "class": {"code": f["category"] or "AMB"},
+        "class": {
+            "system": ACT_CODE_SYSTEM,
+            "code": category,
+            "display": "ambulatory" if category == "AMB" else category,
+        },
         "subject": _subject(e.patient.nid),
         "period": {"start": f["date"].isoformat() if f["date"] else None},
         "reasonCode": [{"text": f["reason"]}] if f["reason"] else [],
@@ -83,7 +99,12 @@ def to_fhir_condition(c):
             "coding": [{"system": "http://hl7.org/fhir/sid/icd-10", "code": f["code"], "display": f["text"]}],
             "text": f["text"],
         },
-        "clinicalStatus": {"coding": [{"code": (f["status"] or "active").lower()}]},
+        "clinicalStatus": {
+            "coding": [{
+                "system": CLINICAL_SYSTEM,
+                "code": (f["status"] or "active").lower(),
+            }]
+        },
         "onsetDateTime": f["onset"].isoformat() if f["onset"] else None,
         "_source": settings.ORG_NAME,
     }
@@ -91,16 +112,22 @@ def to_fhir_condition(c):
 
 def to_fhir_observation(o):
     f = observation_fields(o)
-    return {
+    value = _to_number(f["value"])
+    loinc = terminology.observable_coding(f["name"])
+    observation = {
         "resourceType": "Observation",
         "id": str(o.id),
         "status": "final",
         "subject": _subject(o.patient.nid),
-        "code": {"text": f["name"]},
-        "valueQuantity": {"value": f["value"], "unit": f["unit"]},
+        "code": {"coding": [loinc] if loinc else [], "text": f["name"]},
         "effectiveDateTime": f["date"].isoformat() if f["date"] else None,
         "_source": settings.ORG_NAME,
     }
+    if value is not None:
+        observation["valueQuantity"] = {"value": value, "unit": f["unit"]}
+    else:
+        observation["valueString"] = str(f["value"])
+    return observation
 
 
 def make_bundle(resources):
