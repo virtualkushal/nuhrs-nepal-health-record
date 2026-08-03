@@ -274,19 +274,48 @@ class PatientActivateView(APIView):
                 {"detail": "National ID must be exactly 11 digits (Nepal NIN)."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        if not password or len(password) < 6:
+            return Response(
+                {"detail": "Choose a password of at least 6 characters."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        # Identity must exist in the national Master Patient Index. It is created
+        # when any hospital/lab first indexes a record for this NID (or by the
+        # demo bootstrap). If it's missing, the citizen has no records anywhere
+        # yet — guide them accordingly instead of a generic failure.
         try:
-
-            patient = PatientIdentity.objects.get(nid=nid, date_of_birth=dob, phone=phone)
+            patient = PatientIdentity.objects.get(nid=nid)
         except PatientIdentity.DoesNotExist:
-            return Response({"detail": "Identity verification failed"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "No health record found for this National ID. Visit a "
+                           "registered hospital or lab first, then try again."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        # Verify date of birth (required). Phone is verified only if the citizen
+        # supplied one AND we have one on file — a small typo in an optional field
+        # shouldn't block activation of the correct person.
+        if not dob or str(patient.date_of_birth) != str(dob):
+            return Response(
+                {"detail": "Identity verification failed: date of birth does not match our records."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if phone and patient.phone and phone.strip() != patient.phone:
+            return Response(
+                {"detail": "Identity verification failed: phone number does not match our records."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         if User.objects.filter(username=nid).exists():
-            return Response({"detail": "Account already activated"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "This account is already activated — please sign in instead."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         User.objects.create_user(
             username=nid, password=password, full_name=patient.full_name,
             email=patient.email, phone=patient.phone,
             role=User.Role.PATIENT, patient_identity=patient,
         )
         return Response({"detail": "Account activated"}, status=status.HTTP_201_CREATED)
+
 
 
 class PatientMyRecordsView(APIView):

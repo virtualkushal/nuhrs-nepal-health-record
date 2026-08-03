@@ -166,23 +166,22 @@ class Command(BaseCommand):
                 User.objects.filter(username=doctor_username, login_name="").update(login_name="doctor")
 
 
-        # Pre-activated demo patient on the national platform
+        # Pre-activated demo patient accounts on the national platform
         # (username = NID, password patient123) so the portal login works
-        # immediately without the activation form.
-        ram = PatientIdentity.objects.get(nid="12345678901")
-        if not User.objects.filter(username="12345678901").exists():
-            User.objects.create_user(
-                username="12345678901",
-                password="patient123",
-                full_name=ram.full_name,
-                email=ram.email,
-                phone=ram.phone,
-                role=User.Role.PATIENT,
-                patient_identity=ram,
-                must_change_password=False,
-            )
-            self.stdout.write("  patient: 12345678901 / patient123")
+        # immediately for ALL demo patients without the activation form.
+        for p in demo_patients:
+            identity = PatientIdentity.objects.get(nid=p["nid"])
+            if not User.objects.filter(username=p["nid"]).exists():
+                User.objects.create_user(
+                    username=p["nid"],
+                    password="patient123",
+                    full_name=identity.full_name,
+                    email=identity.email,
+                    phone=identity.phone,
+                    role=User.Role.PATIENT,
+                    patient_identity=identity,
+                    must_change_password=False,
+                )
+                self.stdout.write(f"  patient: {p['nid']} / patient123")
 
         self.stdout.write(self.style.SUCCESS("Bootstrap complete."))
-
-
