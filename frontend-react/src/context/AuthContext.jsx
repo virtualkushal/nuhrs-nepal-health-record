@@ -12,12 +12,17 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => currentUser());
 
-  const login = useCallback(async (username, password) => {
-    const data = await api.login(username, password);
+  // Accepts a credentials object, e.g.
+  //   { scope: "STAFF", org_code, login_name, password }
+  //   { scope: "PATIENT", username, password }
+  //   { scope: "MINISTRY", username, password }
+  const login = useCallback(async (credentials) => {
+    const data = await api.login(credentials);
     setSession(data);
     setUser(data.user);
     return data.user;
   }, []);
+
 
   const logout = useCallback(() => {
     clearSession();

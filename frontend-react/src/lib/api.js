@@ -52,8 +52,13 @@ async function request(method, path, body, auth = true) {
 
 export const api = {
   // auth
-  login: (username, password) =>
-    request("POST", "/auth/login/", { username, password }, false),
+  // Accepts a credentials object. Supported shapes:
+  //   Staff:    { scope: "STAFF",    org_code, login_name, password }
+  //   Patient:  { scope: "PATIENT",  username, password }   (username = NID)
+  //   Ministry: { scope: "MINISTRY", username, password }
+  // A bare { username, password } (no scope) still works (legacy path).
+  login: (credentials) => request("POST", "/auth/login/", credentials, false),
+
   changePassword: (new_password) =>
     request("POST", "/auth/change-password/", { new_password }),
   // organizations

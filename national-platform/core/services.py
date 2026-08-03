@@ -10,12 +10,59 @@ import string
 
 import requests
 
-from .models import AuditLog, Organization, RecordIndex
+from .models import AuditLog, Organization, RecordIndex, User
+
+
+# ---------------------------------------------------------------------------
+# Login resolution
+# ---------------------------------------------------------------------------
+def resolve_login_user(*, scope, org_code=None, login_name=None, username=None):
+    """
+    Resolve the internal User for a login attempt, given the login *scope*.
+
+    The frontend login card offers three scopes (a toggle):
+      - "STAFF"    -> org_code + login_name  (role auto-detected from the user)
+      - "PATIENT"  -> username is the 11-digit NID
+      - "MINISTRY" -> username is the super-admin username
+
+    Returns the matching User instance, or None if no unique match is found.
+    Password verification is done by the caller.
+    """
+    scope = (scope or "STAFF").upper()
+
+    if scope == "MINISTRY":
+        return (
+            User.objects.filter(username=(username or "").strip(),
+                                 role=User.Role.SUPER_ADMIN).first()
+        )
+
+    if scope == "PATIENT":
+        return (
+            User.objects.filter(username=(username or "").strip(),
+                                 role=User.Role.PATIENT).first()
+        )
+
+    # STAFF: resolve within an organization by the human-friendly login_name.
+    org_code = (org_code or "").strip()
+    login_name = (login_name or "").strip()
+    if not org_code or not login_name:
+        return None
+    try:
+        org = Organization.objects.get(organization_code__iexact=org_code)
+    except Organization.DoesNotExist:
+        return None
+    # Match on login_name first (new scheme); fall back to full username so
+    # legacy-style entries (e.g. HOSP001-DOC-0001) still work during transition.
+    return (
+        User.objects.filter(organization=org, login_name__iexact=login_name).first()
+        or User.objects.filter(organization=org, username__iexact=login_name).first()
+    )
 
 
 # ---------------------------------------------------------------------------
 # Organization approval credential generation
 # ---------------------------------------------------------------------------
+
 def generate_org_code(org_type: str) -> str:
     prefix = "HOSP" if org_type == Organization.OrgType.HOSPITAL else "LAB"
     count = Organization.objects.filter(

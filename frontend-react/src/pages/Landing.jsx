@@ -11,7 +11,15 @@ export default function Landing() {
   const { login } = useAuth();
   const { show } = useToast();
   const navigate = useNavigate();
+
+  // Login scope toggle: STAFF | PATIENT | MINISTRY
+  const [scope, setScope] = useState("STAFF");
+  // STAFF fields
+  const [orgCode, setOrgCode] = useState("");
+  const [loginName, setLoginName] = useState("");
+  // PATIENT / MINISTRY fields
   const [username, setUsername] = useState("");
+  // shared
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -19,7 +27,15 @@ export default function Landing() {
     e?.preventDefault();
     setBusy(true);
     try {
-      await login(username.trim(), password);
+      let credentials;
+      if (scope === "STAFF") {
+        credentials = { scope: "STAFF", org_code: orgCode.trim(), login_name: loginName.trim(), password };
+      } else if (scope === "PATIENT") {
+        credentials = { scope: "PATIENT", username: username.trim(), password };
+      } else {
+        credentials = { scope: "MINISTRY", username: username.trim(), password };
+      }
+      await login(credentials);
       show("Welcome back", "ok");
       navigate("/app");
     } catch (err) {
@@ -28,6 +44,7 @@ export default function Landing() {
       setBusy(false);
     }
   }
+
 
   return (
     <div className="font-body-md text-on-surface bg-background">
@@ -101,22 +118,96 @@ export default function Landing() {
                   </p>
                 </div>
                 <form className="space-y-6" onSubmit={doLogin}>
-                  <div>
-                    <label className="label">Username / NID Number</label>
-                    <div className="relative">
-                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">
-                        person
-                      </span>
-                      <input
-                        className="field pl-10"
-                        placeholder="e.g. superadmin or 12345678901"
-
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                      />
-                    </div>
+                  {/* Scope toggle: Staff / Patient / Ministry */}
+                  <div className="grid grid-cols-3 gap-1 p-1 bg-surface-container-low rounded-xl">
+                    {[
+                      { key: "STAFF", label: "Staff" },
+                      { key: "PATIENT", label: "Patient" },
+                      { key: "MINISTRY", label: "Ministry" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        onClick={() => setScope(opt.key)}
+                        className={`py-2 rounded-lg font-label-md text-label-md transition-colors ${
+                          scope === opt.key
+                            ? "bg-primary text-on-primary shadow"
+                            : "text-on-surface-variant hover:bg-surface-container-high"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
                   </div>
+
+                  {scope === "STAFF" && (
+                    <>
+                      <div>
+                        <label className="label">Company Code</label>
+                        <div className="relative">
+                          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">
+                            apartment
+                          </span>
+                          <input
+                            className="field pl-10"
+                            placeholder="e.g. HOSP001"
+                            value={orgCode}
+                            onChange={(e) => setOrgCode(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="label">Username</label>
+                        <div className="relative">
+                          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">
+                            person
+                          </span>
+                          <input
+                            className="field pl-10"
+                            placeholder="e.g. doctor"
+                            value={loginName}
+                            onChange={(e) => setLoginName(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {scope === "PATIENT" && (
+                    <div>
+                      <label className="label">National ID (NID)</label>
+                      <div className="relative">
+                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">
+                          badge
+                        </span>
+                        <input
+                          className="field pl-10"
+                          placeholder="e.g. 12345678901"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {scope === "MINISTRY" && (
+                    <div>
+                      <label className="label">Username</label>
+                      <div className="relative">
+                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">
+                          person
+                        </span>
+                        <input
+                          className="field pl-10"
+                          placeholder="e.g. superadmin"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
                   <div>
+
                     <label className="label">Password</label>
                     <div className="relative">
                       <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">

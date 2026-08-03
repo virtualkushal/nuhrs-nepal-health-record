@@ -93,6 +93,7 @@ class Command(BaseCommand):
             if not User.objects.filter(username=admin_username).exists():
                 User.objects.create_user(
                     username=admin_username,
+                    login_name="admin",
                     password="org123",
                     full_name=f"{org.organization_name} Admin",
                     email=org.contact_email,
@@ -100,7 +101,13 @@ class Command(BaseCommand):
                     organization=org,
                     must_change_password=False,
                 )
-                self.stdout.write(f"  admin: {admin_username} / org123")
+                self.stdout.write(
+                    f"  admin: org {org.organization_code}, login 'admin' / org123"
+                )
+            else:
+                # Backfill login_name for pre-existing admin accounts.
+                User.objects.filter(username=admin_username, login_name="").update(login_name="admin")
+
 
         # -- demo users for a ready-to-use demo ---------------------------------
         # Canonical demographics per NID — MUST match hospital/lab/swastha seeds.
@@ -135,13 +142,15 @@ class Command(BaseCommand):
             if created:
                 self.stdout.write(self.style.SUCCESS(f"  identity: {p['nid']} {p['full_name']}"))
 
-        # Demo doctor per organization (ready login, no temp password dance)
+        # Demo doctor per organization (ready login, no temp password dance).
+        # Staff log in with STAFF scope: organization_code + login_name "doctor".
         for data in SEED_ORGS:
             org = Organization.objects.get(organization_code=data["organization_code"])
             doctor_username = f"{org.organization_code}-DOC-0001"
             if not User.objects.filter(username=doctor_username).exists():
                 User.objects.create_user(
                     username=doctor_username,
+                    login_name="doctor",
                     password="doctor123",
                     full_name=f"{org.organization_name} Demo Doctor",
                     email=org.contact_email,
@@ -149,7 +158,13 @@ class Command(BaseCommand):
                     organization=org,
                     must_change_password=False,
                 )
-                self.stdout.write(f"  doctor: {doctor_username} / doctor123")
+                self.stdout.write(
+                    f"  doctor: org {org.organization_code}, login 'doctor' / doctor123"
+                )
+            else:
+                # Backfill login_name for pre-existing doctor accounts.
+                User.objects.filter(username=doctor_username, login_name="").update(login_name="doctor")
+
 
         # Pre-activated demo patient on the national platform
         # (username = NID, password patient123) so the portal login works

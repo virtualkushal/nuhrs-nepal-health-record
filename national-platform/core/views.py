@@ -39,17 +39,36 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        from django.contrib.auth import authenticate
+        password = request.data.get("password") or ""
 
-        username = request.data.get("username")
-        password = request.data.get("password")
-        user = authenticate(username=username, password=password)
-        if not user:
-            return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        # New scope-based login (Staff / Patient / Ministry).
+        #   STAFF   : {scope, org_code, login_name, password}  role auto-detected
+        #   PATIENT : {scope, username(=NID), password}
+        #   MINISTRY: {scope, username, password}
+        # Falls back to the legacy {username, password} form when no scope given.
+        scope = request.data.get("scope")
+        if scope:
+            user = services.resolve_login_user(
+                scope=scope,
+                org_code=request.data.get("org_code"),
+                login_name=request.data.get("login_name"),
+                username=request.data.get("username"),
+            )
+            if not user or not user.is_active or not user.check_password(password):
+                return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            from django.contrib.auth import authenticate
+
+            username = request.data.get("username")
+            user = authenticate(username=username, password=password)
+            if not user:
+                return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
         user.last_login = timezone.now()
         user.save(update_fields=["last_login"])
         tokens = issue_tokens(user)
         return Response({**tokens, "user": UserProfileSerializer(user).data})
+
 
 
 class ChangePasswordView(APIView):
@@ -115,6 +134,7 @@ class OrganizationApproveView(APIView):
         temp_password = services.generate_temp_password()
         User.objects.create_user(
             username=admin_username,
+            login_name="admin",
             password=temp_password,
             full_name=f"{org.organization_name} Admin",
             email=org.contact_email,
@@ -123,13 +143,16 @@ class OrganizationApproveView(APIView):
             organization=org,
             must_change_password=True,
         )
-        # credentials shown once
+        # credentials shown once. The admin signs in with the STAFF scope using
+        # this organization_code + login_name "admin".
         return Response({
             "organization_code": org.organization_code,
             "admin_username": admin_username,
+            "login_name": "admin",
             "temporary_password": temp_password,
             "api_key": org.api_key,
         })
+
 
 
 class OrganizationRejectView(APIView):
@@ -160,12 +183,26 @@ class StaffView(APIView):
             return Response({"detail": "Only org admin"}, status=status.HTTP_403_FORBIDDEN)
         org = request.user.organization
         role = request.data.get("role", User.Role.DOCTOR)
-        count = User.objects.filter(organization=org, role=role).count() + 1
         prefix = "DOC" if role == User.Role.DOCTOR else "TECH"
-        username = f"{org.organization_code}-{prefix}-{count:04d}"
+
+        # login_name is the short handle the staff member types at login. The
+        # admin may supply one; otherwise we generate a sequential default like
+        # "doc0001". It must be unique within this organization.
+        count = User.objects.filter(organization=org, role=role).count() + 1
+        login_name = (request.data.get("login_name") or f"{prefix.lower()}{count:04d}").strip()
+        if User.objects.filter(organization=org, login_name__iexact=login_name).exists():
+            return Response(
+                {"detail": f"Login name '{login_name}' already exists in this organization."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # username stays globally unique (Django auth requirement) but is never
+        # typed by the user; compose it from org code + login_name.
+        username = f"{org.organization_code}-{login_name}"
         temp_password = services.generate_temp_password()
         user = User.objects.create_user(
             username=username,
+            login_name=login_name,
             password=temp_password,
             full_name=request.data.get("full_name", ""),
             email=request.data.get("email", ""),
@@ -178,6 +215,7 @@ class StaffView(APIView):
             {**StaffSerializer(user).data, "temporary_password": temp_password},
             status=status.HTTP_201_CREATED,
         )
+
 
 
 # ---------------------------------------------------------------------------

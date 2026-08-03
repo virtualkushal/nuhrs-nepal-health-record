@@ -59,8 +59,9 @@ class AuditLogSerializer(serializers.ModelSerializer):
 class StaffSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "full_name", "email", "phone", "role", "is_active"]
-        read_only_fields = ["id", "username"]
+        fields = ["id", "username", "login_name", "full_name", "email", "phone", "role", "is_active"]
+        read_only_fields = ["id", "username", "login_name"]
+
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -69,6 +70,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "id", "username", "full_name", "email", "role",
+            "id", "username", "login_name", "full_name", "email", "role",
             "organization", "organization_name", "must_change_password",
         ]
+
+
