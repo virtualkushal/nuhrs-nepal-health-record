@@ -9,7 +9,8 @@ approval step. In a real deployment approval is manual (and demonstrated in UI).
 """
 from django.core.management.base import BaseCommand
 
-from core.models import Organization, User
+from core.models import Organization, PatientIdentity, User
+
 
 # Fixed demo credentials (shared with each org service via docker-compose env)
 SEED_ORGS = [
@@ -33,6 +34,17 @@ SEED_ORGS = [
         "district": "Kathmandu", "province": "Bagmati",
         "contact_email": "admin@norvic.example", "contact_phone": "01-5555002",
     },
+    {
+        "organization_name": "SwasthyaEHR Hospital",
+        "organization_type": Organization.OrgType.HOSPITAL,
+        "organization_code": "HOSP003",
+        "license_number": "NMC-HOSP-003",
+        "api_base_url": "http://swastha-backend:8090/fhir",
+        "api_key": "swastha-demo-key-0005",
+        "district": "Kathmandu", "province": "Bagmati",
+        "contact_email": "admin@swastha.example", "contact_phone": "01-5555005",
+    },
+
     {
         "organization_name": "Central Diagnostic Laboratory",
         "organization_type": Organization.OrgType.LAB,
@@ -90,4 +102,72 @@ class Command(BaseCommand):
                 )
                 self.stdout.write(f"  admin: {admin_username} / org123")
 
+        # -- demo users for a ready-to-use demo ---------------------------------
+        # Canonical demographics per NID — MUST match hospital/lab/swastha seeds.
+        demo_patients = [
+            {
+                "nid": "12345678901", "full_name": "Ram Bahadur Thapa",
+                "date_of_birth": "1970-05-12", "gender": "MALE", "phone": "9841000001",
+                "email": "ram@demo.np",
+            },
+            {
+                "nid": "12345678902", "full_name": "Sita Kumari Sharma",
+                "date_of_birth": "1988-11-23", "gender": "FEMALE", "phone": "9803000002",
+                "email": "sita@demo.np",
+            },
+            {
+                "nid": "12345678903", "full_name": "Hari Prasad Koirala",
+                "date_of_birth": "1979-02-03", "gender": "MALE", "phone": "9841000003",
+                "email": "hari@demo.np",
+            },
+        ]
+        for p in demo_patients:
+            identity, created = PatientIdentity.objects.get_or_create(
+                nid=p["nid"],
+                defaults={
+                    "full_name": p["full_name"],
+                    "date_of_birth": p["date_of_birth"],
+                    "gender": p["gender"],
+                    "phone": p["phone"],
+                    "email": p["email"],
+                },
+            )
+            if created:
+                self.stdout.write(self.style.SUCCESS(f"  identity: {p['nid']} {p['full_name']}"))
+
+        # Demo doctor per organization (ready login, no temp password dance)
+        for data in SEED_ORGS:
+            org = Organization.objects.get(organization_code=data["organization_code"])
+            doctor_username = f"{org.organization_code}-DOC-0001"
+            if not User.objects.filter(username=doctor_username).exists():
+                User.objects.create_user(
+                    username=doctor_username,
+                    password="doctor123",
+                    full_name=f"{org.organization_name} Demo Doctor",
+                    email=org.contact_email,
+                    role=User.Role.DOCTOR,
+                    organization=org,
+                    must_change_password=False,
+                )
+                self.stdout.write(f"  doctor: {doctor_username} / doctor123")
+
+        # Pre-activated demo patient on the national platform
+        # (username = NID, password patient123) so the portal login works
+        # immediately without the activation form.
+        ram = PatientIdentity.objects.get(nid="12345678901")
+        if not User.objects.filter(username="12345678901").exists():
+            User.objects.create_user(
+                username="12345678901",
+                password="patient123",
+                full_name=ram.full_name,
+                email=ram.email,
+                phone=ram.phone,
+                role=User.Role.PATIENT,
+                patient_identity=ram,
+                must_change_password=False,
+            )
+            self.stdout.write("  patient: 12345678901 / patient123")
+
         self.stdout.write(self.style.SUCCESS("Bootstrap complete."))
+
+

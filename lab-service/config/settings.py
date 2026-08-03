@@ -59,9 +59,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+# Engine is env-driven so an instance can run on PostgreSQL (default) or MySQL
+# (DB_ENGINE=django.db.backends.mysql) without any code change — the FHIR
+# adapter layer is identical regardless of the underlying database.
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.postgresql"),
         "NAME": os.getenv("DB_NAME", "lab_a_db"),
         "USER": os.getenv("DB_USER", "nuhrs"),
         "PASSWORD": os.getenv("DB_PASSWORD", "nuhrs"),

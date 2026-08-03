@@ -9,6 +9,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from . import services
 from .models import AuditLog, Organization, PatientIdentity, RecordIndex, User
+from .validators import is_valid_nid, normalize_nid
+
 from .serializers import (
     AuditLogSerializer,
     OrganizationRegisterSerializer,
@@ -225,11 +227,17 @@ class PatientActivateView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        nid = request.data.get("nid")
+        nid = normalize_nid(request.data.get("nid"))
         dob = request.data.get("date_of_birth")
         phone = request.data.get("phone")
         password = request.data.get("password")
+        if not is_valid_nid(nid):
+            return Response(
+                {"detail": "National ID must be exactly 11 digits (Nepal NIN)."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         try:
+
             patient = PatientIdentity.objects.get(nid=nid, date_of_birth=dob, phone=phone)
         except PatientIdentity.DoesNotExist:
             return Response({"detail": "Identity verification failed"}, status=status.HTTP_400_BAD_REQUEST)
@@ -271,9 +279,15 @@ class IndexIngestView(APIView):
             return Response({"detail": "Invalid API key"}, status=status.HTTP_401_UNAUTHORIZED)
 
         p = request.data.get("patient", {})
-        nid = request.data.get("nid") or p.get("nid")
+        nid = normalize_nid(request.data.get("nid") or p.get("nid"))
+        if not is_valid_nid(nid):
+            return Response(
+                {"detail": "National ID must be exactly 11 digits (Nepal NIN)."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         patient, _ = PatientIdentity.objects.get_or_create(
             nid=nid,
+
             defaults={
                 "full_name": p.get("full_name", ""),
                 "date_of_birth": p.get("date_of_birth"),
@@ -282,15 +296,23 @@ class IndexIngestView(APIView):
                 "email": p.get("email", ""),
             },
         )
-        record = RecordIndex.objects.create(
-            patient=patient,
+        # Upsert on the natural key of a record so re-indexing the same source
+        # row (e.g. re-running a seed) updates in place instead of creating a
+        # duplicate index entry — otherwise the same reading appears many times
+        # and clutters the trend chart / timeline.
+        record, created = RecordIndex.objects.update_or_create(
             organization=org,
             resource_type=request.data.get("resource_type"),
             local_record_id=request.data.get("local_record_id"),
-            service_date=request.data.get("service_date"),
-            summary=request.data.get("summary", ""),
+            defaults={
+                "patient": patient,
+                "service_date": request.data.get("service_date"),
+                "summary": request.data.get("summary", ""),
+            },
         )
-        return Response({"detail": "indexed", "record_index_id": record.id}, status=status.HTTP_201_CREATED)
+        code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+        return Response({"detail": "indexed", "record_index_id": record.id}, status=code)
+
 
 
 # ---------------------------------------------------------------------------

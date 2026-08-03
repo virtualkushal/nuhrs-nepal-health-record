@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Global base: dark navy app shell + fonts ──────────────────────────── */
+@layer base {
+  html {
+    font-family: "Inter", system-ui, sans-serif;
+  }
+  body {
+    @apply bg-surface-800 text-surface-50 antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: "Space Grotesk", "Sora", sans-serif;
+  }
+}
+
+/* ── Reusable themed components (dark navy design system) ──────────────── */
+@layer components {
+  /* Full-height page shell with the animated gradient mesh */
+  .page-shell {
+    @apply min-h-screen bg-surface-800 font-sans text-surface-50;
+  }
+  .auth-shell {
+    @apply gradient-mesh flex min-h-screen items-center justify-center px-4 py-12;
+  }
+
+  /* Cards / panels */
+  .card {
+    @apply rounded-2xl border border-line bg-surface-750 p-6 shadow-lg shadow-black/20;
+  }
+  .panel {
+    @apply rounded-2xl border border-line bg-surface-700;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 font-semibold text-white shadow-lg shadow-brand-900/40 transition hover:bg-brand-500 disabled:opacity-60;
+  }
+  .btn-ghost {
+    @apply flex items-center justify-center gap-2 rounded-lg border border-line bg-surface-800/60 px-4 py-2.5 font-semibold text-white transition hover:border-brand-500/60;
+  }
+
+  /* Form fields */
+  .label {
+    @apply mb-1 block text-sm font-medium text-gray-300;
+  }
+  .input {
+    @apply w-full rounded-lg border border-line bg-surface-800 px-3 py-2 text-sm text-white placeholder-gray-500 transition focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500;
+  }
+
+  /* Links */
+  .link {
+    @apply text-brand-400 transition hover:text-brand-300;
+  }
+
+  /* Status/alert boxes */
+  .alert-error {
+    @apply rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300;
+  }
+  .alert-success {
+    @apply rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300;
+  }
+
+  /* Table styling for dashboards */
+  .th {
+    @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-brand-400;
+  }
+  .td {
+    @apply px-4 py-3 text-sm text-gray-200;
+  }
+}
+
+@layer utilities {
+
+  /* Animated radial gradient mesh used on dark hero/CTA sections */
+  .gradient-mesh {
+    background-image:
+      radial-gradient(at 20% 30%, rgba(30, 58, 138, 0.4) 0px, transparent 50%),
+      radial-gradient(at 80% 20%, rgba(56, 189, 248, 0.2) 0px, transparent 50%),
+      radial-gradient(at 50% 80%, rgba(37, 99, 235, 0.3) 0px, transparent 50%);
+    background-size: 150% 150%;
+    animation: gradientMove 15s ease infinite;
+  }
+
+  /* Frosted card used on dark surfaces */
+  .glass-card {
+    background: rgba(20, 39, 64, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(30, 53, 84, 0.6);
+  }
+}
+
+/* Thin dark scrollbars to match the navy theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0a1628;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e3a8a;
+  border-radius: 4px;
+}

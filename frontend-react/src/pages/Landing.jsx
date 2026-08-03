@@ -109,7 +109,8 @@ export default function Landing() {
                       </span>
                       <input
                         className="field pl-10"
-                        placeholder="e.g. superadmin or NID-1001"
+                        placeholder="e.g. superadmin or 12345678901"
+
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                       />

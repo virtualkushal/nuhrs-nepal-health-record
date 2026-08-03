@@ -11,6 +11,8 @@ from rest_framework.response import Response
 
 from . import fhir, services
 from .models import Condition, Encounter, LocalPatient, Observation
+from .validators import NIDValidationError, validate_nid
+
 
 
 VARIANT = settings.SCHEMA_VARIANT
@@ -27,8 +29,9 @@ def _patient_meta(p):
 
 
 def _get_or_create_patient(data):
-    nid = data["nid"]
+    nid = validate_nid(data.get("nid"))
     defaults = {
+
         "dob": data.get("dob"),
         "gender": data.get("gender", ""),
         "phone": data.get("phone", ""),
@@ -65,10 +68,14 @@ def list_patients(request):
 def create_condition(request):
     """Register a diagnosis and index it nationally."""
     data = request.data
-    patient = _get_or_create_patient(data)
+    try:
+        patient = _get_or_create_patient(data)
+    except NIDValidationError as exc:
+        return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
     kwargs = {"patient": patient}
     text = data.get("diagnosis", "")
+
     code = data.get("icd10", "")
     onset = data.get("onset_date")
     if VARIANT == "B":
@@ -93,10 +100,14 @@ def create_condition(request):
 @api_view(["POST"])
 def create_observation(request):
     data = request.data
-    patient = _get_or_create_patient(data)
+    try:
+        patient = _get_or_create_patient(data)
+    except NIDValidationError as exc:
+        return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
     kwargs = {"patient": patient}
     name = data.get("name", "")
+
     value = data.get("value", "")
     unit = data.get("unit", "")
     date = data.get("date")
