@@ -95,6 +95,22 @@ services:
       interval: 5s
       retries: 10
 
+  # Dedicated DB for the standalone Nepal Mediciti edge service (self-contained,
+  # Mediciti-only schema — no shared superset with any other hospital).
+  db-mediciti:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: mediciti_db
+      POSTGRES_USER: nuhrs
+      POSTGRES_PASSWORD: nuhrs
+    ports: ["5438:5432"]  # host 5438 -> pgAdmin: localhost:5438
+    volumes: ["mediciti_pg:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nuhrs"]
+      interval: 5s
+      retries: 10
+
+
 
   # --------------------------------------------------------------- platform
   national-platform:
@@ -147,6 +163,28 @@ services:
     ports: ["8002:8002"]
     depends_on:
       db-hospital-b:
+        condition: service_healthy
+      national-platform:
+        condition: service_started
+
+  # Standalone Nepal Mediciti edge service (self-contained, Mediciti-only schema).
+  # Same federation role as hospital-a but built from its own dedicated codebase
+  # with no shared multi-hospital superset. Exposes read-only FHIR on port 8003.
+  mediciti-hospital:
+    build: ./mediciti-hospital
+    environment:
+      ORG_NAME: "Nepal Mediciti Hospital"
+      ORG_CODE: "HOSP001"
+      ORG_API_KEY: "mediciti-demo-key-0001"
+      PLATFORM_URL: "http://national-platform:8000"
+      PORT: "8003"
+      DB_HOST: db-mediciti
+      DB_NAME: mediciti_db
+      DB_USER: nuhrs
+      DB_PASSWORD: nuhrs
+    ports: ["8003:8003"]
+    depends_on:
+      db-mediciti:
         condition: service_healthy
       national-platform:
         condition: service_started
@@ -248,5 +286,7 @@ volumes:
   lab_a_pg:
   lab_b_mysql:
   swastha_pg:
+  mediciti_pg:
+
 
 

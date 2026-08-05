@@ -10,6 +10,10 @@ echo "==> Seeding hospitals..."
 docker compose exec -T hospital-a python manage.py seed
 docker compose exec -T hospital-b python manage.py seed
 
+echo "==> Seeding standalone Mediciti edge service..."
+docker compose exec -T mediciti-hospital python manage.py seed
+
+
 echo "==> Seeding labs..."
 docker compose exec -T lab-a python manage.py seed
 docker compose exec -T lab-b python manage.py seed
