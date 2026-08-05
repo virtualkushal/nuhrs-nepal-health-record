@@ -318,7 +318,11 @@ class LabTestCatalog:
         "IRON": {"name": "Serum Iron", "category": LabCategory.BIOCHEMISTRY, "type": LabResultType.QUANTITATIVE, "loinc": "2498-4", "unit": "ug/dL", "low": 60.0, "high": 170.0, "depts": [Department.HEMATOLOGY]},
         "FERRITIN": {"name": "Ferritin", "category": LabCategory.BIOCHEMISTRY, "type": LabResultType.QUANTITATIVE, "loinc": "2276-4", "unit": "ng/mL", "low": 12.0, "high": 300.0, "depts": [Department.HEMATOLOGY]},
         "VITAMIN_B12": {"name": "Vitamin B12", "category": LabCategory.BIOCHEMISTRY, "type": LabResultType.QUANTITATIVE, "loinc": "2132-9", "unit": "pg/mL", "low": 200.0, "high": 900.0, "depts": [Department.HEMATOLOGY]},
+        "VITAMIN_D": {"name": "Vitamin D (25-OH)", "category": LabCategory.BIOCHEMISTRY, "type": LabResultType.QUANTITATIVE, "loinc": "1989-3", "unit": "ng/mL", "low": 30.0, "high": 100.0, "depts": [Department.ENDOCRINOLOGY, Department.INTERNAL_MEDICINE]},
+        "URIC_ACID": {"name": "Serum Uric Acid", "category": LabCategory.BIOCHEMISTRY, "type": LabResultType.QUANTITATIVE, "loinc": "3084-1", "unit": "mg/dL", "low": 3.5, "high": 7.2, "depts": [Department.NEPHROLOGY, Department.INTERNAL_MEDICINE]},
+        "PROCALCITONIN": {"name": "Procalcitonin", "category": LabCategory.BIOCHEMISTRY, "type": LabResultType.QUANTITATIVE, "loinc": "33959-8", "unit": "ng/mL", "low": 0.0, "high": 0.5, "depts": [Department.INFECTIOUS_DISEASES, Department.INTERNAL_MEDICINE]},
         # --- Hematology (quantitative) ---
+
         "HEMOGLOBIN": {"name": "Hemoglobin", "category": LabCategory.HEMATOLOGY, "type": LabResultType.QUANTITATIVE, "loinc": "718-7", "unit": "g/dL", "low": 12.0, "high": 17.0, "depts": [Department.HEMATOLOGY, Department.INTERNAL_MEDICINE, Department.NEPHROLOGY]},
         "WBC": {"name": "White Blood Cell Count", "category": LabCategory.HEMATOLOGY, "type": LabResultType.QUANTITATIVE, "loinc": "6690-2", "unit": "10^3/uL", "low": 4.0, "high": 11.0, "depts": [Department.HEMATOLOGY, Department.INFECTIOUS_DISEASES, Department.INTERNAL_MEDICINE]},
         "PLATELETS": {"name": "Platelet Count", "category": LabCategory.HEMATOLOGY, "type": LabResultType.QUANTITATIVE, "loinc": "777-3", "unit": "10^3/uL", "low": 150.0, "high": 450.0, "depts": [Department.HEMATOLOGY, Department.INFECTIOUS_DISEASES]},
@@ -332,8 +336,14 @@ class LabTestCatalog:
         "PT": {"name": "Prothrombin Time (PT)", "category": LabCategory.COAGULATION, "type": LabResultType.QUANTITATIVE, "loinc": "5902-2", "unit": "sec", "low": 11.0, "high": 13.5, "depts": [Department.CARDIOLOGY, Department.HEMATOLOGY]},
         "INR": {"name": "INR", "category": LabCategory.COAGULATION, "type": LabResultType.QUANTITATIVE, "loinc": "6301-6", "unit": "ratio", "low": 0.8, "high": 1.2, "depts": [Department.CARDIOLOGY, Department.HEMATOLOGY]},
         "APTT": {"name": "APTT", "category": LabCategory.COAGULATION, "type": LabResultType.QUANTITATIVE, "loinc": "3173-2", "unit": "sec", "low": 25.0, "high": 35.0, "depts": [Department.CARDIOLOGY, Department.HEMATOLOGY]},
+        "D_DIMER": {"name": "D-Dimer", "category": LabCategory.COAGULATION, "type": LabResultType.QUANTITATIVE, "loinc": "48065-7", "unit": "ng/mL FEU", "low": 0.0, "high": 500.0, "depts": [Department.CARDIOLOGY, Department.INFECTIOUS_DISEASES, Department.INTERNAL_MEDICINE]},
+
         # --- Serology / Immunology (report / qualitative) ---
         "DENGUE_NS1": {"name": "Dengue NS1 Antigen", "category": LabCategory.SEROLOGY, "type": LabResultType.REPORT, "loinc": "", "unit": "", "low": None, "high": None, "depts": [Department.INFECTIOUS_DISEASES, Department.INTERNAL_MEDICINE]},
+        "SCRUB_TYPHUS_IGM": {"name": "Scrub Typhus IgM (ELISA)", "category": LabCategory.SEROLOGY, "type": LabResultType.REPORT, "loinc": "", "unit": "", "low": None, "high": None, "depts": [Department.INFECTIOUS_DISEASES, Department.INTERNAL_MEDICINE]},
+        "LEISHMANIA_RK39": {"name": "Leishmania rK39 (Kala-azar)", "category": LabCategory.SEROLOGY, "type": LabResultType.REPORT, "loinc": "", "unit": "", "low": None, "high": None, "depts": [Department.INFECTIOUS_DISEASES]},
+        "JE_IGM": {"name": "Japanese Encephalitis IgM", "category": LabCategory.SEROLOGY, "type": LabResultType.REPORT, "loinc": "", "unit": "", "low": None, "high": None, "depts": [Department.INFECTIOUS_DISEASES]},
+
         "HBSAG": {"name": "HBsAg (Hepatitis B)", "category": LabCategory.SEROLOGY, "type": LabResultType.REPORT, "loinc": "", "unit": "", "low": None, "high": None, "depts": [Department.GASTROENTEROLOGY, Department.INFECTIOUS_DISEASES]},
         "ANTI_HCV": {"name": "Anti-HCV (Hepatitis C)", "category": LabCategory.SEROLOGY, "type": LabResultType.REPORT, "loinc": "", "unit": "", "low": None, "high": None, "depts": [Department.GASTROENTEROLOGY, Department.INFECTIOUS_DISEASES]},
         "HIV": {"name": "HIV Antibody", "category": LabCategory.SEROLOGY, "type": LabResultType.REPORT, "loinc": "", "unit": "", "low": None, "high": None, "depts": [Department.INFECTIOUS_DISEASES]},
@@ -344,6 +354,8 @@ class LabTestCatalog:
         "BLOOD_CULTURE": {"name": "Blood Culture & Sensitivity", "category": LabCategory.MICROBIOLOGY, "type": LabResultType.REPORT, "loinc": "", "unit": "", "low": None, "high": None, "depts": [Department.INFECTIOUS_DISEASES, Department.INTERNAL_MEDICINE]},
         "URINE_CULTURE": {"name": "Urine Culture & Sensitivity", "category": LabCategory.MICROBIOLOGY, "type": LabResultType.REPORT, "loinc": "", "unit": "", "low": None, "high": None, "depts": [Department.NEPHROLOGY, Department.INFECTIOUS_DISEASES]},
         "STOOL_CULTURE": {"name": "Stool Culture", "category": LabCategory.MICROBIOLOGY, "type": LabResultType.REPORT, "loinc": "", "unit": "", "low": None, "high": None, "depts": [Department.GASTROENTEROLOGY, Department.INFECTIOUS_DISEASES]},
+        "STOOL_ROUTINE": {"name": "Stool Routine & Microscopy", "category": LabCategory.MICROBIOLOGY, "type": LabResultType.REPORT, "loinc": "", "unit": "", "low": None, "high": None, "depts": [Department.GASTROENTEROLOGY, Department.INFECTIOUS_DISEASES]},
+
         "SPUTUM_AFB": {"name": "Sputum AFB (TB)", "category": LabCategory.MICROBIOLOGY, "type": LabResultType.REPORT, "loinc": "", "unit": "", "low": None, "high": None, "depts": [Department.INFECTIOUS_DISEASES]},
         # --- Blood Bank (report) ---
         "BLOOD_GROUP": {"name": "Blood Grouping (ABO/Rh)", "category": LabCategory.BLOOD_BANK, "type": LabResultType.REPORT, "loinc": "", "unit": "", "low": None, "high": None, "depts": [Department.HEMATOLOGY, Department.NEPHROLOGY]},
@@ -458,6 +470,12 @@ class ICD10:
         "B54": {"name": "Malaria, unspecified", "dept": Department.INFECTIOUS_DISEASES},
         "B20": {"name": "HIV disease", "dept": Department.INFECTIOUS_DISEASES},
         "A41.9": {"name": "Sepsis, unspecified", "dept": Department.INFECTIOUS_DISEASES},
+        "A75.9": {"name": "Scrub typhus / rickettsial fever", "dept": Department.INFECTIOUS_DISEASES},
+        "B55.0": {"name": "Kala-azar (visceral leishmaniasis)", "dept": Department.INFECTIOUS_DISEASES},
+        "A83.0": {"name": "Japanese encephalitis", "dept": Department.INFECTIOUS_DISEASES},
+        "A00.9": {"name": "Cholera, unspecified", "dept": Department.INFECTIOUS_DISEASES},
+        "T63.0": {"name": "Snakebite envenomation", "dept": Department.INFECTIOUS_DISEASES},
+
         # Hematology
         "D64.9": {"name": "Anaemia, unspecified", "dept": Department.HEMATOLOGY},
         "D50.9": {"name": "Iron deficiency anaemia", "dept": Department.HEMATOLOGY},
