@@ -110,6 +110,22 @@ services:
       interval: 5s
       retries: 10
 
+  # Dedicated DB for the standalone Norvic edge service (self-contained,
+  # Norvic-only "variant B" schema — different column names + extra services).
+  db-norvic:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: norvic_db
+      POSTGRES_USER: nuhrs
+      POSTGRES_PASSWORD: nuhrs
+    ports: ["5439:5432"]  # host 5439 -> pgAdmin: localhost:5439
+    volumes: ["norvic_pg:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nuhrs"]
+      interval: 5s
+      retries: 10
+
+
 
 
   # --------------------------------------------------------------- platform
@@ -189,7 +205,30 @@ services:
       national-platform:
         condition: service_started
 
+  # Standalone Norvic International edge service (self-contained, "variant B"
+  # schema — different column names than Mediciti, plus Immunization & Procedure
+  # services Mediciti does not offer). Exposes read-only FHIR on port 8004.
+  norvic-hospital:
+    build: ./norvic-hospital
+    environment:
+      ORG_NAME: "Norvic International Hospital"
+      ORG_CODE: "HOSP002"
+      ORG_API_KEY: "norvic-demo-key-0002"
+      PLATFORM_URL: "http://national-platform:8000"
+      PORT: "8004"
+      DB_HOST: db-norvic
+      DB_NAME: norvic_db
+      DB_USER: nuhrs
+      DB_PASSWORD: nuhrs
+    ports: ["8004:8004"]
+    depends_on:
+      db-norvic:
+        condition: service_healthy
+      national-platform:
+        condition: service_started
+
   # --------------------------------------------------------------- labs
+
   lab-a:
     build: ./lab-service
     environment:
@@ -287,6 +326,8 @@ volumes:
   lab_b_mysql:
   swastha_pg:
   mediciti_pg:
+  norvic_pg:
+
 
 
 
