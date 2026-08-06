@@ -25,7 +25,7 @@ class Organization(models.Model):
     organization_name = models.CharField(max_length=200)
     organization_type = models.CharField(max_length=10, choices=OrgType.choices)
     license_number = models.CharField(max_length=100)
-    api_base_url = models.URLField(help_text="Base URL of the org FHIR adapter, e.g. http://hospital-a:8001/fhir")
+    api_base_url = models.URLField(help_text="Base URL of the org FHIR adapter, e.g. http://mediciti-hospital:8003/fhir")
     api_key = models.CharField(max_length=128, null=True, blank=True, help_text="Service-to-service key")
     contact_email = models.EmailField()
     contact_phone = models.CharField(max_length=30)

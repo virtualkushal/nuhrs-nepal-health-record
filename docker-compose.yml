@@ -2,8 +2,8 @@
 #
 # Topology:
 #   national-platform (8000)  -> federated exchange, metadata only
-#   hospital-a (8001)         -> Nepal Mediciti, schema variant A
-#   hospital-b (8002)         -> Norvic International, schema variant B
+#   mediciti-hospital (8003)  -> Nepal Mediciti, standalone edge service (HOSP001)
+#   norvic-hospital (8004)    -> Norvic International, variant-B standalone (HOSP002)
 #   central-diagnostic-lab (9001) -> Central Diagnostic Lab, variant A (PostgreSQL)
 #   pathlabs-nepal (9002)         -> Pathlabs Nepal, variant B (MySQL)
 #
@@ -21,32 +21,6 @@ services:
       POSTGRES_PASSWORD: nuhrs
     ports: ["5437:5432"]  # host 5437 (5432 is taken by a local Postgres) -> pgAdmin: localhost:5437
     volumes: ["national_pg:/var/lib/postgresql/data"]
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nuhrs"]
-      interval: 5s
-      retries: 10
-
-  db-hospital-a:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: hospital_a_db
-      POSTGRES_USER: nuhrs
-      POSTGRES_PASSWORD: nuhrs
-    ports: ["5433:5432"]  # host 5433 -> pgAdmin: localhost:5433
-    volumes: ["hosp_a_pg:/var/lib/postgresql/data"]
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nuhrs"]
-      interval: 5s
-      retries: 10
-
-  db-hospital-b:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: hospital_b_db
-      POSTGRES_USER: nuhrs
-      POSTGRES_PASSWORD: nuhrs
-    ports: ["5434:5432"]  # host 5434 -> pgAdmin: localhost:5434
-    volumes: ["hosp_b_pg:/var/lib/postgresql/data"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U nuhrs"]
       interval: 5s
@@ -143,48 +117,8 @@ services:
         condition: service_healthy
 
   # --------------------------------------------------------------- hospitals
-  hospital-a:
-    build: ./hospital-service
-    environment:
-      ORG_NAME: "Nepal Mediciti Hospital"
-      ORG_CODE: "HOSP001"
-      SCHEMA_VARIANT: "A"
-      ORG_API_KEY: "mediciti-demo-key-0001"
-      PLATFORM_URL: "http://national-platform:8000"
-      PORT: "8001"
-      DB_HOST: db-hospital-a
-      DB_NAME: hospital_a_db
-      DB_USER: nuhrs
-      DB_PASSWORD: nuhrs
-    ports: ["8001:8001"]
-    depends_on:
-      db-hospital-a:
-        condition: service_healthy
-      national-platform:
-        condition: service_started
-
-  hospital-b:
-    build: ./hospital-service
-    environment:
-      ORG_NAME: "Norvic International Hospital"
-      ORG_CODE: "HOSP002"
-      SCHEMA_VARIANT: "B"
-      ORG_API_KEY: "norvic-demo-key-0002"
-      PLATFORM_URL: "http://national-platform:8000"
-      PORT: "8002"
-      DB_HOST: db-hospital-b
-      DB_NAME: hospital_b_db
-      DB_USER: nuhrs
-      DB_PASSWORD: nuhrs
-    ports: ["8002:8002"]
-    depends_on:
-      db-hospital-b:
-        condition: service_healthy
-      national-platform:
-        condition: service_started
-
   # Standalone Nepal Mediciti edge service (self-contained, Mediciti-only schema).
-  # Same federation role as hospital-a but built from its own dedicated codebase
+  # The federation's HOSP001 data source, built from its own dedicated codebase
   # with no shared multi-hospital superset. Exposes read-only FHIR on port 8003.
   mediciti-hospital:
     build: ./mediciti-hospital
@@ -323,8 +257,6 @@ services:
 
 volumes:
   national_pg:
-  hosp_a_pg:
-  hosp_b_pg:
   lab_a_pg:
   lab_b_mysql:
   swastha_pg:

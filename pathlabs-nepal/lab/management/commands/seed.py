@@ -19,7 +19,7 @@ from lab.models import LabPatient, LabReport, LabResult
 
 ORG_CODE = settings.ORG_CODE
 
-# Canonical demographics per NID — MUST match hospital-service and swastha seeds.
+# Canonical demographics per NID — MUST match the hospital and swastha seeds.
 DEMOGRAPHICS = {
     "12345678901": {"name": "Ram Bahadur Thapa", "dob": "1970-05-12", "gender": "MALE", "phone": "9841000001"},
     "12345678902": {"name": "Sita Kumari Sharma", "dob": "1988-11-23", "gender": "FEMALE", "phone": "9803000002"},

@@ -6,14 +6,10 @@
 # their metadata to the platform index.
 set -e
 
-echo "==> Seeding hospitals..."
-docker compose exec -T hospital-a python manage.py seed
-docker compose exec -T hospital-b python manage.py seed
-
-echo "==> Seeding standalone Mediciti edge service..."
+echo "==> Seeding Mediciti edge service (HOSP001, variant A)..."
 docker compose exec -T mediciti-hospital python manage.py seed
 
-echo "==> Seeding standalone Norvic edge service (variant B + immunizations + procedures)..."
+echo "==> Seeding Norvic edge service (HOSP002, variant B + immunizations + procedures)..."
 docker compose exec -T norvic-hospital python manage.py seed
 
 

@@ -34,7 +34,7 @@ from .models import Diagnosis, Encounter, LabResult, Patient, Prescription
 
 
 # --------------------------------------------------------------------------- #
-# API-key guard (mirrors hospital-service/clinical/fhir_views.py)
+# API-key guard (mirrors the other edge services' FHIR adapters, e.g. norvic-hospital/clinical/fhir_views.py)
 # --------------------------------------------------------------------------- #
 def _check_api_key(request):
     key = request.headers.get("X-API-Key")
