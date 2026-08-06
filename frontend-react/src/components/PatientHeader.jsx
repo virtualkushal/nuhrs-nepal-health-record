@@ -64,27 +64,30 @@ export default function PatientHeader({
         </div>
       </div>
 
-      {/* Inline NID search */}
-      <div className="flex-1 flex items-center bg-surface-container rounded-full px-4 py-1.5 border border-outline-variant lg:max-w-sm lg:mx-auto">
-        <span className="material-symbols-outlined text-on-surface-variant mr-2 text-[20px]">
-          fingerprint
-        </span>
-        <input
-          className="bg-transparent border-none outline-none w-full text-on-surface font-body-md text-body-md"
-          placeholder="Switch patient by NID…"
-          value={nid}
-          onChange={(e) => setNid(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && submit()}
-        />
-        {nid && (
-          <button
-            onClick={submit}
-            className="text-primary text-label-sm font-label-sm uppercase tracking-wider shrink-0"
-          >
-            Go
-          </button>
-        )}
-      </div>
+      {/* Inline NID search — only when a search handler is provided (doctor
+          view). The patient portal reuses this header without it. */}
+      {onSearch && (
+        <div className="flex-1 flex items-center bg-surface-container rounded-full px-4 py-1.5 border border-outline-variant lg:max-w-sm lg:mx-auto">
+          <span className="material-symbols-outlined text-on-surface-variant mr-2 text-[20px]">
+            fingerprint
+          </span>
+          <input
+            className="bg-transparent border-none outline-none w-full text-on-surface font-body-md text-body-md"
+            placeholder="Switch patient by NID…"
+            value={nid}
+            onChange={(e) => setNid(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && submit()}
+          />
+          {nid && (
+            <button
+              onClick={submit}
+              className="text-primary text-label-sm font-label-sm uppercase tracking-wider shrink-0"
+            >
+              Go
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Safety chips */}
       <div className="flex items-center gap-2 shrink-0">

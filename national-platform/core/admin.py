@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import AuditLog, Organization, PatientIdentity, RecordIndex, User
+from .models import Announcement, AuditLog, Organization, PatientIdentity, RecordIndex, User
 
 
 @admin.register(Organization)
@@ -35,3 +35,10 @@ class AuditLogAdmin(admin.ModelAdmin):
     list_display = ("timestamp", "actor_user", "action", "nid", "target_orgs")
     list_filter = ("action",)
     search_fields = ("nid",)
+
+
+@admin.register(Announcement)
+class AnnouncementAdmin(admin.ModelAdmin):
+    list_display = ("title", "category", "is_published", "published_at", "author")
+    list_filter = ("category", "is_published")
+    search_fields = ("title", "body")

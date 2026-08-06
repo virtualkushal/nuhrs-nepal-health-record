@@ -95,6 +95,11 @@ export const api = {
   registerPatient: (payload) =>
     request("POST", "/patient/register/", payload, false),
   myRecords: () => request("GET", "/patient/records/"),
+  myBundle: () => request("GET", "/patient/bundle/"),
+  // announcements
+  listAnnouncements: () => request("GET", "/announcements/"),
+  createAnnouncement: (payload) => request("POST", "/announcements/", payload),
+  deleteAnnouncement: (id) => request("DELETE", `/announcements/${id}/`),
   // audit & analytics
   audit: (nid) => request("GET", `/audit/${nid ? "?nid=" + nid : ""}`),
   analytics: () => request("GET", "/analytics/summary/"),

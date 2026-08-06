@@ -62,6 +62,33 @@ class PatientIdentity(models.Model):
         return f"{self.full_name} [{self.nid}]"
 
 
+class Announcement(models.Model):
+    """Ministry-authored health announcements displayed to patients."""
+
+    class Category(models.TextChoices):
+        VACCINATION_DRIVE = "VACCINATION_DRIVE", "Vaccination Drive"
+        SYSTEM_UPDATE = "SYSTEM_UPDATE", "System Update"
+        PUBLIC_HEALTH = "PUBLIC_HEALTH", "Public Health"
+        GENERAL = "GENERAL", "General"
+
+    title = models.CharField(max_length=200)
+    body = models.TextField()
+    category = models.CharField(max_length=20, choices=Category.choices)
+    is_published = models.BooleanField(default=True)
+    published_at = models.DateTimeField(auto_now_add=True)
+    # String ref — the User model is defined further down this file; a direct
+    # class reference here would NameError at import time.
+    author = models.ForeignKey("User", on_delete=models.SET_NULL, null=True, related_name="announcements")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-published_at"]
+
+    def __str__(self):
+        return f"{self.title} ({self.category})"
+
+
 class UserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra):
         if not username:

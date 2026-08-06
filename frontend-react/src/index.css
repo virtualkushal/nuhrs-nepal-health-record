@@ -13,6 +13,117 @@ html {
   scroll-padding-top: 96px;
 }
 
+/* Default (teal) palette — every dashboard except the patient portal.
+   Colors are RGB channel triplets so Tailwind's `/opacity` modifiers work. */
+:root {
+  --font-headline: "Inter", sans-serif;
+
+  --color-on-tertiary-fixed-variant: 111 56 11;
+  --color-on-error-container: 147 0 10;
+  --color-surface-container-low: 242 244 245;
+  --color-secondary-fixed-dim: 161 201 255;
+  --color-on-secondary-container: 0 67 119;
+  --color-secondary-fixed: 210 228 255;
+  --color-secondary-container: 111 177 255;
+  --color-tertiary: 133 72 27;
+  --color-primary-fixed-dim: 124 212 223;
+  --color-on-tertiary-container: 255 243 238;
+  --color-on-primary-fixed: 0 31 35;
+  --color-on-surface: 25 28 29;
+  --color-surface-variant: 225 227 228;
+  --color-surface: 248 250 251;
+  --color-tertiary-fixed-dim: 255 182 136;
+  --color-inverse-on-surface: 239 241 242;
+  --color-inverse-surface: 46 49 50;
+  --color-outline: 110 121 122;
+  --color-on-surface-variant: 62 73 74;
+  --color-on-error: 255 255 255;
+  --color-tertiary-container: 162 96 49;
+  --color-on-secondary-fixed-variant: 0 72 127;
+  --color-on-secondary: 255 255 255;
+  --color-on-background: 25 28 29;
+  --color-surface-container: 236 238 239;
+  --color-surface-container-lowest: 255 255 255;
+  --color-on-primary-container: 221 251 255;
+  --color-inverse-primary: 124 212 223;
+  --color-surface-bright: 248 250 251;
+  --color-primary: 0 98 106;
+  --color-on-primary-fixed-variant: 0 79 86;
+  --color-on-secondary-fixed: 0 28 55;
+  --color-surface-container-high: 230 232 233;
+  --color-error: 186 26 26;
+  --color-secondary: 0 97 167;
+  --color-surface-dim: 216 218 219;
+  --color-outline-variant: 189 201 202;
+  --color-on-tertiary-fixed: 49 19 0;
+  --color-on-primary: 255 255 255;
+  --color-surface-container-highest: 225 227 228;
+  --color-primary-container: 14 124 134;
+  --color-on-tertiary: 255 255 255;
+  --color-tertiary-fixed: 255 219 199;
+  --color-primary-fixed: 152 240 251;
+  --color-background: 248 250 251;
+  --color-error-container: 255 218 214;
+  --color-surface-tint: 0 105 114;
+  --color-ok: 31 122 52;
+  --color-warn: 178 106 0;
+}
+
+/* Patient portal palette — warm blue/gold from the approved Stitch mock.
+   Only overrides the tokens that differ; everything else inherits :root.
+   Scoped to the `.patient-theme` wrapper so no other dashboard is affected. */
+.patient-theme {
+  --font-headline: "Plus Jakarta Sans", "Inter", sans-serif;
+
+  --color-primary: 0 95 157;
+  --color-on-primary: 255 255 255;
+  --color-primary-container: 0 121 197;
+  --color-on-primary-container: 255 255 255;
+  --color-primary-fixed: 210 228 255;
+  --color-primary-fixed-dim: 156 202 255;
+  --color-on-primary-fixed: 0 29 52;
+  --color-on-primary-fixed-variant: 0 73 126;
+  --color-inverse-primary: 156 202 255;
+  --color-surface-tint: 0 95 157;
+  --color-secondary: 124 88 0;
+  --color-on-secondary: 255 255 255;
+  --color-secondary-container: 253 183 0;
+  --color-on-secondary-container: 79 57 0;
+  --color-secondary-fixed: 255 222 167;
+  --color-secondary-fixed-dim: 255 187 24;
+  --color-on-secondary-fixed: 61 46 0;
+  --color-on-secondary-fixed-variant: 94 68 0;
+  --color-tertiary: 184 0 75;
+  --color-on-tertiary: 255 255 255;
+  --color-tertiary-container: 255 144 172;
+  --color-on-tertiary-container: 63 0 24;
+  --color-background: 248 249 250;
+  --color-on-background: 25 28 29;
+  --color-surface: 248 249 250;
+  --color-surface-bright: 255 255 255;
+  --color-surface-container-lowest: 255 255 255;
+  --color-surface-container-low: 243 244 245;
+  --color-surface-container: 238 240 242;
+  --color-surface-container-high: 232 234 237;
+  --color-surface-container-highest: 226 229 232;
+  --color-surface-variant: 221 227 234;
+  --color-on-surface: 25 28 29;
+  --color-on-surface-variant: 65 71 81;
+  --color-outline: 112 120 130;
+  --color-outline-variant: 192 199 211;
+}
+
+/* Public landing page — keeps the original blue primary (#007DCC) rather than
+   the teal the dashboards adopted in the doctor-dashboard redesign. Scoped to
+   the `.landing-theme` wrapper so no dashboard is affected; `secondary` is
+   already blue in :root, so only the primary family is overridden here. */
+.landing-theme {
+  --color-primary: 0 125 204;
+  --color-primary-container: 0 125 204;
+  --color-on-primary: 255 255 255;
+  --color-surface-tint: 0 125 204;
+  --color-inverse-primary: 156 202 255;
+}
 
 body {
   font-family: "Inter", sans-serif;
@@ -28,6 +139,37 @@ body {
   0% { transform: translateX(-100%); }
   50% { transform: translateX(0); }
   100% { transform: translateX(100%); }
+}
+
+/* Print-to-PDF: the patient's printable record document lives off-canvas until
+   the browser print dialog is opened, then it (and only it) is made visible so
+   "Save as PDF" produces a clean records sheet without the app chrome. */
+.print-doc {
+  position: absolute;
+  left: -10000px;
+  top: 0;
+  width: 794px; /* ~A4 at 96dpi */
+}
+
+@media print {
+  @page {
+    margin: 16mm;
+  }
+  body {
+    background: #ffffff;
+  }
+  body * {
+    visibility: hidden !important;
+  }
+  .print-doc,
+  .print-doc * {
+    visibility: visible !important;
+  }
+  .print-doc {
+    position: static;
+    left: 0;
+    width: 100%;
+  }
 }
 
 /* Reusable component classes on top of the Stitch tokens */

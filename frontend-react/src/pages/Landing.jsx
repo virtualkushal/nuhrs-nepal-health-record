@@ -101,7 +101,7 @@ export default function Landing() {
 
 
   return (
-    <div className="font-body-md text-on-surface bg-background">
+    <div className="landing-theme font-body-md text-on-surface bg-background">
       {/* Header */}
       <header className="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
         <div className="h-20 max-w-container-max mx-auto px-margin-desktop flex items-center justify-between">

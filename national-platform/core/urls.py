@@ -35,6 +35,11 @@ urlpatterns = [
     path("patient/activate/", views.PatientActivateView.as_view()),
     path("patient/register/", views.PatientRegisterView.as_view()),
     path("patient/records/", views.PatientMyRecordsView.as_view()),
+    path("patient/bundle/", views.PatientMyBundleView.as_view()),
+
+    # national announcements
+    path("announcements/", views.AnnouncementListCreateView.as_view()),
+    path("announcements/<int:pk>/", views.AnnouncementDetailView.as_view()),
 
     # metadata ingest (from hospitals/labs)
     path("index/", views.IndexIngestView.as_view()),

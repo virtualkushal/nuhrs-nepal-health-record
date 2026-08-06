@@ -8,10 +8,11 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from . import services
-from .models import AuditLog, Organization, PatientIdentity, RecordIndex, User
+from .models import Announcement, AuditLog, Organization, PatientIdentity, RecordIndex, User
 from .validators import is_valid_nid, normalize_nid
 
 from .serializers import (
+    AnnouncementSerializer,
     AuditLogSerializer,
     OrganizationRegisterSerializer,
     OrganizationSerializer,
@@ -477,6 +478,60 @@ class PatientMyRecordsView(APIView):
             "patient": PatientIdentitySerializer(request.user.patient_identity).data,
             "records": RecordIndexSerializer(qs, many=True).data,
         })
+
+
+class PatientMyBundleView(APIView):
+    """
+    Self-scoped aggregated FHIR fetch for the logged-in patient. Unlike
+    PatientFetchView (doctor-facing, arbitrary NID), the NID here is derived
+    ONLY from the authenticated patient's own identity — never from the request
+    — so a patient can never fetch another patient's record.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != User.Role.PATIENT or not request.user.patient_identity:
+            return Response({"detail": "Not a patient account"}, status=status.HTTP_403_FORBIDDEN)
+        nid = request.user.patient_identity.nid
+        engine = services.RoutingEngine(actor_user=request.user, ip_address=client_ip(request))
+        bundle = engine.fetch_all(nid)
+        return Response({
+            "patient": PatientIdentitySerializer(request.user.patient_identity).data,
+            "bundle": bundle,
+        })
+
+
+# ---------------------------------------------------------------------------
+# National health announcements (Ministry authors, everyone reads)
+# ---------------------------------------------------------------------------
+class AnnouncementListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        qs = Announcement.objects.filter(is_published=True)
+        return Response(AnnouncementSerializer(qs, many=True).data)
+
+    def post(self, request):
+        if request.user.role != User.Role.SUPER_ADMIN:
+            return Response({"detail": "Only super admin"}, status=status.HTTP_403_FORBIDDEN)
+        serializer = AnnouncementSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(author=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class AnnouncementDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        if request.user.role != User.Role.SUPER_ADMIN:
+            return Response({"detail": "Only super admin"}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            announcement = Announcement.objects.get(pk=pk)
+        except Announcement.DoesNotExist:
+            return Response({"detail": "Announcement not found"}, status=status.HTTP_404_NOT_FOUND)
+        announcement.delete()
+        return Response({"detail": "Deleted"}, status=status.HTTP_204_NO_CONTENT)
 
 
 # ---------------------------------------------------------------------------

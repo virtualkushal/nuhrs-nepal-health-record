@@ -12,11 +12,11 @@ const TABS = [
   { key: "immunizations", label: "Immunizations", icon: "vaccines" },
 ];
 
-export default function TabBar({ activeTab, onTabChange, labReportCount = 0 }) {
+export default function TabBar({ activeTab, onTabChange, labReportCount = 0, tabs = TABS }) {
   return (
     <div className="border-b border-outline-variant/40 overflow-x-auto">
       <nav className="flex gap-1 min-w-max">
-        {TABS.map((tab) => {
+        {tabs.map((tab) => {
           const active = activeTab === tab.key;
           return (
             <button
