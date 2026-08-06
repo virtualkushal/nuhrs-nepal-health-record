@@ -18,9 +18,9 @@ docker compose exec -T norvic-hospital python manage.py seed
 
 
 
-echo "==> Seeding labs..."
-docker compose exec -T lab-a python manage.py seed
-docker compose exec -T lab-b python manage.py seed
+echo "==> Seeding standalone labs (Central Diagnostic + Pathlabs Nepal)..."
+docker compose exec -T central-diagnostic-lab python manage.py seed
+docker compose exec -T pathlabs-nepal python manage.py seed
 
 echo ""
 echo "Done. Demo credentials:"

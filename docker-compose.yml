@@ -4,8 +4,8 @@
 #   national-platform (8000)  -> federated exchange, metadata only
 #   hospital-a (8001)         -> Nepal Mediciti, schema variant A
 #   hospital-b (8002)         -> Norvic International, schema variant B
-#   lab-a (9001)              -> Central Diagnostic Lab, schema variant A (PostgreSQL)
-#   lab-b (9002)              -> Pathlabs Nepal, schema variant B (MySQL)
+#   central-diagnostic-lab (9001) -> Central Diagnostic Lab, variant A (PostgreSQL)
+#   pathlabs-nepal (9002)         -> Pathlabs Nepal, variant B (MySQL)
 #
 # Each service has its OWN database (data sovereignty) — a mix of PostgreSQL and
 # MySQL, proving the FHIR adapter is storage-engine agnostic. The platform never
@@ -229,12 +229,14 @@ services:
 
   # --------------------------------------------------------------- labs
 
-  lab-a:
-    build: ./lab-service
+  # Standalone Central Diagnostic Laboratory edge service (self-contained,
+  # variant A schema, PostgreSQL). Emits LOINC-coded FHIR DiagnosticReport +
+  # Observation resources. Exposes read-only FHIR on port 9001.
+  central-diagnostic-lab:
+    build: ./central-diagnostic-lab
     environment:
       ORG_NAME: "Central Diagnostic Laboratory"
       ORG_CODE: "LAB001"
-      SCHEMA_VARIANT: "A"
       ORG_API_KEY: "central-demo-key-0003"
       PLATFORM_URL: "http://national-platform:8000"
       PORT: "9001"
@@ -249,16 +251,17 @@ services:
       national-platform:
         condition: service_started
 
-  lab-b:
-    build: ./lab-service
+  # Standalone Pathlabs Nepal edge service (self-contained, variant B schema,
+  # MySQL — different column names than Central Diagnostic). Emits IDENTICAL
+  # LOINC-coded FHIR despite the different DB engine + schema. FHIR on port 9002.
+  pathlabs-nepal:
+    build: ./pathlabs-nepal
     environment:
       ORG_NAME: "Pathlabs Nepal"
       ORG_CODE: "LAB002"
-      SCHEMA_VARIANT: "B"
       ORG_API_KEY: "pathlabs-demo-key-0004"
       PLATFORM_URL: "http://national-platform:8000"
       PORT: "9002"
-      DB_ENGINE: "django.db.backends.mysql"
       DB_HOST: db-lab-b
       DB_PORT: "3306"
       DB_NAME: lab_b_db
