@@ -12,4 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 EXPOSE 8000
-CMD ["sh", "-c", "python manage.py makemigrations core --noinput && python manage.py migrate --noinput && python manage.py bootstrap && gunicorn config.wsgi:application --bind 0.0.0.0:8000"]
+# Migrations are committed to the repo (core/migrations), so we only APPLY them
+# here. We intentionally do NOT run makemigrations at runtime: generating
+# migrations against an existing database can silently skip schema changes
+# (Django sees 0001_initial as already applied and never adds new columns).
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py bootstrap && gunicorn config.wsgi:application --bind 0.0.0.0:8000"]

@@ -89,6 +89,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         PATIENT = "PATIENT", "Patient"
 
     username = models.CharField(max_length=100, unique=True)
+    # Human-friendly login name typed by the user. For staff it only needs to be
+    # unique *within* their organization (enforced by unique_together below), so
+    # two different hospitals can both have a doctor called "ramesh". For super
+    # admin / patients this mirrors the username.
+    login_name = models.CharField(max_length=100, blank=True)
     full_name = models.CharField(max_length=200, blank=True)
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=30, blank=True)
@@ -107,6 +112,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = "username"
+
+    class Meta:
+        unique_together = [("organization", "login_name")]
 
     def __str__(self):
         return f"{self.username} ({self.role})"

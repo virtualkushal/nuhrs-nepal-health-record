@@ -39,13 +39,31 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        from django.contrib.auth import authenticate
+        password = request.data.get("password") or ""
 
-        username = request.data.get("username")
-        password = request.data.get("password")
-        user = authenticate(username=username, password=password)
-        if not user:
-            return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        # New scope-based login (Staff / Patient / Ministry).
+        #   STAFF   : {scope, org_code, login_name, password}  role auto-detected
+        #   PATIENT : {scope, username(=NID), password}
+        #   MINISTRY: {scope, username, password}
+        # Falls back to the legacy {username, password} form when no scope given.
+        scope = request.data.get("scope")
+        if scope:
+            user = services.resolve_login_user(
+                scope=scope,
+                org_code=request.data.get("org_code"),
+                login_name=request.data.get("login_name"),
+                username=request.data.get("username"),
+            )
+            if not user or not user.is_active or not user.check_password(password):
+                return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            from django.contrib.auth import authenticate
+
+            username = request.data.get("username")
+            user = authenticate(username=username, password=password)
+            if not user:
+                return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
         user.last_login = timezone.now()
         user.save(update_fields=["last_login"])
         tokens = issue_tokens(user)
@@ -115,6 +133,7 @@ class OrganizationApproveView(APIView):
         temp_password = services.generate_temp_password()
         User.objects.create_user(
             username=admin_username,
+            login_name="admin",
             password=temp_password,
             full_name=f"{org.organization_name} Admin",
             email=org.contact_email,
@@ -123,10 +142,12 @@ class OrganizationApproveView(APIView):
             organization=org,
             must_change_password=True,
         )
-        # credentials shown once
+        # credentials shown once. The admin signs in with the STAFF scope using
+        # this organization_code + login_name "admin".
         return Response({
             "organization_code": org.organization_code,
             "admin_username": admin_username,
+            "login_name": "admin",
             "temporary_password": temp_password,
             "api_key": org.api_key,
         })
@@ -160,12 +181,26 @@ class StaffView(APIView):
             return Response({"detail": "Only org admin"}, status=status.HTTP_403_FORBIDDEN)
         org = request.user.organization
         role = request.data.get("role", User.Role.DOCTOR)
-        count = User.objects.filter(organization=org, role=role).count() + 1
         prefix = "DOC" if role == User.Role.DOCTOR else "TECH"
-        username = f"{org.organization_code}-{prefix}-{count:04d}"
+
+        # login_name is the short handle the staff member types at login. The
+        # admin may supply one; otherwise we generate a sequential default like
+        # "doc0001". It must be unique within this organization.
+        count = User.objects.filter(organization=org, role=role).count() + 1
+        login_name = (request.data.get("login_name") or f"{prefix.lower()}{count:04d}").strip()
+        if User.objects.filter(organization=org, login_name__iexact=login_name).exists():
+            return Response(
+                {"detail": f"Login name '{login_name}' already exists in this organization."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # username stays globally unique (Django auth requirement) but is never
+        # typed by the user; compose it from org code + login_name.
+        username = f"{org.organization_code}-{login_name}"
         temp_password = services.generate_temp_password()
         user = User.objects.create_user(
             username=username,
+            login_name=login_name,
             password=temp_password,
             full_name=request.data.get("full_name", ""),
             email=request.data.get("email", ""),
@@ -236,13 +271,41 @@ class PatientActivateView(APIView):
                 {"detail": "National ID must be exactly 11 digits (Nepal NIN)."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        if not password or len(password) < 6:
+            return Response(
+                {"detail": "Choose a password of at least 6 characters."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        # Identity must exist in the national Master Patient Index. It is created
+        # when any hospital/lab first indexes a record for this NID (or by the
+        # demo bootstrap). If it's missing, the citizen has no records anywhere
+        # yet — guide them accordingly instead of a generic failure.
         try:
-
-            patient = PatientIdentity.objects.get(nid=nid, date_of_birth=dob, phone=phone)
+            patient = PatientIdentity.objects.get(nid=nid)
         except PatientIdentity.DoesNotExist:
-            return Response({"detail": "Identity verification failed"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "No health record found for this National ID. Visit a "
+                           "registered hospital or lab first, then try again."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        # Verify date of birth (required). Phone is verified only if the citizen
+        # supplied one AND we have one on file — a small typo in an optional field
+        # shouldn't block activation of the correct person.
+        if not dob or str(patient.date_of_birth) != str(dob):
+            return Response(
+                {"detail": "Identity verification failed: date of birth does not match our records."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if phone and patient.phone and phone.strip() != patient.phone:
+            return Response(
+                {"detail": "Identity verification failed: phone number does not match our records."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         if User.objects.filter(username=nid).exists():
-            return Response({"detail": "Account already activated"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "This account is already activated — please sign in instead."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         User.objects.create_user(
             username=nid, password=password, full_name=patient.full_name,
             email=patient.email, phone=patient.phone,
