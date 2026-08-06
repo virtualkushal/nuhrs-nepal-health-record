@@ -12,12 +12,19 @@ urlpatterns = [
 
     # organizations
     path("orgs/", views.OrganizationListView.as_view()),
+    path("orgs/active/", views.ActiveOrganizationsView.as_view()),
     path("orgs/register/", views.OrganizationRegisterView.as_view()),
     path("orgs/<int:pk>/approve/", views.OrganizationApproveView.as_view()),
     path("orgs/<int:pk>/reject/", views.OrganizationRejectView.as_view()),
+    path("orgs/<int:pk>/suspend/", views.OrganizationSuspendView.as_view()),
+    path("orgs/<int:pk>/reactivate/", views.OrganizationReactivateView.as_view()),
 
     # staff
     path("staff/", views.StaffView.as_view()),
+
+    # ministry user management
+    path("users/", views.AllUsersView.as_view()),
+    path("users/<int:user_id>/reset-password/", views.AdminResetPasswordView.as_view()),
 
     # exchange engine
     path("patients/<str:nid>/", views.PatientLookupView.as_view()),
@@ -26,6 +33,7 @@ urlpatterns = [
 
     # patient portal
     path("patient/activate/", views.PatientActivateView.as_view()),
+    path("patient/register/", views.PatientRegisterView.as_view()),
     path("patient/records/", views.PatientMyRecordsView.as_view()),
 
     # metadata ingest (from hospitals/labs)

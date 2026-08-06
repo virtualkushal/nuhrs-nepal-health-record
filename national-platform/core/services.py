@@ -51,6 +51,10 @@ def resolve_login_user(*, scope, org_code=None, login_name=None, username=None):
         org = Organization.objects.get(organization_code__iexact=org_code)
     except Organization.DoesNotExist:
         return None
+    # Suspended / pending / rejected orgs cannot authenticate staff. This makes
+    # the Ministry's suspend action immediately effective at the login gate.
+    if org.status != Organization.Status.ACTIVE:
+        return None
     # Match on login_name first (new scheme); fall back to full username so
     # legacy-style entries (e.g. HOSP001-DOC-0001) still work during transition.
     return (

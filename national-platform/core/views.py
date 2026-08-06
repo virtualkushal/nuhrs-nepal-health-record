@@ -75,13 +75,41 @@ class ChangePasswordView(APIView):
 
     def post(self, request):
         new_password = request.data.get("new_password")
+        current_password = request.data.get("current_password")
         if not new_password or len(new_password) < 6:
             return Response({"detail": "Password too short"}, status=status.HTTP_400_BAD_REQUEST)
+        # If current_password is supplied, this is a user-initiated change from a
+        # dashboard (not a forced first-login change) — verify it before allowing.
+        if current_password and not request.user.check_password(current_password):
+            return Response({"detail": "Current password is incorrect"}, status=status.HTTP_400_BAD_REQUEST)
         user = request.user
         user.set_password(new_password)
         user.must_change_password = False
         user.save()
         return Response({"detail": "Password updated"})
+
+
+class AdminResetPasswordView(APIView):
+    """Super admin resets any user's password, issuing a one-time temp password."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
+        if request.user.role != User.Role.SUPER_ADMIN:
+            return Response({"detail": "Only super admin"}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        temp_password = services.generate_temp_password()
+        user.set_password(temp_password)
+        user.must_change_password = True
+        user.save()
+        return Response({
+            "detail": "Password reset",
+            "temporary_password": temp_password,
+            "username": user.username,
+            "login_name": user.login_name or user.username,
+        })
 
 
 @api_view(["GET"])
@@ -165,6 +193,53 @@ class OrganizationRejectView(APIView):
         return Response({"detail": "Rejected"})
 
 
+class OrganizationSuspendView(APIView):
+    """Ministry admin suspends an active organization."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        if request.user.role != User.Role.SUPER_ADMIN:
+            return Response({"detail": "Only super admin"}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            org = Organization.objects.get(pk=pk)
+        except Organization.DoesNotExist:
+            return Response({"detail": "Organization not found"}, status=status.HTTP_404_NOT_FOUND)
+        if org.status != Organization.Status.ACTIVE:
+            return Response({"detail": "Only active orgs can be suspended"}, status=status.HTTP_400_BAD_REQUEST)
+        org.status = Organization.Status.SUSPENDED
+        org.save()
+        return Response({"detail": "Organization suspended"})
+
+
+class OrganizationReactivateView(APIView):
+    """Ministry admin reactivates a suspended organization."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        if request.user.role != User.Role.SUPER_ADMIN:
+            return Response({"detail": "Only super admin"}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            org = Organization.objects.get(pk=pk)
+        except Organization.DoesNotExist:
+            return Response({"detail": "Organization not found"}, status=status.HTTP_404_NOT_FOUND)
+        if org.status != Organization.Status.SUSPENDED:
+            return Response({"detail": "Only suspended orgs can be reactivated"}, status=status.HTTP_400_BAD_REQUEST)
+        org.status = Organization.Status.ACTIVE
+        org.save()
+        return Response({"detail": "Organization reactivated"})
+
+
+class ActiveOrganizationsView(APIView):
+    """Public endpoint for the doctor login hospital dropdown."""
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        orgs = Organization.objects.filter(status=Organization.Status.ACTIVE).values(
+            "id", "organization_code", "organization_name", "organization_type"
+        ).order_by("organization_name")
+        return Response(list(orgs))
+
+
 # ---------------------------------------------------------------------------
 # Organization admin — staff management
 # ---------------------------------------------------------------------------
@@ -213,6 +288,26 @@ class StaffView(APIView):
             {**StaffSerializer(user).data, "temporary_password": temp_password},
             status=status.HTTP_201_CREATED,
         )
+
+
+class AllUsersView(APIView):
+    """Ministry admin views all users across organizations."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != User.Role.SUPER_ADMIN:
+            return Response({"detail": "Only super admin"}, status=status.HTTP_403_FORBIDDEN)
+
+        role_filter = request.query_params.get("role")
+        org_filter = request.query_params.get("organization")
+
+        qs = User.objects.all().select_related("organization", "patient_identity")
+        if role_filter:
+            qs = qs.filter(role=role_filter)
+        if org_filter:
+            qs = qs.filter(organization__id=org_filter)
+
+        return Response(UserProfileSerializer(qs.order_by("-created_at"), many=True).data)
 
 
 # ---------------------------------------------------------------------------
@@ -312,6 +407,62 @@ class PatientActivateView(APIView):
             role=User.Role.PATIENT, patient_identity=patient,
         )
         return Response({"detail": "Account activated"}, status=status.HTTP_201_CREATED)
+
+
+class PatientRegisterView(APIView):
+    """
+    Self-registration for citizens with no records in the MPI yet. Creates a
+    PatientIdentity and a PATIENT User in one step. Distinct from activation,
+    which requires the identity to already exist.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        nid = normalize_nid(request.data.get("nid"))
+        full_name = (request.data.get("full_name") or "").strip()
+        dob = request.data.get("date_of_birth")
+        gender = request.data.get("gender", PatientIdentity.Gender.OTHER)
+        phone = (request.data.get("phone") or "").strip()
+        email = (request.data.get("email") or "").strip()
+        password = request.data.get("password")
+
+        if not is_valid_nid(nid):
+            return Response(
+                {"detail": "National ID must be exactly 11 digits (Nepal NIN)."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not password or len(password) < 6:
+            return Response(
+                {"detail": "Choose a password of at least 6 characters."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not full_name or not dob:
+            return Response(
+                {"detail": "Full name and date of birth are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if PatientIdentity.objects.filter(nid=nid).exists():
+            return Response(
+                {"detail": "This National ID is already registered. Use the "
+                           "Sign In tab if you have existing health records."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if User.objects.filter(username=nid).exists():
+            return Response(
+                {"detail": "This account already exists — please sign in instead."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        patient = PatientIdentity.objects.create(
+            nid=nid, full_name=full_name, date_of_birth=dob,
+            gender=gender, phone=phone, email=email,
+        )
+        User.objects.create_user(
+            username=nid, password=password, full_name=full_name,
+            email=email, phone=phone,
+            role=User.Role.PATIENT, patient_identity=patient,
+        )
+        return Response({"detail": "Registration successful"}, status=status.HTTP_201_CREATED)
 
 
 class PatientMyRecordsView(APIView):

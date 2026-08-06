@@ -71,4 +71,5 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = [
             "id", "username", "login_name", "full_name", "email", "role",
             "organization", "organization_name", "must_change_password",
+            "is_active",
         ]

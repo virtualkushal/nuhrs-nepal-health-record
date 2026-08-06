@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { api, currentUser } from "../../lib/api.js";
 import { useToast } from "../../context/ToastContext.jsx";
 import { Card, Table, Field } from "../../components/ui.jsx";
+import UserChangePassword from "../../components/UserChangePassword.jsx";
 
 // Organization admin: create and list staff logins.
 export default function OrgAdmin() {
   const { show } = useToast();
   const user = currentUser();
+  const [tab, setTab] = useState("staff");
   const [staff, setStaff] = useState(null);
   const [creds, setCreds] = useState(null);
   const [f, setF] = useState({ full_name: "", email: "", role: "DOCTOR" });
@@ -36,10 +38,35 @@ export default function OrgAdmin() {
   }
 
   return (
-    <Card
-      title={(user?.organization_name || "Organization") + " — Staff"}
-      subtitle="Create logins for doctors and lab technicians."
-    >
+    <div className="space-y-stack-lg">
+      <div className="flex gap-2 border-b border-outline-variant">
+        {[
+          { id: "staff", label: "Staff" },
+          { id: "settings", label: "Account Settings" },
+        ].map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={`px-5 py-3 font-label-md border-b-2 -mb-px transition-colors ${
+              tab === t.id
+                ? "border-primary text-primary"
+                : "border-transparent text-on-surface-variant hover:text-primary"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "settings" ? (
+        <Card title="Account Settings">
+          <UserChangePassword />
+        </Card>
+      ) : (
+        <Card
+          title={(user?.organization_name || "Organization") + " — Staff"}
+          subtitle="Create logins for doctors and lab technicians."
+        >
       <form onSubmit={addStaff} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
         <Field label="Full name" id="sfName" value={f.full_name} onChange={set("full_name")} />
         <Field label="Email" id="sfEmail" value={f.email} onChange={set("email")} />
@@ -78,6 +105,8 @@ export default function OrgAdmin() {
           </Table>
         )}
       </div>
-    </Card>
+        </Card>
+      )}
+    </div>
   );
 }

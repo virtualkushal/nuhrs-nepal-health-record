@@ -19,6 +19,7 @@ class Organization(models.Model):
     class Status(models.TextChoices):
         PENDING = "PENDING", "Pending"
         ACTIVE = "ACTIVE", "Active"
+        SUSPENDED = "SUSPENDED", "Suspended"
         REJECTED = "REJECTED", "Rejected"
 
     organization_code = models.CharField(max_length=20, unique=True, null=True, blank=True)

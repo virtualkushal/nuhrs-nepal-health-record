@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
+import { api } from "../lib/api.js";
 import Brand from "../components/Brand.jsx";
 import background from "../assects/background.jpg"
 
@@ -12,25 +13,53 @@ export default function Landing() {
   const { show } = useToast();
   const navigate = useNavigate();
 
-  // Login scope toggle: STAFF | PATIENT | MINISTRY
-  const [scope, setScope] = useState("STAFF");
-  // STAFF fields
-  const [orgCode, setOrgCode] = useState("");
+  // Login tab: PATIENT | DOCTOR | MINISTRY
+  const [tab, setTab] = useState("PATIENT");
+  // Patient sub-mode: SIGNIN | REGISTER
+  const [patientMode, setPatientMode] = useState("SIGNIN");
+
+  // DOCTOR fields
+  const [hospitals, setHospitals] = useState([]);
+  const [hospitalCode, setHospitalCode] = useState("");
   const [loginName, setLoginName] = useState("");
-  // PATIENT / MINISTRY fields
+  // PATIENT / MINISTRY shared username
   const [username, setUsername] = useState("");
   // shared
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // Patient registration fields
+  const [regNid, setRegNid] = useState("");
+  const [regName, setRegName] = useState("");
+  const [regDob, setRegDob] = useState("");
+  const [regGender, setRegGender] = useState("MALE");
+  const [regPhone, setRegPhone] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+
+  // Load the active-hospital list for the doctor dropdown.
+  useEffect(() => {
+    api
+      .getActiveOrganizations()
+      .then((orgs) =>
+        setHospitals(orgs.filter((o) => o.organization_type === "HOSPITAL"))
+      )
+      .catch(() => setHospitals([]));
+  }, []);
 
   async function doLogin(e) {
     e?.preventDefault();
     setBusy(true);
     try {
       let credentials;
-      if (scope === "STAFF") {
-        credentials = { scope: "STAFF", org_code: orgCode.trim(), login_name: loginName.trim(), password };
-      } else if (scope === "PATIENT") {
+      if (tab === "DOCTOR") {
+        credentials = {
+          scope: "STAFF",
+          org_code: hospitalCode.trim(),
+          login_name: loginName.trim(),
+          password,
+        };
+      } else if (tab === "PATIENT") {
         credentials = { scope: "PATIENT", username: username.trim(), password };
       } else {
         credentials = { scope: "MINISTRY", username: username.trim(), password };
@@ -38,6 +67,31 @@ export default function Landing() {
       await login(credentials);
       show("Welcome back", "ok");
       navigate("/app");
+    } catch (err) {
+      show(err.message, "err");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function doRegister(e) {
+    e?.preventDefault();
+    setBusy(true);
+    try {
+      await api.registerPatient({
+        nid: regNid.trim(),
+        full_name: regName.trim(),
+        date_of_birth: regDob,
+        gender: regGender,
+        phone: regPhone.trim(),
+        email: regEmail.trim(),
+        password: regPassword,
+      });
+      show("Registration successful — you can sign in now", "ok");
+      // Prefill the sign-in form and switch to it.
+      setUsername(regNid.trim());
+      setPassword("");
+      setPatientMode("SIGNIN");
     } catch (err) {
       show(err.message, "err");
     } finally {
@@ -111,86 +165,217 @@ export default function Landing() {
                 id="login-portal"
                 className="bg-surface-container-lowest p-stack-xl rounded-3xl border border-outline-variant shadow-2xl max-w-md w-full mx-auto lg:ml-auto"
               >
-                <div className="text-center mb-8">
+                <div className="text-center mb-6">
                   <h3 className="font-title-lg text-title-lg mb-2">Portal Sign In</h3>
                   <p className="text-body-md text-on-surface-variant">
-                    Enter your credentials to continue
+                    Choose your role to continue
                   </p>
                 </div>
-                <form className="space-y-6" onSubmit={doLogin}>
-                  {/* Scope toggle: Staff / Patient / Ministry */}
-                  <div className="grid grid-cols-3 gap-1 p-1 bg-surface-container-low rounded-xl">
-                    {[
-                      { key: "STAFF", label: "Staff" },
-                      { key: "PATIENT", label: "Patient" },
-                      { key: "MINISTRY", label: "Ministry" },
-                    ].map((opt) => (
-                      <button
-                        key={opt.key}
-                        type="button"
-                        onClick={() => setScope(opt.key)}
-                        className={`py-2 rounded-lg font-label-md text-label-md transition-colors ${
-                          scope === opt.key
-                            ? "bg-primary text-on-primary shadow"
-                            : "text-on-surface-variant hover:bg-surface-container-high"
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
 
-                  {scope === "STAFF" && (
-                    <>
-                      <div>
-                        <label className="label">Company Code</label>
-                        <div className="relative">
-                          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">
-                            apartment
-                          </span>
+                {/* Role tabs: Patient / Doctor / Ministry */}
+                <div className="grid grid-cols-3 gap-1 p-1 bg-surface-container-low rounded-xl mb-6">
+                  {[
+                    { key: "PATIENT", label: "Patient" },
+                    { key: "DOCTOR", label: "Doctor" },
+                    { key: "MINISTRY", label: "Ministry" },
+                  ].map((opt) => (
+                    <button
+                      key={opt.key}
+                      type="button"
+                      onClick={() => setTab(opt.key)}
+                      className={`py-2 rounded-lg font-label-md text-label-md transition-colors ${
+                        tab === opt.key
+                          ? "bg-primary text-on-primary shadow"
+                          : "text-on-surface-variant hover:bg-surface-container-high"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* ---------------------------------------------------- PATIENT */}
+                {tab === "PATIENT" && (
+                  <>
+                    {/* Sign In / Register sub-toggle */}
+                    <div className="flex gap-1 p-1 bg-surface-container-low rounded-xl mb-6">
+                      {[
+                        { key: "SIGNIN", label: "Sign In" },
+                        { key: "REGISTER", label: "Register" },
+                      ].map((opt) => (
+                        <button
+                          key={opt.key}
+                          type="button"
+                          onClick={() => setPatientMode(opt.key)}
+                          className={`flex-1 py-2 rounded-lg font-label-md text-label-md transition-colors ${
+                            patientMode === opt.key
+                              ? "bg-secondary text-on-secondary shadow"
+                              : "text-on-surface-variant hover:bg-surface-container-high"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {patientMode === "SIGNIN" && (
+                      <form className="space-y-6" onSubmit={doLogin}>
+                        <div>
+                          <label className="label">National ID (NID)</label>
+                          <div className="relative">
+                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">
+                              badge
+                            </span>
+                            <input
+                              className="field pl-10"
+                              placeholder="e.g. 12345678901"
+                              value={username}
+                              onChange={(e) => setUsername(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <PasswordField value={password} onChange={setPassword} />
+                        <SubmitButton busy={busy} label="Sign In" busyLabel="Signing in…" />
+                        <p className="text-center text-body-md text-on-surface-variant">
+                          Have existing hospital records?{" "}
+                          <button
+                            type="button"
+                            onClick={() => navigate("/activate")}
+                            className="text-primary hover:underline"
+                          >
+                            Activate account
+                          </button>
+                        </p>
+                      </form>
+                    )}
+
+                    {patientMode === "REGISTER" && (
+                      <form className="space-y-4" onSubmit={doRegister}>
+                        <div>
+                          <label className="label">National ID (NID)</label>
                           <input
-                            className="field pl-10"
-                            placeholder="e.g. HOSP001"
-                            value={orgCode}
-                            onChange={(e) => setOrgCode(e.target.value)}
+                            className="field"
+                            placeholder="11-digit NID"
+                            value={regNid}
+                            onChange={(e) => setRegNid(e.target.value)}
                           />
                         </div>
-                      </div>
-                      <div>
-                        <label className="label">Username</label>
-                        <div className="relative">
-                          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">
-                            person
-                          </span>
+                        <div>
+                          <label className="label">Full Name</label>
                           <input
-                            className="field pl-10"
-                            placeholder="e.g. doctor"
-                            value={loginName}
-                            onChange={(e) => setLoginName(e.target.value)}
+                            className="field"
+                            placeholder="Your full name"
+                            value={regName}
+                            onChange={(e) => setRegName(e.target.value)}
                           />
                         </div>
-                      </div>
-                    </>
-                  )}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="label">Date of Birth</label>
+                            <input
+                              type="date"
+                              className="field"
+                              value={regDob}
+                              onChange={(e) => setRegDob(e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <label className="label">Gender</label>
+                            <select
+                              className="field"
+                              value={regGender}
+                              onChange={(e) => setRegGender(e.target.value)}
+                            >
+                              <option value="MALE">Male</option>
+                              <option value="FEMALE">Female</option>
+                              <option value="OTHER">Other</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="label">Phone</label>
+                            <input
+                              className="field"
+                              placeholder="Optional"
+                              value={regPhone}
+                              onChange={(e) => setRegPhone(e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <label className="label">Email</label>
+                            <input
+                              className="field"
+                              placeholder="Optional"
+                              value={regEmail}
+                              onChange={(e) => setRegEmail(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="label">Password</label>
+                          <input
+                            type="password"
+                            className="field"
+                            placeholder="At least 6 characters"
+                            value={regPassword}
+                            onChange={(e) => setRegPassword(e.target.value)}
+                          />
+                        </div>
+                        <SubmitButton busy={busy} label="Create Account" busyLabel="Creating…" />
+                      </form>
+                    )}
+                  </>
+                )}
 
-                  {scope === "PATIENT" && (
+                {/* ---------------------------------------------------- DOCTOR */}
+                {tab === "DOCTOR" && (
+                  <form className="space-y-6" onSubmit={doLogin}>
                     <div>
-                      <label className="label">National ID (NID)</label>
+                      <label className="label">Hospital</label>
+                      <div className="relative">
+                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline z-10">
+                          apartment
+                        </span>
+                        <select
+                          className="field pl-10"
+                          value={hospitalCode}
+                          onChange={(e) => setHospitalCode(e.target.value)}
+                        >
+                          <option value="">Select your hospital…</option>
+                          {hospitals.map((h) => (
+                            <option key={h.id} value={h.organization_code}>
+                              {h.organization_name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="label">Username</label>
                       <div className="relative">
                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">
-                          badge
+                          person
                         </span>
                         <input
                           className="field pl-10"
-                          placeholder="e.g. 12345678901"
-                          value={username}
-                          onChange={(e) => setUsername(e.target.value)}
+                          placeholder="e.g. doctor"
+                          value={loginName}
+                          onChange={(e) => setLoginName(e.target.value)}
                         />
                       </div>
                     </div>
-                  )}
+                    <PasswordField value={password} onChange={setPassword} />
+                    <SubmitButton busy={busy} label="Sign In" busyLabel="Signing in…" />
+                    <p className="text-center text-body-md text-on-surface-variant">
+                      Your credentials are issued by your hospital administrator.
+                    </p>
+                  </form>
+                )}
 
-                  {scope === "MINISTRY" && (
+                {/* --------------------------------------------------- MINISTRY */}
+                {tab === "MINISTRY" && (
+                  <form className="space-y-6" onSubmit={doLogin}>
                     <div>
                       <label className="label">Username</label>
                       <div className="relative">
@@ -205,57 +390,25 @@ export default function Landing() {
                         />
                       </div>
                     </div>
-                  )}
-                  <div>
+                    <PasswordField value={password} onChange={setPassword} />
+                    <SubmitButton busy={busy} label="Sign In" busyLabel="Signing in…" />
+                  </form>
+                )}
 
-                    <label className="label">Password</label>
-                    <div className="relative">
-                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">
-                        lock
-                      </span>
-                      <input
-                        type="password"
-                        className="field pl-10"
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={busy}
-                    className="w-full py-4 bg-primary text-on-primary rounded-xl font-title-lg shadow-lg shadow-primary/20 hover:opacity-90 transition-all disabled:opacity-50"
-                  >
-                    {busy ? "Signing in…" : "Sign In"}
-                  </button>
-                  <div className="flex items-center gap-3 pt-2">
-                    <div className="h-px flex-grow bg-outline-variant" />
-                    <span className="text-label-sm uppercase tracking-widest text-on-surface-variant">
-                      or
-                    </span>
-                    <div className="h-px flex-grow bg-outline-variant" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => navigate("/register-org")}
-                      className="py-3 border-2 border-primary text-primary rounded-lg font-label-md hover:bg-primary/5 transition-colors"
-                    >
-                      Register Organization
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => navigate("/activate")}
-                      className="py-3 bg-surface-container-low text-on-surface rounded-lg font-label-md hover:bg-surface-container-high transition-colors"
-                    >
-                      Activate Patient
-                    </button>
-                  </div>
-                  <p className="text-center text-body-md text-on-surface-variant pt-1">
-                    Demo: <code className="text-primary">superadmin / admin123</code>
-                  </p>
-                </form>
+                <div className="flex items-center gap-3 pt-6">
+                  <div className="h-px flex-grow bg-outline-variant" />
+                  <span className="text-label-sm uppercase tracking-widest text-on-surface-variant">
+                    or
+                  </span>
+                  <div className="h-px flex-grow bg-outline-variant" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate("/register-org")}
+                  className="w-full mt-4 py-3 border-2 border-primary text-primary rounded-lg font-label-md hover:bg-primary/5 transition-colors"
+                >
+                  Register Organization
+                </button>
               </div>
             </div>
           </div>
@@ -382,6 +535,38 @@ function ShowcaseBand({ navigate }) {
         </div>
       </div>
     </section>
+  );
+}
+
+function PasswordField({ value, onChange }) {
+  return (
+    <div>
+      <label className="label">Password</label>
+      <div className="relative">
+        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">
+          lock
+        </span>
+        <input
+          type="password"
+          className="field pl-10"
+          placeholder="••••••••"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      </div>
+    </div>
+  );
+}
+
+function SubmitButton({ busy, label, busyLabel }) {
+  return (
+    <button
+      type="submit"
+      disabled={busy}
+      className="w-full py-4 bg-primary text-on-primary rounded-xl font-title-lg shadow-lg shadow-primary/20 hover:opacity-90 transition-all disabled:opacity-50"
+    >
+      {busy ? busyLabel : label}
+    </button>
   );
 }
 
