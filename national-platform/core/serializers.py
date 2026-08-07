@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import AuditLog, Organization, PatientIdentity, RecordIndex, User
+from .models import Announcement, AuditLog, Organization, PatientIdentity, RecordIndex, User
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
@@ -59,8 +59,8 @@ class AuditLogSerializer(serializers.ModelSerializer):
 class StaffSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "full_name", "email", "phone", "role", "is_active"]
-        read_only_fields = ["id", "username"]
+        fields = ["id", "username", "login_name", "full_name", "email", "phone", "role", "is_active"]
+        read_only_fields = ["id", "username", "login_name"]
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -69,6 +69,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "id", "username", "full_name", "email", "role",
+            "id", "username", "login_name", "full_name", "email", "role",
             "organization", "organization_name", "must_change_password",
+            "is_active",
         ]
+
+
+class AnnouncementSerializer(serializers.ModelSerializer):
+    author_name = serializers.CharField(source="author.full_name", read_only=True)
+
+    class Meta:
+        model = Announcement
+        fields = [
+            "id", "title", "body", "category", "is_published",
+            "published_at", "author", "author_name", "created_at", "updated_at",
+        ]
+        read_only_fields = ["author", "created_at", "updated_at"]

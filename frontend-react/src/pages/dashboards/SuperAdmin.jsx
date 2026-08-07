@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api.js";
 import { useToast } from "../../context/ToastContext.jsx";
-import { Card, Table, Badge } from "../../components/ui.jsx";
+import { Card, Table, Badge, Field } from "../../components/ui.jsx";
 
 const TABS = [
   { id: "orgs", label: "Organizations" },
+  { id: "users", label: "Users" },
+  { id: "announcements", label: "Announcements" },
   { id: "analytics", label: "National Analytics" },
   { id: "audit", label: "Audit Log" },
 ];
@@ -29,6 +31,8 @@ export default function SuperAdmin() {
         ))}
       </div>
       {tab === "orgs" && <Orgs />}
+      {tab === "users" && <Users />}
+      {tab === "announcements" && <Announcements />}
       {tab === "analytics" && <Analytics />}
       {tab === "audit" && <Audit />}
     </div>
@@ -63,6 +67,24 @@ function Orgs() {
     try {
       await api.rejectOrg(id);
       show("Rejected");
+      load();
+    } catch (e) {
+      show(e.message, "err");
+    }
+  }
+  async function suspend(id) {
+    try {
+      await api.suspendOrganization(id);
+      show("Organization suspended");
+      load();
+    } catch (e) {
+      show(e.message, "err");
+    }
+  }
+  async function reactivate(id) {
+    try {
+      await api.reactivateOrganization(id);
+      show("Organization reactivated");
       load();
     } catch (e) {
       show(e.message, "err");
@@ -119,6 +141,14 @@ function Orgs() {
                       Reject
                     </button>
                   </div>
+                ) : o.status === "ACTIVE" ? (
+                  <button onClick={() => suspend(o.id)} className="px-3 py-1.5 rounded-lg bg-error/10 text-error font-label-md text-label-sm">
+                    Suspend
+                  </button>
+                ) : o.status === "SUSPENDED" ? (
+                  <button onClick={() => reactivate(o.id)} className="px-3 py-1.5 rounded-lg bg-ok/10 text-ok font-label-md text-label-sm">
+                    Reactivate
+                  </button>
                 ) : (
                   "—"
                 )}
@@ -128,6 +158,235 @@ function Orgs() {
         </Table>
       )}
     </Card>
+  );
+}
+
+const ROLE_OPTIONS = [
+  { value: "", label: "All roles" },
+  { value: "ORGANIZATION_ADMIN", label: "Org Admin" },
+  { value: "DOCTOR", label: "Doctor" },
+  { value: "LAB_TECHNICIAN", label: "Lab Technician" },
+  { value: "PATIENT", label: "Patient" },
+  { value: "SUPER_ADMIN", label: "Super Admin" },
+];
+
+function Users() {
+  const { show } = useToast();
+  const [users, setUsers] = useState(null);
+  const [roleFilter, setRoleFilter] = useState("");
+  const [reset, setReset] = useState(null);
+
+  const load = async () => {
+    try {
+      const filters = roleFilter ? { role: roleFilter } : undefined;
+      setUsers(await api.getAllUsers(filters));
+    } catch (e) {
+      show(e.message, "err");
+    }
+  };
+  useEffect(() => {
+    load();
+  }, [roleFilter]);
+
+  async function resetPassword(id) {
+    try {
+      setReset(await api.resetUserPassword(id));
+    } catch (e) {
+      show(e.message, "err");
+    }
+  }
+
+  return (
+    <Card title="User Management" subtitle="View every account and reset passwords across all organizations.">
+      {reset && (
+        <div className="mb-6 p-4 rounded-xl bg-ok/5 border border-ok/30 font-mono text-sm text-on-surface">
+          <div className="font-semibold text-ok mb-2">Password reset ✔ (shown once)</div>
+          User: {reset.login_name || reset.username}
+          <br />
+          Temp password: {reset.temporary_password}
+        </div>
+      )}
+      <div className="mb-4">
+        <select
+          className="field max-w-xs"
+          value={roleFilter}
+          onChange={(e) => setRoleFilter(e.target.value)}
+        >
+          {ROLE_OPTIONS.map((r) => (
+            <option key={r.value} value={r.value}>
+              {r.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      {!users ? (
+        <p className="text-on-surface-variant">Loading users…</p>
+      ) : (
+        <Table head={["Login", "Name", "Role", "Organization", "Active", "Action"]}>
+          {users.length === 0 && (
+            <tr><td colSpan={6} className="py-3 text-on-surface-variant">No users</td></tr>
+          )}
+          {users.map((u) => (
+            <tr key={u.id} className="border-b border-outline-variant/60">
+              <td className="py-3 pr-4">{u.login_name || u.username}</td>
+              <td className="py-3 pr-4">{u.full_name || "—"}</td>
+              <td className="py-3 pr-4">{u.role}</td>
+              <td className="py-3 pr-4">{u.organization_name || "—"}</td>
+              <td className="py-3 pr-4">
+                <Badge tone={u.is_active ? "ACTIVE" : "SUSPENDED"}>
+                  {u.is_active ? "Yes" : "No"}
+                </Badge>
+              </td>
+              <td className="py-3 pr-4">
+                <button
+                  onClick={() => resetPassword(u.id)}
+                  className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary font-label-md text-label-sm"
+                >
+                  Reset Password
+                </button>
+              </td>
+            </tr>
+          ))}
+        </Table>
+      )}
+    </Card>
+  );
+}
+
+const CATEGORY_OPTIONS = [
+  { value: "PUBLIC_HEALTH", label: "Public Health" },
+  { value: "VACCINATION_DRIVE", label: "Vaccination Drive" },
+  { value: "SYSTEM_UPDATE", label: "System Update" },
+  { value: "GENERAL", label: "General" },
+];
+
+const CATEGORY_LABELS = Object.fromEntries(
+  CATEGORY_OPTIONS.map((c) => [c.value, c.label])
+);
+
+function Announcements() {
+  const { show } = useToast();
+  const [items, setItems] = useState(null);
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [category, setCategory] = useState("PUBLIC_HEALTH");
+  const [busy, setBusy] = useState(false);
+
+  const load = async () => {
+    try {
+      setItems(await api.listAnnouncements());
+    } catch (e) {
+      show(e.message, "err");
+    }
+  };
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function create(e) {
+    e.preventDefault();
+    if (!title.trim() || !body.trim()) {
+      show("Title and body are required", "err");
+      return;
+    }
+    setBusy(true);
+    try {
+      await api.createAnnouncement({ title, body, category });
+      show("Announcement published", "ok");
+      setTitle("");
+      setBody("");
+      setCategory("PUBLIC_HEALTH");
+      load();
+    } catch (e) {
+      show(e.message, "err");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function remove(id) {
+    try {
+      await api.deleteAnnouncement(id);
+      show("Announcement deleted");
+      load();
+    } catch (e) {
+      show(e.message, "err");
+    }
+  }
+
+  return (
+    <div className="space-y-stack-lg">
+      <Card title="Publish Announcement" subtitle="Health updates and news shown to every patient in their portal.">
+        <form onSubmit={create} className="space-y-4 max-w-2xl">
+          <Field label="Title" id="ann-title" value={title} onChange={setTitle} placeholder="e.g. Free measles-rubella vaccination camp" />
+          <div>
+            <label className="label" htmlFor="ann-body">Message</label>
+            <textarea
+              id="ann-body"
+              className="field min-h-[120px]"
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder="Write the announcement patients will read…"
+            />
+          </div>
+          <div>
+            <label className="label" htmlFor="ann-category">Category</label>
+            <select
+              id="ann-category"
+              className="field max-w-xs"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              {CATEGORY_OPTIONS.map((c) => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="submit"
+            disabled={busy}
+            className="px-6 py-3 bg-primary text-on-primary rounded-lg disabled:opacity-50"
+          >
+            {busy ? "Publishing…" : "Publish Announcement"}
+          </button>
+        </form>
+      </Card>
+
+      <Card title="Published Announcements">
+        {!items ? (
+          <p className="text-on-surface-variant">Loading announcements…</p>
+        ) : (
+          <Table head={["Title", "Category", "Published", "Author", "Action"]}>
+            {items.length === 0 && (
+              <tr><td colSpan={5} className="py-3 text-on-surface-variant">No announcements yet</td></tr>
+            )}
+            {items.map((a) => (
+              <tr key={a.id} className="border-b border-outline-variant/60">
+                <td className="py-3 pr-4">
+                  {a.title}
+                  <div className="text-label-sm text-on-surface-variant line-clamp-1">{a.body}</div>
+                </td>
+                <td className="py-3 pr-4">
+                  <Badge>{CATEGORY_LABELS[a.category] || a.category}</Badge>
+                </td>
+                <td className="py-3 pr-4 tabular-nums">
+                  {new Date(a.published_at).toLocaleDateString()}
+                </td>
+                <td className="py-3 pr-4">{a.author_name || "—"}</td>
+                <td className="py-3 pr-4">
+                  <button
+                    onClick={() => remove(a.id)}
+                    className="px-3 py-1.5 rounded-lg bg-error/10 text-error font-label-md text-label-sm"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </Table>
+        )}
+      </Card>
+    </div>
   );
 }
 

@@ -3,8 +3,9 @@ NUHRS federation FHIR routes for SwasthyaEHR (HOSP003).
 
 Mounted under /fhir/ in config/urls.py. These NID-keyed, X-API-Key guarded
 endpoints are called by the National Platform's RoutingEngine to fetch this
-hospital's clinical data on demand. They mirror
-hospital-service/clinical/fhir_urls.py so the whole federation speaks one shape.
+hospital's clinical data on demand. They mirror the other edge services' FHIR
+adapters (e.g. norvic-hospital/clinical/fhir_urls.py) so the whole federation
+speaks one shape.
 """
 
 from django.urls import path

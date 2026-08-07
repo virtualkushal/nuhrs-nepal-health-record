@@ -52,19 +52,35 @@ async function request(method, path, body, auth = true) {
 
 export const api = {
   // auth
-  login: (username, password) =>
-    request("POST", "/auth/login/", { username, password }, false),
-  changePassword: (new_password) =>
-    request("POST", "/auth/change-password/", { new_password }),
+  // Accepts a credentials object. Supported shapes:
+  //   Staff:    { scope: "STAFF",    org_code, login_name, password }
+  //   Patient:  { scope: "PATIENT",  username, password }   (username = NID)
+  //   Ministry: { scope: "MINISTRY", username, password }
+  // A bare { username, password } (no scope) still works (legacy path).
+  login: (credentials) => request("POST", "/auth/login/", credentials, false),
+  // current_password is optional — sent for user-initiated changes so the
+  // server verifies the old password before applying the new one.
+  changePassword: (new_password, current_password) =>
+    request("POST", "/auth/change-password/", { new_password, current_password }),
   // organizations
   registerOrg: (payload) => request("POST", "/orgs/register/", payload, false),
   listOrgs: (status) =>
     request("GET", `/orgs/${status ? "?status=" + status : ""}`),
+  getActiveOrganizations: () => request("GET", "/orgs/active/", null, false),
   approveOrg: (id) => request("POST", `/orgs/${id}/approve/`),
   rejectOrg: (id) => request("POST", `/orgs/${id}/reject/`),
+  suspendOrganization: (id) => request("POST", `/orgs/${id}/suspend/`),
+  reactivateOrganization: (id) => request("POST", `/orgs/${id}/reactivate/`),
   // staff
   listStaff: () => request("GET", "/staff/"),
   createStaff: (payload) => request("POST", "/staff/", payload),
+  // ministry user management
+  getAllUsers: (filters) => {
+    const qs = filters ? new URLSearchParams(filters).toString() : "";
+    return request("GET", `/users/${qs ? "?" + qs : ""}`);
+  },
+  resetUserPassword: (userId) =>
+    request("POST", `/users/${userId}/reset-password/`),
   // exchange
   lookupPatient: (nid) => request("GET", `/patients/${nid}/`),
   patientIndex: (nid) => request("GET", `/patients/${nid}/index/`),
@@ -76,7 +92,14 @@ export const api = {
   // patient portal
   activatePatient: (payload) =>
     request("POST", "/patient/activate/", payload, false),
+  registerPatient: (payload) =>
+    request("POST", "/patient/register/", payload, false),
   myRecords: () => request("GET", "/patient/records/"),
+  myBundle: () => request("GET", "/patient/bundle/"),
+  // announcements
+  listAnnouncements: () => request("GET", "/announcements/"),
+  createAnnouncement: (payload) => request("POST", "/announcements/", payload),
+  deleteAnnouncement: (id) => request("DELETE", `/announcements/${id}/`),
   // audit & analytics
   audit: (nid) => request("GET", `/audit/${nid ? "?nid=" + nid : ""}`),
   analytics: () => request("GET", "/analytics/summary/"),

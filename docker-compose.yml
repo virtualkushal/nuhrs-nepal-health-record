@@ -2,10 +2,10 @@
 #
 # Topology:
 #   national-platform (8000)  -> federated exchange, metadata only
-#   hospital-a (8001)         -> Nepal Mediciti, schema variant A
-#   hospital-b (8002)         -> Norvic International, schema variant B
-#   lab-a (9001)              -> Central Diagnostic Lab, schema variant A (PostgreSQL)
-#   lab-b (9002)              -> Pathlabs Nepal, schema variant B (MySQL)
+#   mediciti-hospital (8003)  -> Nepal Mediciti, standalone edge service (HOSP001)
+#   norvic-hospital (8004)    -> Norvic International, variant-B standalone (HOSP002)
+#   central-diagnostic-lab (9001) -> Central Diagnostic Lab, variant A (PostgreSQL)
+#   pathlabs-nepal (9002)         -> Pathlabs Nepal, variant B (MySQL)
 #
 # Each service has its OWN database (data sovereignty) — a mix of PostgreSQL and
 # MySQL, proving the FHIR adapter is storage-engine agnostic. The platform never
@@ -21,32 +21,6 @@ services:
       POSTGRES_PASSWORD: nuhrs
     ports: ["5437:5432"]  # host 5437 (5432 is taken by a local Postgres) -> pgAdmin: localhost:5437
     volumes: ["national_pg:/var/lib/postgresql/data"]
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nuhrs"]
-      interval: 5s
-      retries: 10
-
-  db-hospital-a:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: hospital_a_db
-      POSTGRES_USER: nuhrs
-      POSTGRES_PASSWORD: nuhrs
-    ports: ["5433:5432"]  # host 5433 -> pgAdmin: localhost:5433
-    volumes: ["hosp_a_pg:/var/lib/postgresql/data"]
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nuhrs"]
-      interval: 5s
-      retries: 10
-
-  db-hospital-b:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: hospital_b_db
-      POSTGRES_USER: nuhrs
-      POSTGRES_PASSWORD: nuhrs
-    ports: ["5434:5432"]  # host 5434 -> pgAdmin: localhost:5434
-    volumes: ["hosp_b_pg:/var/lib/postgresql/data"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U nuhrs"]
       interval: 5s
@@ -95,6 +69,38 @@ services:
       interval: 5s
       retries: 10
 
+  # Dedicated DB for the standalone Nepal Mediciti edge service (self-contained,
+  # Mediciti-only schema — no shared superset with any other hospital).
+  db-mediciti:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: mediciti_db
+      POSTGRES_USER: nuhrs
+      POSTGRES_PASSWORD: nuhrs
+    ports: ["5438:5432"]  # host 5438 -> pgAdmin: localhost:5438
+    volumes: ["mediciti_pg:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nuhrs"]
+      interval: 5s
+      retries: 10
+
+  # Dedicated DB for the standalone Norvic edge service (self-contained,
+  # Norvic-only "variant B" schema — different column names + extra services).
+  db-norvic:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: norvic_db
+      POSTGRES_USER: nuhrs
+      POSTGRES_PASSWORD: nuhrs
+    ports: ["5439:5432"]  # host 5439 -> pgAdmin: localhost:5439
+    volumes: ["norvic_pg:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nuhrs"]
+      interval: 5s
+      retries: 10
+
+
+
 
   # --------------------------------------------------------------- platform
   national-platform:
@@ -111,53 +117,60 @@ services:
         condition: service_healthy
 
   # --------------------------------------------------------------- hospitals
-  hospital-a:
-    build: ./hospital-service
+  # Standalone Nepal Mediciti edge service (self-contained, Mediciti-only schema).
+  # The federation's HOSP001 data source, built from its own dedicated codebase
+  # with no shared multi-hospital superset. Exposes read-only FHIR on port 8003.
+  mediciti-hospital:
+    build: ./mediciti-hospital
     environment:
       ORG_NAME: "Nepal Mediciti Hospital"
       ORG_CODE: "HOSP001"
-      SCHEMA_VARIANT: "A"
       ORG_API_KEY: "mediciti-demo-key-0001"
       PLATFORM_URL: "http://national-platform:8000"
-      PORT: "8001"
-      DB_HOST: db-hospital-a
-      DB_NAME: hospital_a_db
+      PORT: "8003"
+      DB_HOST: db-mediciti
+      DB_NAME: mediciti_db
       DB_USER: nuhrs
       DB_PASSWORD: nuhrs
-    ports: ["8001:8001"]
+    ports: ["8003:8003"]
     depends_on:
-      db-hospital-a:
+      db-mediciti:
         condition: service_healthy
       national-platform:
         condition: service_started
 
-  hospital-b:
-    build: ./hospital-service
+  # Standalone Norvic International edge service (self-contained, "variant B"
+  # schema — different column names than Mediciti, plus Immunization & Procedure
+  # services Mediciti does not offer). Exposes read-only FHIR on port 8004.
+  norvic-hospital:
+    build: ./norvic-hospital
     environment:
       ORG_NAME: "Norvic International Hospital"
       ORG_CODE: "HOSP002"
-      SCHEMA_VARIANT: "B"
       ORG_API_KEY: "norvic-demo-key-0002"
       PLATFORM_URL: "http://national-platform:8000"
-      PORT: "8002"
-      DB_HOST: db-hospital-b
-      DB_NAME: hospital_b_db
+      PORT: "8004"
+      DB_HOST: db-norvic
+      DB_NAME: norvic_db
       DB_USER: nuhrs
       DB_PASSWORD: nuhrs
-    ports: ["8002:8002"]
+    ports: ["8004:8004"]
     depends_on:
-      db-hospital-b:
+      db-norvic:
         condition: service_healthy
       national-platform:
         condition: service_started
 
   # --------------------------------------------------------------- labs
-  lab-a:
-    build: ./lab-service
+
+  # Standalone Central Diagnostic Laboratory edge service (self-contained,
+  # variant A schema, PostgreSQL). Emits LOINC-coded FHIR DiagnosticReport +
+  # Observation resources. Exposes read-only FHIR on port 9001.
+  central-diagnostic-lab:
+    build: ./central-diagnostic-lab
     environment:
       ORG_NAME: "Central Diagnostic Laboratory"
       ORG_CODE: "LAB001"
-      SCHEMA_VARIANT: "A"
       ORG_API_KEY: "central-demo-key-0003"
       PLATFORM_URL: "http://national-platform:8000"
       PORT: "9001"
@@ -172,16 +185,17 @@ services:
       national-platform:
         condition: service_started
 
-  lab-b:
-    build: ./lab-service
+  # Standalone Pathlabs Nepal edge service (self-contained, variant B schema,
+  # MySQL — different column names than Central Diagnostic). Emits IDENTICAL
+  # LOINC-coded FHIR despite the different DB engine + schema. FHIR on port 9002.
+  pathlabs-nepal:
+    build: ./pathlabs-nepal
     environment:
       ORG_NAME: "Pathlabs Nepal"
       ORG_CODE: "LAB002"
-      SCHEMA_VARIANT: "B"
       ORG_API_KEY: "pathlabs-demo-key-0004"
       PLATFORM_URL: "http://national-platform:8000"
       PORT: "9002"
-      DB_ENGINE: "django.db.backends.mysql"
       DB_HOST: db-lab-b
       DB_PORT: "3306"
       DB_NAME: lab_b_db
@@ -243,10 +257,12 @@ services:
 
 volumes:
   national_pg:
-  hosp_a_pg:
-  hosp_b_pg:
   lab_a_pg:
   lab_b_mysql:
   swastha_pg:
+  mediciti_pg:
+  norvic_pg:
+
+
 
 

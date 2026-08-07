@@ -254,7 +254,45 @@ class Command(BaseCommand):
             report_text=f"Blood group {patient.blood_group}.",
         )
 
+        # Nepal-endemic showcase: give Infectious Diseases patients a Scrub
+        # Typhus case with its serology test + D-Dimer, so the newly added
+        # endemic catalog entries appear in the demo and the FHIR bundle.
+        if dept == Department.INFECTIOUS_DISEASES:
+            Diagnosis.objects.create(
+                encounter=enc,
+                patient=patient,
+                diagnosed_by=doctor,
+                icd10_code="A75.9",  # Scrub typhus / rickettsial fever
+                clinical_status=DiagnosisStatus.ACTIVE,
+                notes="High-grade fever with eschar; endemic scrub typhus.",
+            )
+            st_order = LabOrder.objects.create(
+                encounter=enc, patient=patient, ordered_by=doctor,
+                test_code="SCRUB_TYPHUS_IGM", status=LabOrderStatus.COMPLETED,
+            )
+            st_report = LabReport.objects.create(
+                lab_order=st_order, patient=patient, entered_by=labtech,
+                status=LabReport.CONFIRMED,
+            )
+            LabResult.objects.create(
+                lab_report=st_report, patient=patient, test_code="SCRUB_TYPHUS_IGM",
+                report_text="Scrub Typhus IgM: POSITIVE (ELISA).",
+            )
+            dd_order = LabOrder.objects.create(
+                encounter=enc, patient=patient, ordered_by=doctor,
+                test_code="D_DIMER", status=LabOrderStatus.COMPLETED,
+            )
+            dd_report = LabReport.objects.create(
+                lab_order=dd_order, patient=patient, entered_by=labtech,
+                status=LabReport.CONFIRMED,
+            )
+            LabResult.objects.create(
+                lab_report=dd_report, patient=patient, test_code="D_DIMER",
+                result_value="820.00",
+            )
+
         # Prescriptions: one fulfilled, one active in the pharmacy queue.
+
         rx_data = [
             ("Paracetamol 500mg", "1 tablet every 6 hours for 3 days",
              PrescriptionStatus.COMPLETED, 20),

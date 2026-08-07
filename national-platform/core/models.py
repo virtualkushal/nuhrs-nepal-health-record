@@ -19,13 +19,14 @@ class Organization(models.Model):
     class Status(models.TextChoices):
         PENDING = "PENDING", "Pending"
         ACTIVE = "ACTIVE", "Active"
+        SUSPENDED = "SUSPENDED", "Suspended"
         REJECTED = "REJECTED", "Rejected"
 
     organization_code = models.CharField(max_length=20, unique=True, null=True, blank=True)
     organization_name = models.CharField(max_length=200)
     organization_type = models.CharField(max_length=10, choices=OrgType.choices)
     license_number = models.CharField(max_length=100)
-    api_base_url = models.URLField(help_text="Base URL of the org FHIR adapter, e.g. http://hospital-a:8001/fhir")
+    api_base_url = models.URLField(help_text="Base URL of the org FHIR adapter, e.g. http://mediciti-hospital:8003/fhir")
     api_key = models.CharField(max_length=128, null=True, blank=True, help_text="Service-to-service key")
     contact_email = models.EmailField()
     contact_phone = models.CharField(max_length=30)
@@ -61,6 +62,33 @@ class PatientIdentity(models.Model):
         return f"{self.full_name} [{self.nid}]"
 
 
+class Announcement(models.Model):
+    """Ministry-authored health announcements displayed to patients."""
+
+    class Category(models.TextChoices):
+        VACCINATION_DRIVE = "VACCINATION_DRIVE", "Vaccination Drive"
+        SYSTEM_UPDATE = "SYSTEM_UPDATE", "System Update"
+        PUBLIC_HEALTH = "PUBLIC_HEALTH", "Public Health"
+        GENERAL = "GENERAL", "General"
+
+    title = models.CharField(max_length=200)
+    body = models.TextField()
+    category = models.CharField(max_length=20, choices=Category.choices)
+    is_published = models.BooleanField(default=True)
+    published_at = models.DateTimeField(auto_now_add=True)
+    # String ref — the User model is defined further down this file; a direct
+    # class reference here would NameError at import time.
+    author = models.ForeignKey("User", on_delete=models.SET_NULL, null=True, related_name="announcements")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-published_at"]
+
+    def __str__(self):
+        return f"{self.title} ({self.category})"
+
+
 class UserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra):
         if not username:
@@ -89,6 +117,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         PATIENT = "PATIENT", "Patient"
 
     username = models.CharField(max_length=100, unique=True)
+    # Human-friendly login name typed by the user. For staff it only needs to be
+    # unique *within* their organization (enforced by unique_together below), so
+    # two different hospitals can both have a doctor called "ramesh". For super
+    # admin / patients this mirrors the username.
+    login_name = models.CharField(max_length=100, blank=True)
     full_name = models.CharField(max_length=200, blank=True)
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=30, blank=True)
@@ -107,6 +140,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = "username"
+
+    class Meta:
+        unique_together = [("organization", "login_name")]
 
     def __str__(self):
         return f"{self.username} ({self.role})"

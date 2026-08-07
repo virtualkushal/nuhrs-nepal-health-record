@@ -5,8 +5,12 @@ import Brand from "./Brand.jsx";
 // Chrome for authenticated screens: top bar with brand, identity, and logout.
 export default function AppShell({ children }) {
   const { user, logout } = useAuth();
+  // Patients get the warm blue/gold palette across the whole shell (header
+  // included) via the scoped `.patient-theme` token overrides; every other role
+  // keeps the default teal `:root` tokens.
+  const themeClass = user?.role === "PATIENT" ? "patient-theme" : "";
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen bg-background ${themeClass}`}>
       <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-outline-variant">
         <div className="h-16 max-w-container-max mx-auto px-margin-desktop flex items-center justify-between">
           <Brand size={28} subtitle />
