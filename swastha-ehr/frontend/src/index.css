@@ -2,104 +2,218 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Global base: dark navy app shell + fonts ──────────────────────────── */
-@layer base {
-  html {
-    font-family: "Inter", system-ui, sans-serif;
-  }
-  body {
-    @apply bg-surface-800 text-surface-50 antialiased;
-  }
-  h1, h2, h3, h4 {
-    font-family: "Space Grotesk", "Sora", sans-serif;
-  }
+/* ── Default (teal) palette — all dashboards except the patient portal.
+   Colors are RGB channel triplets so Tailwind's `/opacity` modifiers work.
+   Shared with the NUHRS core platform (frontend-react/src/index.css). ── */
+:root {
+  --font-headline: "Inter", sans-serif;
+
+  --color-on-tertiary-fixed-variant: 111 56 11;
+  --color-on-error-container: 147 0 10;
+  --color-surface-container-low: 242 244 245;
+  --color-secondary-fixed-dim: 161 201 255;
+  --color-on-secondary-container: 0 67 119;
+  --color-secondary-fixed: 210 228 255;
+  --color-secondary-container: 111 177 255;
+  --color-tertiary: 133 72 27;
+  --color-primary-fixed-dim: 124 212 223;
+  --color-on-tertiary-container: 255 243 238;
+  --color-on-primary-fixed: 0 31 35;
+  --color-on-surface: 25 28 29;
+  --color-surface-variant: 225 227 228;
+  --color-surface: 248 250 251;
+  --color-tertiary-fixed-dim: 255 182 136;
+  --color-inverse-on-surface: 239 241 242;
+  --color-inverse-surface: 46 49 50;
+  --color-outline: 110 121 122;
+  --color-on-surface-variant: 62 73 74;
+  --color-on-error: 255 255 255;
+  --color-tertiary-container: 162 96 49;
+  --color-on-secondary-fixed-variant: 0 72 127;
+  --color-on-secondary: 255 255 255;
+  --color-on-background: 25 28 29;
+  --color-surface-container: 236 238 239;
+  --color-surface-container-lowest: 255 255 255;
+  --color-on-primary-container: 221 251 255;
+  --color-inverse-primary: 124 212 223;
+  --color-surface-bright: 248 250 251;
+  --color-primary: 0 98 106;
+  --color-on-primary-fixed-variant: 0 79 86;
+  --color-on-secondary-fixed: 0 28 55;
+  --color-surface-container-high: 230 232 233;
+  --color-error: 186 26 26;
+  --color-secondary: 0 97 167;
+  --color-surface-dim: 216 218 219;
+  --color-outline-variant: 189 201 202;
+  --color-on-tertiary-fixed: 49 19 0;
+  --color-on-primary: 255 255 255;
+  --color-surface-container-highest: 225 227 228;
+  --color-primary-container: 14 124 134;
+  --color-on-tertiary: 255 255 255;
+  --color-tertiary-fixed: 255 219 199;
+  --color-primary-fixed: 152 240 251;
+  --color-background: 248 250 251;
+  --color-error-container: 255 218 214;
+  --color-surface-tint: 0 105 114;
+  --color-ok: 31 122 52;
+  --color-warn: 178 106 0;
 }
 
-/* ── Reusable themed components (dark navy design system) ──────────────── */
+/* Patient portal palette — warm blue/gold, matching the NUHRS patient theme.
+   Only overrides the tokens that differ; everything else inherits :root.
+   Scoped to the `.patient-theme` wrapper so no other dashboard is affected. */
+.patient-theme {
+  --font-headline: "Plus Jakarta Sans", "Inter", sans-serif;
+
+  --color-primary: 0 95 157;
+  --color-on-primary: 255 255 255;
+  --color-primary-container: 0 121 197;
+  --color-on-primary-container: 255 255 255;
+  --color-primary-fixed: 210 228 255;
+  --color-primary-fixed-dim: 156 202 255;
+  --color-on-primary-fixed: 0 29 52;
+  --color-on-primary-fixed-variant: 0 73 126;
+  --color-inverse-primary: 156 202 255;
+  --color-surface-tint: 0 95 157;
+  --color-secondary: 124 88 0;
+  --color-on-secondary: 255 255 255;
+  --color-secondary-container: 253 183 0;
+  --color-on-secondary-container: 79 57 0;
+  --color-secondary-fixed: 255 222 167;
+  --color-secondary-fixed-dim: 255 187 24;
+  --color-on-secondary-fixed: 61 46 0;
+  --color-on-secondary-fixed-variant: 94 68 0;
+  --color-tertiary: 184 0 75;
+  --color-on-tertiary: 255 255 255;
+  --color-tertiary-container: 255 144 172;
+  --color-on-tertiary-container: 63 0 24;
+  --color-background: 248 249 250;
+  --color-on-background: 25 28 29;
+  --color-surface: 248 249 250;
+  --color-surface-bright: 255 255 255;
+  --color-surface-container-lowest: 255 255 255;
+  --color-surface-container-low: 243 244 245;
+  --color-surface-container: 238 240 242;
+  --color-surface-container-high: 232 234 237;
+  --color-surface-container-highest: 226 229 232;
+  --color-surface-variant: 221 227 234;
+  --color-on-surface: 25 28 29;
+  --color-on-surface-variant: 65 71 81;
+  --color-outline: 112 120 130;
+  --color-outline-variant: 192 199 211;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: #f8f9fa;
+  color: #191c1d;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-headline), sans-serif;
+}
+
+/* ── Reusable themed components (NUHRS shared design system) ─────────────── */
 @layer components {
-  /* Full-height page shell with the animated gradient mesh */
+  /* Full-height page shell */
   .page-shell {
-    @apply min-h-screen bg-surface-800 font-sans text-surface-50;
+    @apply min-h-screen bg-background font-sans text-on-surface;
   }
   .auth-shell {
-    @apply gradient-mesh flex min-h-screen items-center justify-center px-4 py-12;
+    @apply flex min-h-screen items-center justify-center bg-background px-4 py-12;
   }
 
   /* Cards / panels */
   .card {
-    @apply rounded-2xl border border-line bg-surface-750 p-6 shadow-lg shadow-black/20;
+    @apply rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm;
   }
   .panel {
-    @apply rounded-2xl border border-line bg-surface-700;
+    @apply rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm;
   }
 
   /* Buttons */
   .btn-primary {
-    @apply flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 font-semibold text-white shadow-lg shadow-brand-900/40 transition hover:bg-brand-500 disabled:opacity-60;
+    @apply flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 font-label-md text-on-primary shadow-lg shadow-primary/20 transition-all hover:opacity-90 disabled:opacity-50;
+  }
+  .btn-outline {
+    @apply flex items-center justify-center gap-2 rounded-lg border-2 border-primary px-6 py-3 font-label-md text-primary transition-colors hover:bg-primary/5;
   }
   .btn-ghost {
-    @apply flex items-center justify-center gap-2 rounded-lg border border-line bg-surface-800/60 px-4 py-2.5 font-semibold text-white transition hover:border-brand-500/60;
+    @apply flex items-center justify-center gap-2 px-4 py-2 font-label-md text-on-surface-variant transition-colors hover:text-primary;
   }
 
   /* Form fields */
   .label {
-    @apply mb-1 block text-sm font-medium text-gray-300;
+    @apply mb-2 block font-label-md text-label-md text-on-surface-variant;
+  }
+  .field {
+    @apply w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-4 py-3 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-primary;
   }
   .input {
-    @apply w-full rounded-lg border border-line bg-surface-800 px-3 py-2 text-sm text-white placeholder-gray-500 transition focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500;
+    @apply w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-4 py-3 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-primary;
   }
 
   /* Links */
   .link {
-    @apply text-brand-400 transition hover:text-brand-300;
+    @apply text-primary transition-colors hover:text-primary/80;
   }
 
   /* Status/alert boxes */
   .alert-error {
-    @apply rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300;
+    @apply rounded-lg border border-error/30 bg-error/10 px-4 py-3 text-sm text-error;
   }
   .alert-success {
-    @apply rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300;
+    @apply rounded-lg border border-ok/30 bg-ok/10 px-4 py-3 text-sm text-ok;
   }
 
   /* Table styling for dashboards */
   .th {
-    @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-brand-400;
+    @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-on-surface-variant;
   }
   .td {
-    @apply px-4 py-3 text-sm text-gray-200;
+    @apply px-4 py-3 text-sm text-on-surface;
   }
 }
 
 @layer utilities {
-
-  /* Animated radial gradient mesh used on dark hero/CTA sections */
+  /* Animated radial gradient mesh — softened for the light theme */
   .gradient-mesh {
     background-image:
-      radial-gradient(at 20% 30%, rgba(30, 58, 138, 0.4) 0px, transparent 50%),
-      radial-gradient(at 80% 20%, rgba(56, 189, 248, 0.2) 0px, transparent 50%),
-      radial-gradient(at 50% 80%, rgba(37, 99, 235, 0.3) 0px, transparent 50%);
+      radial-gradient(at 20% 30%, rgba(30, 58, 138, 0.15) 0px, transparent 50%),
+      radial-gradient(at 80% 20%, rgba(56, 189, 248, 0.1) 0px, transparent 50%),
+      radial-gradient(at 50% 80%, rgba(37, 99, 235, 0.12) 0px, transparent 50%);
     background-size: 150% 150%;
     animation: gradientMove 15s ease infinite;
   }
 
-  /* Frosted card used on dark surfaces */
+  /* Frosted card — light glass for the light theme */
   .glass-card {
-    background: rgba(20, 39, 64, 0.7);
+    background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(30, 53, 84, 0.6);
+    border: 1px solid rgba(189, 201, 202, 0.6);
   }
 }
 
-/* Thin dark scrollbars to match the navy theme */
+/* Light scrollbars to match the theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a1628;
+  background: #f8f9fa;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e3a8a;
+  background: #bdc9ca;
   border-radius: 4px;
 }

@@ -101,7 +101,7 @@ export default function CrossHospital() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-700">
+    <div className="min-h-screen bg-background">
       <DashboardHeader user={user} logout={logout} subtitle="Cross-Hospital Exchange" />
 
       <div className="mx-auto max-w-4xl px-4 py-8">
@@ -110,21 +110,21 @@ export default function CrossHospital() {
             <Building2 className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">Cross-Hospital Records Exchange</h1>
-            <p className="text-sm text-gray-400">
+            <h1 className="text-xl font-bold text-on-surface">Cross-Hospital Records Exchange</h1>
+            <p className="text-sm text-on-surface-variant">
               {self ? `${self.name} (${self.code})` : "This hospital"} — request a patient's records from another hospital via FHIR.
             </p>
           </div>
         </div>
 
-        <form onSubmit={submit} className="rounded-2xl bg-surface-750 p-6 shadow-sm ring-1 ring-line">
+        <form onSubmit={submit} className="rounded-2xl bg-surface-container-lowest p-6 shadow-sm ring-1 ring-outline-variant">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-200">Hospital to request from</label>
+              <label className="mb-1 block text-sm font-medium text-on-surface">Hospital to request from</label>
               <select
                 value={peerCode}
                 onChange={(e) => setPeerCode(e.target.value)}
-                className="w-full rounded-lg border border-line bg-surface-800 px-3 py-2 text-sm text-white focus:border-brand-500 focus:outline-none"
+                className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm text-on-surface focus:border-primary focus:outline-none"
               >
                 {peers.length === 0 && <option value="">No peers configured</option>}
                 {peers.map((p) => (
@@ -135,19 +135,19 @@ export default function CrossHospital() {
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-200">Patient National ID</label>
+              <label className="mb-1 block text-sm font-medium text-on-surface">Patient National ID</label>
               <input
                 value={nid}
                 onChange={(e) => setNid(e.target.value)}
                 placeholder="e.g. 1234500001"
                 required
-                className="w-full rounded-lg border border-line bg-surface-800 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-brand-500 focus:outline-none"
+                className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm text-on-surface placeholder-on-surface-variant/60 focus:border-primary focus:outline-none"
               />
             </div>
           </div>
 
           <div className="mt-4">
-            <label className="mb-2 block text-sm font-medium text-gray-200">Scope requested</label>
+            <label className="mb-2 block text-sm font-medium text-on-surface">Scope requested</label>
             <div className="flex flex-wrap gap-2">
               {SCOPES.map((s) => {
                 const active = scope.includes(s.key);
@@ -157,7 +157,7 @@ export default function CrossHospital() {
                     key={s.key}
                     onClick={() => toggleScope(s.key)}
                     className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                      active ? "bg-brand-600 text-white" : "bg-surface-800 text-gray-300 ring-1 ring-line"
+                      active ? "bg-primary text-white" : "bg-surface-variant text-on-surface-variant ring-1 ring-outline-variant"
                     }`}
                   >
                     {s.label}
@@ -170,46 +170,46 @@ export default function CrossHospital() {
           <button
             type="submit"
             disabled={busy || !peerCode}
-            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
+            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             Send request
           </button>
-          <p className="mt-2 flex items-center gap-1.5 text-xs text-gray-500">
+          <p className="mt-2 flex items-center gap-1.5 text-xs text-on-surface-variant">
             <ShieldCheck className="h-3.5 w-3.5" /> The other hospital's patient or admin must approve before records are shared.
           </p>
-          {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
+          {error && <p className="mt-3 text-sm text-error">{error}</p>}
         </form>
 
         <div className="mt-6 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-white">My requests</h2>
-          <button onClick={loadRequests} className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-white">
+          <h2 className="text-sm font-semibold text-on-surface">My requests</h2>
+          <button onClick={loadRequests} className="inline-flex items-center gap-1.5 text-xs text-on-surface-variant hover:text-on-surface">
             <RefreshCw className="h-3.5 w-3.5" /> Refresh
           </button>
         </div>
 
         <div className="mt-3 space-y-3">
           {requests.length === 0 && (
-            <p className="rounded-xl bg-surface-750 p-4 text-sm text-gray-500 ring-1 ring-line">No requests yet.</p>
+            <p className="rounded-xl bg-surface-container-lowest p-4 text-sm text-on-surface-variant ring-1 ring-outline-variant">No requests yet.</p>
           )}
           {requests.map((r) => (
-            <div key={r.id} className="rounded-xl bg-surface-750 p-4 ring-1 ring-line">
+            <div key={r.id} className="rounded-xl bg-surface-container-lowest p-4 ring-1 ring-outline-variant">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-white">
+                  <p className="text-sm font-semibold text-on-surface">
                     {r.peer_name} · NID {r.national_id}
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-on-surface-variant">
                     Scope: {(r.scope || []).join(", ") || "everything"}
                   </p>
                 </div>
                 <StatusBadge status={r.status} imported={r.imported} />
               </div>
 
-              {r.error && <p className="mt-2 text-xs text-red-300">{r.error}</p>}
+              {r.error && <p className="mt-2 text-xs text-error">{r.error}</p>}
 
               {r.status === "APPROVED" && r.summary && (
-                <p className="mt-2 text-xs text-gray-400">
+                <p className="mt-2 text-xs text-on-surface-variant">
                   Received: {Object.entries(r.summary).map(([k, v]) => `${v} ${k}`).join(", ")}
                 </p>
               )}
@@ -218,7 +218,7 @@ export default function CrossHospital() {
                 {["PENDING", "ERROR"].includes(r.status) && (
                   <button
                     onClick={() => poll(r.id)}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-surface-800 px-3 py-1.5 text-xs font-semibold text-white ring-1 ring-line hover:bg-surface-900"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-surface-variant px-3 py-1.5 text-xs font-semibold text-on-surface-variant ring-1 ring-outline-variant hover:bg-surface-container-high"
                   >
                     <RefreshCw className="h-3.5 w-3.5" /> Check for approval
                   </button>
@@ -226,13 +226,13 @@ export default function CrossHospital() {
                 {r.status === "APPROVED" && !r.imported && (
                   <button
                     onClick={() => importRecord(r.id)}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-700"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
                   >
                     <Download className="h-3.5 w-3.5" /> Import into our records
                   </button>
                 )}
                 {r.imported && (
-                  <span className="text-xs font-semibold text-emerald-300">Imported ✓</span>
+                  <span className="text-xs font-semibold text-ok">Imported ✓</span>
                 )}
               </div>
             </div>
@@ -245,15 +245,15 @@ export default function CrossHospital() {
 
 function StatusBadge({ status, imported }) {
   const map = {
-    PENDING: "bg-amber-500/10 text-amber-300",
-    APPROVED: "bg-emerald-500/10 text-emerald-300",
-    DENIED: "bg-red-500/10 text-red-300",
-    EXPIRED: "bg-gray-500/10 text-gray-300",
-    ERROR: "bg-red-500/10 text-red-300",
+    PENDING: "bg-warn/10 text-warn",
+    APPROVED: "bg-ok/10 text-ok",
+    DENIED: "bg-error/10 text-error",
+    EXPIRED: "bg-surface-variant text-on-surface-variant",
+    ERROR: "bg-error/10 text-error",
   };
   const label = imported ? "IMPORTED" : status;
   return (
-    <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${map[status] || "bg-gray-500/10 text-gray-300"}`}>
+    <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${map[status] || "bg-surface-variant text-on-surface-variant"}`}>
       {label}
     </span>
   );

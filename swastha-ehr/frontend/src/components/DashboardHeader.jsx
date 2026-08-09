@@ -16,19 +16,19 @@ export default function DashboardHeader({ user, logout, subtitle }) {
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-surface-800/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-outline-variant bg-surface/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
         <div className="flex items-center gap-3">
           <div
-            className={`rounded-xl bg-gradient-to-br ${theme.gradient} p-2 shadow-lg shadow-brand-900/40`}
+            className={`rounded-xl bg-gradient-to-br ${theme.gradient} p-2 shadow-lg shadow-black/10`}
           >
             <HeartPulse className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="font-display font-bold tracking-tight text-white">
-              Swasthya<span className="text-brand-400">EHR</span>
+            <h1 className="font-display font-bold tracking-tight text-on-surface">
+              Swasthya<span className="text-primary">EHR</span>
             </h1>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-on-surface-variant">
               {subtitle || theme.label}
             </p>
           </div>
@@ -39,13 +39,13 @@ export default function DashboardHeader({ user, logout, subtitle }) {
             <>
               <Link
                 to="/doctor/cross-hospital"
-                className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-gray-300 hover:bg-surface-700 hover:text-white sm:flex"
+                className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface sm:flex"
               >
                 <Building2 className="h-4 w-4" /> Cross-Hospital
               </Link>
               <Link
                 to="/doctor/imported-records"
-                className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-gray-300 hover:bg-surface-700 hover:text-white sm:flex"
+                className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface sm:flex"
               >
                 <Archive className="h-4 w-4" /> Imported Records
               </Link>
@@ -54,7 +54,7 @@ export default function DashboardHeader({ user, logout, subtitle }) {
           {user?.role === "ADMIN" && (
             <Link
               to="/admin/share-requests"
-              className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-gray-300 hover:bg-surface-700 hover:text-white sm:flex"
+              className="hidden items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface sm:flex"
             >
               <Inbox className="h-4 w-4" /> Incoming Requests
             </Link>
@@ -71,13 +71,13 @@ export default function DashboardHeader({ user, logout, subtitle }) {
             >
               {initials}
             </div>
-            <span className="hidden text-sm text-gray-300 md:inline">
+            <span className="hidden text-sm text-on-surface-variant md:inline">
               {user?.full_name}
             </span>
           </div>
           <button
             onClick={logout}
-            className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm text-gray-400 transition-colors hover:bg-surface-700 hover:text-white"
+            className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
           >
             <LogOut className="h-4 w-4" />
             <span className="hidden sm:inline">Sign out</span>

@@ -37,13 +37,13 @@ export default function LoginPage() {
     <div className="auth-shell">
       <div className="w-full max-w-md">
         <div className="mb-6 flex flex-col items-center">
-          <Link to="/" className="rounded-2xl bg-gradient-to-br from-brand-500 to-brand-800 p-3 shadow-lg shadow-brand-900/40">
+          <Link to="/" className="rounded-2xl bg-gradient-to-br from-brand-500 to-brand-800 p-3 shadow-sm shadow-black/10">
             <HeartPulse className="h-7 w-7 text-white" />
           </Link>
-          <h1 className="mt-3 font-display text-2xl font-bold text-white">
-            Swasthya<span className="text-brand-400">EHR</span>
+          <h1 className="mt-3 font-display text-2xl font-bold text-on-surface">
+            Swasthya<span className="text-primary">EHR</span>
           </h1>
-          <p className="text-sm text-gray-400">Sign in to your workspace</p>
+          <p className="text-sm text-on-surface-variant">Sign in to your workspace</p>
         </div>
 
         <form onSubmit={handleSubmit} className="glass-card space-y-4 rounded-2xl p-8">
@@ -79,11 +79,11 @@ export default function LoginPage() {
             <Link to="/forgot-password" className="link">
               Forgot password?
             </Link>
-            <Link to="/register" className="text-gray-400 hover:text-white">
+            <Link to="/register" className="text-on-surface-variant hover:text-on-surface">
               New patient? Register
             </Link>
           </div>
-          <p className="text-center text-xs text-gray-500">
+          <p className="text-center text-xs text-on-surface-variant">
             Staff? <Link to="/staff-register" className="link">Request a staff account</Link>
           </p>
         </form>

@@ -11,7 +11,7 @@
 export default function TrendChart({ points = [], unit = "", label = "" }) {
   if (!points.length) {
     return (
-      <div className="text-sm text-gray-400 italic py-6 text-center">
+      <div className="py-6 text-center text-sm italic text-on-surface-variant">
         No {label || "data"} recorded yet.
       </div>
     );
@@ -56,11 +56,11 @@ export default function TrendChart({ points = [], unit = "", label = "" }) {
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-surface-750 p-3">
+    <div className="rounded-lg border border-outline-variant bg-surface-container-lowest p-3">
       <div className="mb-1 flex items-baseline justify-between">
-        <h4 className="text-sm font-semibold text-gray-700">{label}</h4>
-        <span className="text-sm text-gray-500">
-          Latest: <span className="font-semibold text-gray-800">{latest.value}</span> {unit}
+        <h4 className="text-sm font-semibold text-on-surface">{label}</h4>
+        <span className="text-sm text-on-surface-variant">
+          Latest: <span className="font-semibold text-on-surface">{latest.value}</span> {unit}
         </span>
       </div>
       <svg
@@ -70,35 +70,35 @@ export default function TrendChart({ points = [], unit = "", label = "" }) {
         aria-label={`${label} trend chart`}
       >
         {/* min / max reference gridlines */}
-        <line x1={padX} y1={padY} x2={width - padX} y2={padY} stroke="#f1f5f9" />
+        <line x1={padX} y1={padY} x2={width - padX} y2={padY} stroke="#e1e3e4" />
         <line
           x1={padX}
           y1={height - padY}
           x2={width - padX}
           y2={height - padY}
-          stroke="#f1f5f9"
+          stroke="#e1e3e4"
         />
-        <text x={4} y={padY + 4} fontSize="9" fill="#94a3b8">
+        <text x={4} y={padY + 4} fontSize="9" fill="#6e797a">
           {max}
         </text>
-        <text x={4} y={height - padY + 4} fontSize="9" fill="#94a3b8">
+        <text x={4} y={height - padY + 4} fontSize="9" fill="#6e797a">
           {min}
         </text>
 
         {/* the trend line */}
         {points.length > 1 && (
-          <path d={linePath} fill="none" stroke="#2563eb" strokeWidth="2" />
+          <path d={linePath} fill="none" stroke="#00626a" strokeWidth="2" />
         )}
 
         {/* data points */}
         {points.map((p, i) => (
           <g key={i}>
-            <circle cx={x(i)} cy={y(p.value)} r="3.5" fill="#2563eb" />
+            <circle cx={x(i)} cy={y(p.value)} r="3.5" fill="#00626a" />
             <text
               x={x(i)}
               y={height - 4}
               fontSize="8"
-              fill="#94a3b8"
+              fill="#6e797a"
               textAnchor="middle"
             >
               {fmtDate(p.date)}

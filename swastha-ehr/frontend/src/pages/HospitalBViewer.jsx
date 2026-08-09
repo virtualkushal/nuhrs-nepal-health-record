@@ -65,59 +65,59 @@ export default function HospitalBViewer() {
   const patient = grouped?.Patient?.[0];
 
   return (
-    <div className="min-h-screen bg-surface-700 px-4 py-8">
+    <div className="min-h-screen bg-background px-4 py-8">
       <div className="mx-auto max-w-3xl">
         <div className="mb-6 flex items-center gap-3">
           <div className="rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 p-2.5 shadow-sm">
             <Building2 className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">Hospital B — Records Portal</h1>
-            <p className="text-sm text-gray-400">Request a patient's records from SwasthyaEHR via FHIR</p>
+            <h1 className="text-xl font-bold text-on-surface">Hospital B — Records Portal</h1>
+            <p className="text-sm text-on-surface-variant">Request a patient's records from SwasthyaEHR via FHIR</p>
           </div>
         </div>
 
-        <form onSubmit={requestAccess} className="rounded-2xl bg-surface-750 p-6 shadow-sm ring-1 ring-line">
-          <label className="mb-1 block text-sm font-medium text-gray-200">Patient National ID</label>
+        <form onSubmit={requestAccess} className="rounded-2xl bg-surface-container-lowest p-6 shadow-sm ring-1 ring-outline-variant">
+          <label className="mb-1 block text-sm font-medium text-on-surface">Patient National ID</label>
           <div className="flex gap-2">
             <input
               value={nid}
               onChange={(e) => setNid(e.target.value)}
               placeholder="e.g. 1234500001"
               required
-              className="flex-1 rounded-lg border border-line bg-surface-800 text-white placeholder-gray-500 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="flex-1 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface placeholder-on-surface-variant/60 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
             <button type="submit" className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
               <Search className="h-4 w-4" /> Request
             </button>
           </div>
-          <p className="mt-2 flex items-center gap-1.5 text-xs text-gray-500">
+          <p className="mt-2 flex items-center gap-1.5 text-xs text-on-surface-variant">
             <ShieldCheck className="h-3.5 w-3.5" /> The patient must approve this request in their own portal.
           </p>
         </form>
 
         {requestId && !bundle && (
-          <div className="mt-4 rounded-2xl bg-surface-750 p-6 text-center shadow-sm ring-1 ring-line">
-            <p className="text-sm text-gray-300">
-              Request status: <span className="font-semibold text-white">{status}</span>
+          <div className="mt-4 rounded-2xl bg-surface-container-lowest p-6 text-center shadow-sm ring-1 ring-outline-variant">
+            <p className="text-sm text-on-surface-variant">
+              Request status: <span className="font-semibold text-on-surface">{status}</span>
             </p>
             <button onClick={poll} disabled={polling}
-              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-900 disabled:opacity-60">
+              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-surface-variant px-4 py-2 text-sm font-semibold text-on-surface-variant hover:bg-surface-container-high disabled:opacity-60">
               {polling && <Loader2 className="h-4 w-4 animate-spin" />}
               Check for approval
             </button>
-            {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
+            {error && <p className="mt-3 text-sm text-error">{error}</p>}
           </div>
         )}
 
         {bundle && patient && (
           <div className="mt-4 space-y-4">
-            <div className="rounded-2xl bg-surface-750 p-6 shadow-sm ring-1 ring-emerald-100">
-              <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300">Access granted</span>
-              <h2 className="mt-3 text-lg font-bold text-white">
+            <div className="rounded-2xl bg-surface-container-lowest p-6 shadow-sm ring-1 ring-ok/30">
+              <span className="rounded-full bg-ok/10 px-3 py-1 text-xs font-semibold text-ok">Access granted</span>
+              <h2 className="mt-3 text-lg font-bold text-on-surface">
                 {patient.name?.[0]?.text || `${patient.name?.[0]?.given?.[0]} ${patient.name?.[0]?.family}`}
               </h2>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-on-surface-variant">
                 {patient.gender} · DOB {patient.birthDate} · NID {patient.identifier?.[0]?.value}
               </p>
             </div>
@@ -154,19 +154,19 @@ export default function HospitalBViewer() {
 
 function Section({ title, rows }) {
   return (
-    <div className="rounded-2xl bg-surface-750 p-6 shadow-sm ring-1 ring-line">
-      <h3 className="font-semibold text-white">{title}</h3>
+    <div className="rounded-2xl bg-surface-container-lowest p-6 shadow-sm ring-1 ring-outline-variant">
+      <h3 className="font-semibold text-on-surface">{title}</h3>
       {rows.length === 0 ? (
-        <p className="mt-2 text-sm text-gray-500">None on record.</p>
+        <p className="mt-2 text-sm text-on-surface-variant">None on record.</p>
       ) : (
-        <ul className="mt-3 divide-y divide-line">
+        <ul className="mt-3 divide-y divide-outline-variant">
           {rows.map((r, i) => (
             <li key={i} className="flex items-center justify-between py-2">
               <div>
-                <p className="text-sm font-medium text-white">{r.main}</p>
-                {r.sub && <p className="text-xs text-gray-400">{r.sub}</p>}
+                <p className="text-sm font-medium text-on-surface">{r.main}</p>
+                {r.sub && <p className="text-xs text-on-surface-variant">{r.sub}</p>}
               </div>
-              {r.meta && <span className="rounded-full bg-surface-700 px-2.5 py-0.5 text-xs font-medium text-gray-300">{r.meta}</span>}
+              {r.meta && <span className="rounded-full bg-surface-variant px-2.5 py-0.5 text-xs font-medium text-on-surface-variant">{r.meta}</span>}
             </li>
           ))}
         </ul>

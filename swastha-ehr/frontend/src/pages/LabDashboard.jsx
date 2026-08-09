@@ -36,41 +36,41 @@ export default function LabDashboard() {
     <div className={`min-h-screen bg-gradient-to-b ${ROLE_THEME.LAB_TECH.tint}`}>
       <DashboardHeader user={user} logout={logout} subtitle="Diagnostic lab station" />
       <main className="mx-auto grid max-w-4xl gap-6 p-6 md:grid-cols-2">
-        <section className="rounded-2xl border border-line bg-surface-750 p-5 shadow-sm">
-          <h2 className="mb-3 flex items-center gap-2 font-semibold text-white">
-            <ClipboardList className="h-5 w-5 text-violet-300" /> Pending orders
+        <section className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm">
+          <h2 className="mb-3 flex items-center gap-2 font-semibold text-on-surface">
+            <ClipboardList className="h-5 w-5 text-violet-600" /> Pending orders
           </h2>
           {loading ? (
-            <div className="flex justify-center py-10 text-gray-500"><Loader2 className="h-6 w-6 animate-spin" /></div>
+            <div className="flex justify-center py-10 text-on-surface-variant"><Loader2 className="h-6 w-6 animate-spin" /></div>
           ) : (
-            <ul className="max-h-96 divide-y divide-line overflow-y-auto">
+            <ul className="max-h-96 divide-y divide-outline-variant overflow-y-auto">
               {orders.map((o) => (
                 <li key={o.id}>
                   <button onClick={() => setSelected(o)}
-                    className={`w-full rounded-lg px-3 py-3 text-left transition-colors ${selected?.id === o.id ? "bg-violet-500/20" : "hover:bg-surface-700"}`}>
+                    className={`w-full rounded-lg px-3 py-3 text-left transition-colors ${selected?.id === o.id ? "bg-violet-500/20" : "hover:bg-surface-container-low"}`}>
                     <div className="flex items-center justify-between">
-                      <p className="font-medium text-white">{o.test_name}</p>
+                      <p className="font-medium text-on-surface">{o.test_name}</p>
                       {o.priority === "URGENT" && (
-                        <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-xs font-semibold text-red-300">URGENT</span>
+                        <span className="rounded-full bg-error/10 px-2 py-0.5 text-xs font-semibold text-error">URGENT</span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-400">{o.patient_name}</p>
-                    <p className="font-mono text-xs text-gray-500">{o.category} · LOINC {o.loinc_code || "—"}</p>
+                    <p className="text-sm text-on-surface-variant">{o.patient_name}</p>
+                    <p className="font-mono text-xs text-on-surface-variant">{o.category} · LOINC {o.loinc_code || "—"}</p>
                   </button>
                 </li>
               ))}
               {orders.length === 0 && (
-                <li className="px-3 py-8 text-center text-sm text-gray-500">No pending orders. All caught up!</li>
+                <li className="px-3 py-8 text-center text-sm text-on-surface-variant">No pending orders. All caught up!</li>
               )}
             </ul>
           )}
         </section>
 
-        <section className="rounded-2xl border border-line bg-surface-750 p-5 shadow-sm">
+        <section className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm">
           {selected ? (
             <ResultEntryPanel order={selected} meta={catalog[selected.test_code]} onSaved={() => { setSelected(null); loadQueue(); }} />
           ) : (
-            <div className="flex h-full flex-col items-center justify-center py-12 text-center text-gray-500">
+            <div className="flex h-full flex-col items-center justify-center py-12 text-center text-on-surface-variant">
               <FlaskConical className="mb-2 h-8 w-8" />
               <p>Select an order to enter its result.</p>
             </div>
@@ -110,22 +110,22 @@ function ResultEntryPanel({ order, meta, onSaved }) {
     }
   }
 
-  const field = "w-full rounded-lg border border-line bg-surface-800 text-white placeholder-gray-500 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500";
+  const field = "w-full rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface placeholder-on-surface-variant/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary";
 
   return (
     <div>
-      <h2 className="font-semibold text-white">{order.test_name}</h2>
-      <p className="mb-1 text-sm text-gray-400">{order.patient_name}</p>
-      <p className="mb-4 font-mono text-xs text-gray-500">{order.category} · LOINC {order.loinc_code || "—"}</p>
+      <h2 className="font-semibold text-on-surface">{order.test_name}</h2>
+      <p className="mb-1 text-sm text-on-surface-variant">{order.patient_name}</p>
+      <p className="mb-4 font-mono text-xs text-on-surface-variant">{order.category} · LOINC {order.loinc_code || "—"}</p>
 
       {isQuantitative && meta && (meta.reference_low != null || meta.reference_high != null) && (
-        <div className="mb-4 rounded-lg border border-line bg-surface-700 px-3 py-2 text-sm text-gray-300">
-          Reference range: <span className="font-medium text-white">{meta.reference_low}–{meta.reference_high} {meta.unit}</span>
+        <div className="mb-4 rounded-lg border border-outline-variant bg-surface-container-low px-3 py-2 text-sm text-on-surface-variant">
+          Reference range: <span className="font-medium text-on-surface">{meta.reference_low}–{meta.reference_high} {meta.unit}</span>
         </div>
       )}
-      {error && <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</div>}
+      {error && <div className="mb-4 rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-sm text-error">{error}</div>}
       {success && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg border border-brand-500/30 bg-brand-500/10 px-3 py-2 text-sm text-teal-800">
+        <div className="mb-4 flex items-center gap-2 rounded-lg border border-ok/30 bg-ok/10 px-3 py-2 text-sm text-ok">
           <CheckCircle2 className="h-5 w-5" /> {success}
         </div>
       )}
@@ -133,12 +133,12 @@ function ResultEntryPanel({ order, meta, onSaved }) {
       <form onSubmit={handleSubmit} className="space-y-3">
         {isQuantitative ? (
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-200">Result value {meta?.unit ? `(${meta.unit})` : ""}</label>
+            <label className="mb-1 block text-sm font-medium text-on-surface">Result value {meta?.unit ? `(${meta.unit})` : ""}</label>
             <input type="number" step="0.01" className={field} value={value} onChange={(e) => setValue(e.target.value)} placeholder="e.g. 14.20" required />
           </div>
         ) : (
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-200">Report / conclusion</label>
+            <label className="mb-1 block text-sm font-medium text-on-surface">Report / conclusion</label>
             <textarea className={field} rows={4} value={reportText} onChange={(e) => setReportText(e.target.value)} placeholder="e.g. No abnormality detected." required />
           </div>
         )}

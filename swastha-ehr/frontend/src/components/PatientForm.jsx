@@ -68,8 +68,8 @@ export default function PatientForm({
   }
 
   const field =
-    "w-full rounded-lg border border-line bg-surface-800 text-white placeholder-gray-500 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500";
-  const lbl = "block text-sm font-medium text-gray-200 mb-1";
+    "w-full rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface placeholder-on-surface-variant/60 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary";
+  const lbl = "block text-sm font-medium text-on-surface-variant mb-1";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -154,14 +154,14 @@ export default function PatientForm({
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addAllergy(); } }}
             placeholder="Type an allergy and press Enter (e.g. Penicillin)"
           />
-          <button type="button" onClick={addAllergy} className="rounded-lg bg-slate-800 px-4 text-sm font-semibold text-white hover:bg-slate-900">
+          <button type="button" onClick={addAllergy} className="rounded-lg bg-surface-container-low px-4 text-sm font-semibold text-on-surface hover:bg-surface-container-high">
             Add
           </button>
         </div>
         {allergies.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-2">
             {allergies.map((a) => (
-              <span key={a} className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-3 py-1 text-sm text-red-300 ring-1 ring-red-500/30">
+              <span key={a} className="inline-flex items-center gap-1 rounded-full bg-error/10 px-3 py-1 text-sm text-error ring-1 ring-error/30">
                 {a}
                 <button type="button" onClick={() => setAllergies((cur) => cur.filter((x) => x !== a))}>
                   <X className="h-3.5 w-3.5" />
@@ -170,15 +170,15 @@ export default function PatientForm({
             ))}
           </div>
         )}
-        <p className="mt-1 text-xs text-gray-500">Leave empty if the patient has no known allergies.</p>
+        <p className="mt-1 text-xs text-on-surface-variant">Leave empty if the patient has no known allergies.</p>
       </div>
 
       {withCredentials && (
-        <div className="rounded-lg border border-line bg-surface-700 p-4 space-y-2">
-          <p className="text-sm font-medium text-gray-200">
-            Create a portal login <span className="font-normal text-gray-500">(optional)</span>
+        <div className="rounded-lg border border-outline-variant bg-surface-container-low p-4 space-y-2">
+          <p className="text-sm font-medium text-on-surface">
+            Create a portal login <span className="font-normal text-on-surface-variant">(optional)</span>
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-on-surface-variant">
             Enter an email to sign in later and view your records. A temporary password will be emailed. Leave blank to skip.
           </p>
           <input type="email" className={field} value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="you@example.com" autoComplete="email" />
@@ -186,7 +186,7 @@ export default function PatientForm({
       )}
 
       {error && (
-        <div className="rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 text-sm px-3 py-2">
+        <div className="rounded-lg bg-error/10 border border-error/30 text-error text-sm px-3 py-2">
           {error}
         </div>
       )}
@@ -194,7 +194,7 @@ export default function PatientForm({
       <button
         type="submit"
         disabled={busy}
-        className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-500 disabled:opacity-60 text-white font-medium rounded-lg px-4 py-2.5 transition-colors"
+        className="w-full flex items-center justify-center gap-2 bg-primary hover:opacity-90 disabled:opacity-60 text-white font-medium rounded-lg px-4 py-2.5 transition-colors"
       >
         {busy && <Loader2 className="w-5 h-5 animate-spin" />}
         {busy ? "Saving…" : submitLabel}

@@ -49,16 +49,16 @@ export default function ResetPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-surface-800 flex items-center justify-center p-6">
-        <div className="w-full max-w-md bg-surface-750 rounded-2xl shadow-sm border border-line p-8 text-center">
-          <CheckCircle2 className="mx-auto h-12 w-12 text-brand-400 mb-3" />
-          <h2 className="text-lg font-semibold text-white">Password reset complete!</h2>
-          <p className="text-sm text-gray-300 mt-2">
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="w-full max-w-md bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant p-8 text-center">
+          <CheckCircle2 className="mx-auto h-12 w-12 text-primary mb-3" />
+          <h2 className="text-lg font-semibold text-on-surface">Password reset complete!</h2>
+          <p className="text-sm text-on-surface-variant mt-2">
             You'll be redirected to the login page shortly.
           </p>
           <Link
             to="/login"
-            className="mt-6 inline-block text-sm text-brand-300 hover:underline"
+            className="mt-6 inline-block text-sm text-primary hover:underline"
           >
             Go to login
           </Link>
@@ -68,17 +68,17 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-800 flex items-center justify-center p-6">
-      <div className="w-full max-w-md bg-surface-750 rounded-2xl shadow-sm border border-line p-8">
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="w-full max-w-md bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant p-8">
         <BrandMark subtitle="Create new password" />
 
-        <p className="mt-2 text-sm text-gray-400">
+        <p className="mt-2 text-sm text-on-surface-variant">
           Enter your new password below.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">
+            <label className="block text-sm font-medium text-on-surface mb-1">
               New password
             </label>
             <div className="relative">
@@ -88,13 +88,13 @@ export default function ResetPasswordPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
-                className="w-full rounded-lg border border-line bg-surface-800 text-white placeholder-gray-500 px-3 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface placeholder-on-surface-variant/60 px-3 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="Min 8 characters"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -102,7 +102,7 @@ export default function ResetPasswordPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">
+            <label className="block text-sm font-medium text-on-surface mb-1">
               Confirm password
             </label>
             <input
@@ -110,12 +110,12 @@ export default function ResetPasswordPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="w-full rounded-lg border border-line bg-surface-800 text-white placeholder-gray-500 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface placeholder-on-surface-variant/60 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
           {error && (
-            <div className="rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 text-sm px-3 py-2">
+            <div className="rounded-lg bg-error/10 border border-error/30 text-error text-sm px-3 py-2">
               {error}
             </div>
           )}
@@ -123,7 +123,7 @@ export default function ResetPasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-500 disabled:opacity-60 text-white font-medium rounded-lg px-4 py-2.5"
+            className="w-full flex items-center justify-center gap-2 bg-primary hover:opacity-90 disabled:opacity-60 text-white font-medium rounded-lg px-4 py-2.5"
           >
             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
             {loading ? "Resetting..." : "Reset password"}

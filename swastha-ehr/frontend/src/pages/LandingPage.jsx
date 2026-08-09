@@ -43,14 +43,14 @@ function JourneyArt() {
           {i < steps.length - 1 && (
             <span className="absolute left-7 top-14 h-5 w-0.5 bg-gradient-to-b from-brand-500 to-brand-800" />
           )}
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-800 text-white shadow-lg shadow-brand-900/40">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-800 text-white shadow-lg shadow-black/10">
             <Icon className="h-6 w-6" />
           </div>
           <div>
-            <div className="text-xs font-semibold uppercase tracking-widest text-brand-400">
+            <div className="text-xs font-semibold uppercase tracking-widest text-primary">
               Step {i + 1}
             </div>
-            <div className="text-lg font-bold text-white">{label}</div>
+            <div className="text-lg font-bold text-on-surface">{label}</div>
           </div>
         </div>
       ))}
@@ -101,33 +101,33 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-surface-800 font-sans text-surface-50 antialiased">
+    <div className="min-h-screen bg-background font-sans text-on-surface antialiased">
       {/* ── Navigation ──────────────────────────────────────────────────── */}
-      <nav className="fixed top-0 z-50 w-full border-b border-line bg-surface-800/80 backdrop-blur-md">
+      <nav className="fixed top-0 z-50 w-full border-b border-outline-variant bg-surface/90 backdrop-blur-md">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-2">
-            <HeartPulse className="h-7 w-7 text-brand-400" />
-            <span className="font-display text-xl font-bold tracking-tight text-white">
-              Swasthya<span className="text-brand-400">EHR</span>
+            <HeartPulse className="h-7 w-7 text-primary" />
+            <span className="font-display text-xl font-bold tracking-tight text-on-surface">
+              Swasthya<span className="text-primary">EHR</span>
             </span>
           </Link>
 
           <div className="hidden items-center gap-8 md:flex">
-            <a href="#departments" className="text-sm font-medium text-gray-300 transition hover:text-white">Departments</a>
-            <a href="#services" className="text-sm font-medium text-gray-300 transition hover:text-white">Services</a>
-            <span className="flex items-center gap-2 rounded-full border border-line bg-surface-700 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-300">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-brand-500"></span>
+            <a href="#departments" className="text-sm font-medium text-on-surface-variant transition hover:text-primary">Departments</a>
+            <a href="#services" className="text-sm font-medium text-on-surface-variant transition hover:text-primary">Services</a>
+            <span className="flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-4 py-2 text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-primary"></span>
               FHIR-enabled
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            <Link to="/login" className="hidden rounded-full border border-line px-5 py-2.5 text-sm font-semibold text-white transition hover:border-brand-500/60 md:block">
+            <Link to="/login" className="hidden rounded-full border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface transition hover:border-primary/60 md:block">
               Login
             </Link>
             <Link
               to="/register"
-              className="rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-900/40 transition hover:bg-brand-500"
+              className="rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/10 transition hover:opacity-90"
             >
               Register
             </Link>
@@ -139,11 +139,11 @@ export default function LandingPage() {
       <section className="gradient-mesh relative flex min-h-screen items-center overflow-hidden pt-32 pb-20">
         <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2">
           <div className="space-y-8">
-            <h1 className="font-display text-4xl font-bold leading-tight text-white lg:text-6xl">
+            <h1 className="font-display text-4xl font-bold leading-tight text-on-surface lg:text-6xl">
               Register, Get Diagnosed,{" "}
-              <span className="text-brand-400">Track &amp; Share</span> Your Records
+              <span className="text-primary">Track &amp; Share</span> Your Records
             </h1>
-            <p className="max-w-lg text-xl leading-relaxed text-gray-300">
+            <p className="max-w-lg text-xl leading-relaxed text-on-surface-variant">
               Our system lets patients register once, get diagnosed with the
               doctor, track their health, and share their own data easily and
               in a standard way.
@@ -152,14 +152,14 @@ export default function LandingPage() {
             <div className="flex flex-wrap gap-4">
               <Link
                 to="/register"
-                className="flex items-center gap-2 rounded-full bg-brand-600 px-8 py-4 font-semibold text-white shadow-xl shadow-brand-900/40 transition hover:bg-brand-500"
+                className="flex items-center gap-2 rounded-full bg-primary px-8 py-4 font-semibold text-white shadow-xl shadow-black/10 transition hover:opacity-90"
               >
                 <UserPlus className="h-4 w-4" />
                 Register
               </Link>
               <Link
                 to="/login"
-                className="flex items-center gap-2 rounded-full border border-line bg-surface-800/60 px-8 py-4 font-semibold text-white backdrop-blur-sm transition hover:border-brand-500/60"
+                className="flex items-center gap-2 rounded-full border border-outline-variant bg-surface/60 px-8 py-4 font-semibold text-on-surface backdrop-blur-sm transition hover:border-primary/60"
               >
                 <LogIn className="h-4 w-4" />
                 Login to system
@@ -171,7 +171,7 @@ export default function LandingPage() {
           <div className="animate-float">
             <div className="glass-card rounded-3xl p-8">
               <JourneyArt />
-              <p className="mt-6 border-t border-line pt-5 text-center text-sm text-gray-300">
+              <p className="mt-6 border-t border-outline-variant pt-5 text-center text-sm text-on-surface-variant">
                 One simple journey — from sign-up to sharing your health data
                 securely over the HL7 FHIR standard.
               </p>
@@ -182,23 +182,23 @@ export default function LandingPage() {
       </section>
 
       {/* ── Stats ───────────────────────────────────────────────────────── */}
-      <section className="border-y border-line bg-surface-750 py-16">
+      <section className="border-y border-outline-variant bg-surface-container-low py-16">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-6 text-center md:grid-cols-4">
           {stats.map(({ value, label }) => (
             <div key={label} className="space-y-2">
-              <div className="font-display text-4xl font-bold text-white md:text-5xl">{value}</div>
-              <div className="text-xs font-semibold uppercase tracking-widest text-brand-400">{label}</div>
+              <div className="font-display text-4xl font-bold text-on-surface md:text-5xl">{value}</div>
+              <div className="text-xs font-semibold uppercase tracking-widest text-primary">{label}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── Departments (top priority) ──────────────────────────────────── */}
-      <section id="departments" className="bg-surface-800 py-28">
+      <section id="departments" className="bg-background py-28">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mx-auto mb-16 max-w-3xl text-center">
-            <h2 className="font-display text-4xl font-bold text-white md:text-5xl">Our Departments</h2>
-            <p className="mt-4 text-xl text-gray-400">
+            <h2 className="font-display text-4xl font-bold text-on-surface md:text-5xl">Our Departments</h2>
+            <p className="mt-4 text-xl text-on-surface-variant">
               Specialist care across every corner of the hospital.
             </p>
           </div>
@@ -208,12 +208,12 @@ export default function LandingPage() {
               return (
                 <div
                   key={d.value}
-                  className="flex items-center gap-4 rounded-2xl border border-line bg-surface-700 p-5 transition hover:border-brand-500/50 hover:bg-brand-900/30"
+                  className="flex items-center gap-4 rounded-2xl border border-outline-variant bg-surface-container-low p-5 transition hover:border-primary/60 hover:bg-primary/5"
                 >
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-800 to-brand-600 text-white">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <span className="text-base font-semibold text-white">{d.label}</span>
+                  <span className="text-base font-semibold text-on-surface">{d.label}</span>
                 </div>
               );
             })}
@@ -222,11 +222,11 @@ export default function LandingPage() {
       </section>
 
       {/* ── Services ────────────────────────────────────────────────────── */}
-      <section id="services" className="bg-surface-750 py-28">
+      <section id="services" className="bg-surface-container-low py-28">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mx-auto mb-16 max-w-3xl text-center">
-            <h2 className="font-display text-4xl font-bold text-white md:text-5xl">Services</h2>
-            <p className="mt-4 text-xl text-gray-400">
+            <h2 className="font-display text-4xl font-bold text-on-surface md:text-5xl">Services</h2>
+            <p className="mt-4 text-xl text-on-surface-variant">
               Everything a modern hospital needs, in one connected platform.
             </p>
           </div>
@@ -234,13 +234,13 @@ export default function LandingPage() {
             {services.map(({ icon: Icon, title, text }) => (
               <div
                 key={title}
-                className="rounded-3xl border border-line bg-surface-800 p-8 transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_-15px_rgba(30,58,138,0.4)]"
+                className="rounded-3xl border border-outline-variant bg-surface-container-lowest p-8 transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_-15px_rgba(30,58,138,0.4)]"
               >
-                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-800 to-brand-600 text-white shadow-lg shadow-brand-900/40">
+                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-800 to-brand-600 text-white shadow-lg shadow-black/10">
                   <Icon className="h-6 w-6" />
                 </div>
-                <h3 className="mb-3 text-xl font-bold text-white">{title}</h3>
-                <p className="leading-relaxed text-gray-400">{text}</p>
+                <h3 className="mb-3 text-xl font-bold text-on-surface">{title}</h3>
+                <p className="leading-relaxed text-on-surface-variant">{text}</p>
               </div>
             ))}
           </div>
@@ -279,29 +279,29 @@ export default function LandingPage() {
       </section>
 
       {/* ── Footer ──────────────────────────────────────────────────────── */}
-      <footer className="border-t border-line bg-surface-900 pt-16 pb-10">
+      <footer className="border-t border-outline-variant bg-surface-container-high pt-16 pb-10">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mb-12 flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
             <div className="max-w-sm">
               <div className="mb-4 flex items-center gap-2">
-                <HeartPulse className="h-6 w-6 text-brand-400" />
-                <span className="font-display text-xl font-bold text-white">
-                  Swasthya<span className="text-brand-400">EHR</span>
+                <HeartPulse className="h-6 w-6 text-primary" />
+                <span className="font-display text-xl font-bold text-on-surface">
+                  Swasthya<span className="text-primary">EHR</span>
                 </span>
               </div>
-              <p className="text-sm leading-relaxed text-gray-400">
+              <p className="text-sm leading-relaxed text-on-surface-variant">
                 One health record for every hospital — register, get diagnosed,
                 track and share your records securely.
               </p>
             </div>
             <div className="flex flex-col gap-3 text-sm">
-              <Link to="/login" className="text-gray-400 transition hover:text-brand-400">Login</Link>
-              <Link to="/register" className="text-gray-400 transition hover:text-brand-400">Register as patient</Link>
-              <Link to="/staff-register" className="text-gray-400 transition hover:text-brand-400">Staff account request</Link>
-              <Link to="/hospital-b" className="text-gray-400 transition hover:text-brand-400">For other hospitals — access records</Link>
+              <Link to="/login" className="text-on-surface-variant transition hover:text-primary">Login</Link>
+              <Link to="/register" className="text-on-surface-variant transition hover:text-primary">Register as patient</Link>
+              <Link to="/staff-register" className="text-on-surface-variant transition hover:text-primary">Staff account request</Link>
+              <Link to="/hospital-b" className="text-on-surface-variant transition hover:text-primary">For other hospitals — access records</Link>
             </div>
           </div>
-          <div className="border-t border-line pt-8 text-center text-sm text-gray-500">
+          <div className="border-t border-outline-variant pt-8 text-center text-sm text-on-surface-variant">
             <p>© 2026 SwasthyaEHR. All rights reserved.</p>
           </div>
         </div>

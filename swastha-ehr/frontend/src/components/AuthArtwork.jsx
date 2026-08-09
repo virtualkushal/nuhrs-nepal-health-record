@@ -23,8 +23,8 @@ export default function AuthArtwork() {
       `}</style>
 
       {/* soft decorative blobs */}
-      <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-surface-750/10 blur-2xl" />
-      <div className="pointer-events-none absolute bottom-0 -left-16 h-72 w-72 rounded-full bg-surface-750/10 blur-2xl" />
+      <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/10 blur-2xl" />
+      <div className="pointer-events-none absolute bottom-0 -left-16 h-72 w-72 rounded-full bg-white/10 blur-2xl" />
 
       <div className="relative z-10">
         <BrandMark variant="light" />
@@ -53,7 +53,7 @@ export default function AuthArtwork() {
 
           {/* Clinic */}
           <div
-            className="node-in absolute flex h-12 w-12 items-center justify-center rounded-full bg-surface-750/15 backdrop-blur"
+            className="node-in absolute flex h-12 w-12 items-center justify-center rounded-full bg-white/15 backdrop-blur"
             style={{ left: 6, top: 84, animationDelay: "0.2s" }}
           >
             <Building2 className="h-6 w-6 text-white" strokeWidth={1.75} />
@@ -61,7 +61,7 @@ export default function AuthArtwork() {
 
           {/* Doctor */}
           <div
-            className="node-in absolute flex h-12 w-12 items-center justify-center rounded-full bg-surface-750/15 backdrop-blur"
+            className="node-in absolute flex h-12 w-12 items-center justify-center rounded-full bg-white/15 backdrop-blur"
             style={{ left: 92, top: 20, animationDelay: "0.55s" }}
           >
             <Stethoscope className="h-6 w-6 text-white" strokeWidth={1.75} />
@@ -69,7 +69,7 @@ export default function AuthArtwork() {
 
           {/* Pharmacy */}
           <div
-            className="node-in absolute flex h-12 w-12 items-center justify-center rounded-full bg-surface-750/15 backdrop-blur"
+            className="node-in absolute flex h-12 w-12 items-center justify-center rounded-full bg-white/15 backdrop-blur"
             style={{ left: 162, top: 96, animationDelay: "0.9s" }}
           >
             <Pill className="h-6 w-6 text-white" strokeWidth={1.75} />
@@ -77,10 +77,10 @@ export default function AuthArtwork() {
 
           {/* Patient — journey's end, gets the accent */}
           <div
-            className="node-in absolute flex h-14 w-14 items-center justify-center rounded-full bg-surface-750 shadow-lg"
+            className="node-in absolute flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-lg"
             style={{ left: 222, top: 42, animationDelay: "1.25s" }}
           >
-            <User className="h-7 w-7 text-blue-300" strokeWidth={1.75} />
+            <User className="h-7 w-7 text-blue-600" strokeWidth={1.75} />
             <span className="pulse-dot absolute -right-1 -top-1 h-3.5 w-3.5 rounded-full bg-amber-400" />
           </div>
         </div>

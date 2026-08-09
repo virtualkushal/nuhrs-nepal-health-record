@@ -42,7 +42,7 @@ export default function AdminShareApprovals() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-700">
+    <div className="min-h-screen bg-background">
       <DashboardHeader user={user} logout={logout} subtitle="Incoming Requests" />
 
       <div className="mx-auto max-w-4xl px-4 py-8">
@@ -52,35 +52,35 @@ export default function AdminShareApprovals() {
               <Inbox className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">Incoming Record Requests</h1>
-              <p className="text-sm text-gray-400">Other hospitals requesting our patients' records.</p>
+              <h1 className="text-xl font-bold text-on-surface">Incoming Record Requests</h1>
+              <p className="text-sm text-on-surface-variant">Other hospitals requesting our patients' records.</p>
             </div>
           </div>
-          <button onClick={load} className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-white">
+          <button onClick={load} className="inline-flex items-center gap-1.5 text-xs text-on-surface-variant hover:text-on-surface">
             <RefreshCw className="h-3.5 w-3.5" /> Refresh
           </button>
         </div>
 
-        {error && <p className="mb-3 text-sm text-red-300">{error}</p>}
-        {loading && <p className="text-sm text-gray-500">Loading…</p>}
+        {error && <p className="mb-3 text-sm text-error">{error}</p>}
+        {loading && <p className="text-sm text-on-surface-variant">Loading…</p>}
 
         <div className="space-y-3">
           {rows.length === 0 && !loading && (
-            <p className="rounded-xl bg-surface-750 p-4 text-sm text-gray-500 ring-1 ring-line">No requests.</p>
+            <p className="rounded-xl bg-surface-container-lowest p-4 text-sm text-on-surface-variant ring-1 ring-outline-variant">No requests.</p>
           )}
           {rows.map((r) => (
-            <div key={r.id} className="rounded-xl bg-surface-750 p-4 ring-1 ring-line">
+            <div key={r.id} className="rounded-xl bg-surface-container-lowest p-4 ring-1 ring-outline-variant">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-white">
+                  <p className="text-sm font-semibold text-on-surface">
                     {r.requester_label || r.requester_hospital || "External hospital"} · NID {r.national_id}
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-on-surface-variant">
                     Scope: {(r.scope || []).join(", ") || "everything"}
                     {!r.patient_known && " · ⚠ no local patient with this NID"}
                   </p>
                 </div>
-                <span className="rounded-full bg-surface-700 px-2.5 py-0.5 text-xs font-semibold text-gray-300">
+                <span className="rounded-full bg-surface-variant px-2.5 py-0.5 text-xs font-semibold text-on-surface-variant">
                   {r.status}
                 </span>
               </div>
@@ -95,7 +95,7 @@ export default function AdminShareApprovals() {
                   </button>
                   <button
                     onClick={() => decide(r.id, "DENY")}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-error px-3 py-1.5 text-xs font-semibold text-on-error hover:opacity-90"
                   >
                     <X className="h-3.5 w-3.5" /> Deny
                   </button>

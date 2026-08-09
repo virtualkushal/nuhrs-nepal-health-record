@@ -9,7 +9,7 @@ export default function BrandMark({ variant = "dark", subtitle }) {
       <div
         className={
           light
-            ? "p-2 rounded-xl bg-surface-750/20 backdrop-blur"
+            ? "p-2 rounded-xl bg-white/15 backdrop-blur"
             : "p-2 rounded-xl bg-gradient-to-br from-teal-500 to-blue-600"
         }
       >
@@ -19,13 +19,13 @@ export default function BrandMark({ variant = "dark", subtitle }) {
         <h1
           className={
             "text-xl font-bold tracking-tight " +
-            (light ? "text-white" : "text-white")
+            (light ? "text-white" : "text-on-surface")
           }
         >
-          Swasthya<span className={light ? "text-teal-100" : "text-brand-400"}>EHR</span>
+          Swasthya<span className={light ? "text-teal-100" : "text-primary"}>EHR</span>
         </h1>
         {subtitle && (
-          <p className={"text-sm " + (light ? "text-white/70" : "text-gray-400")}>
+          <p className={"text-sm " + (light ? "text-white/70" : "text-on-surface-variant")}>
             {subtitle}
           </p>
         )}
