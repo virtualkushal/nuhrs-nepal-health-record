@@ -24,6 +24,9 @@ DEMOGRAPHICS = {
     "12345678901": {"name": "Ram Bahadur Thapa", "dob": "1970-05-12", "gender": "MALE", "phone": "9841000001"},
     "12345678902": {"name": "Sita Kumari Sharma", "dob": "1988-11-23", "gender": "FEMALE", "phone": "9803000002"},
     "12345678903": {"name": "Hari Prasad Koirala", "dob": "1979-02-03", "gender": "MALE", "phone": "9841000003"},
+    # Cross-facility demo patients — match Mediciti / Norvic / Central Diagnostic seeds.
+    "12345678909": {"name": "Laxmi Maya Tamang", "dob": "1993-04-14", "gender": "FEMALE", "phone": "9842000001"},
+    "12345678910": {"name": "Kiran Bahadur Limbu", "dob": "1985-09-19", "gender": "MALE", "phone": "9842000002"},
 }
 
 # Pathlabs Nepal (LAB002) comprehensive test menu: DIFFERENT panels than Central
@@ -104,6 +107,55 @@ REPORTS_LAB002 = [
         "visits": [
             ("2024-05-20", "Low Vitamin D", {
                 "Vitamin D (25-OH)": "22", "Vitamin B12": "450"}),
+        ],
+    },
+
+    # Laxmi Maya (NID 09) — routine wellness panels at Pathlabs
+    {
+        "nid": "12345678909", "panel": "Electrolyte Panel", "doctor": "Dr. Paudel",
+        "visits": [
+            ("2023-11-08", "Normal electrolytes", {
+                "Sodium": "139", "Potassium": "4.0", "Chloride": "101", "Calcium": "9.4"}),
+            ("2024-07-06", "Normal electrolytes", {
+                "Sodium": "140", "Potassium": "4.1", "Chloride": "103", "Calcium": "9.6"}),
+        ],
+    },
+    {
+        "nid": "12345678909", "panel": "Urine Routine Examination", "doctor": "Dr. Gurung",
+        "visits": [
+            ("2024-02-14", "Unremarkable", {
+                "Urine Routine & Microscopy": "Clear, no protein, no cells seen"}),
+        ],
+    },
+    {
+        "nid": "12345678909", "panel": "Vitamin Assay", "doctor": "Dr. Thapa",
+        "visits": [
+            ("2024-01-30", "Normal vitamin levels", {
+                "Vitamin D (25-OH)": "38", "Vitamin B12": "520"}),
+        ],
+    },
+
+    # Kiran Bahadur (NID 10) — pre-procedure screening + CBC follow-up
+    {
+        "nid": "12345678910", "panel": "Complete Blood Count", "doctor": "Dr. Sharma",
+        "visits": [
+            ("2024-05-16", "Normal, mild leukocytosis", {
+                "Hemoglobin": "15.1", "Total RBC Count": "5.0", "Total WBC Count": "11800", "Platelet Count": "300",
+                "Hematocrit": "46", "MCV": "90", "MCH": "30", "MCHC": "33"}),
+        ],
+    },
+    {
+        "nid": "12345678910", "panel": "Viral Markers", "doctor": "Dr. Joshi",
+        "visits": [
+            ("2024-07-01", "Negative screen", {
+                "HBsAg": "NEGATIVE", "Anti-HCV": "NEGATIVE", "HIV I/II": "NEGATIVE", "VDRL": "Non-reactive"}),
+        ],
+    },
+    {
+        "nid": "12345678910", "panel": "Coagulation Profile", "doctor": "Dr. Rai",
+        "visits": [
+            ("2024-07-05", "Normal coagulation", {
+                "Prothrombin Time": "12.1", "INR": "1.0", "aPTT": "31"}),
         ],
     },
 ]

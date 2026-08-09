@@ -7,8 +7,10 @@ Contains:
 """
 import secrets
 import string
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import requests
+from django.conf import settings
 
 from .models import AuditLog, Organization, RecordIndex, User
 
@@ -99,7 +101,7 @@ class RoutingEngine:
     transiently to the caller.
     """
 
-    FETCH_TIMEOUT = 8  # seconds
+    FETCH_TIMEOUT = getattr(settings, "NUHRS_FETCH_TIMEOUT", 8)  # seconds
 
     def __init__(self, actor_user=None, ip_address=None):
         self.actor_user = actor_user
@@ -107,19 +109,43 @@ class RoutingEngine:
 
     # -- public operations --------------------------------------------------
     def fetch_all(self, nid: str) -> dict:
-        """Fetch every indexed record for a patient across all owning orgs."""
+        """Fetch every indexed record for a patient across all owning orgs.
+
+        Requests to each owning organization run concurrently on a worker
+        pool. Results are merged back in the original organization order so
+        the response stays deterministic regardless of completion order.
+        """
         indices = RecordIndex.objects.filter(patient__nid=nid).select_related("organization")
         org_ids = {idx.organization_id for idx in indices}
-        organizations = Organization.objects.filter(id__in=org_ids)
+        organizations = list(Organization.objects.filter(id__in=org_ids).order_by("id"))
+
+        max_workers = getattr(settings, "NUHRS_FETCH_WORKERS", 4)
+        per_org_results = {}
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(self._request_everything, org, nid): org
+                for org in organizations
+            }
+            for future in as_completed(futures):
+                org = futures[future]
+                try:
+                    per_org_results[org.id] = future.result()
+                except Exception as exc:
+                    per_org_results[org.id] = [self._unavailable(org, str(exc))]
 
         entries = []
-        contacted = []
         for org in organizations:
-            contacted.append(org.organization_name)
-            bundle = self._request_everything(org, nid)
-            entries.extend(bundle)
+            entries.extend(
+                per_org_results.get(
+                    org.id, [self._unavailable(org, "no result for organization")]
+                )
+            )
 
-        self._audit(nid, AuditLog.Action.FETCH_ALL, contacted)
+        self._audit(
+            nid,
+            AuditLog.Action.FETCH_ALL,
+            [org.organization_name for org in organizations],
+        )
         return self._wrap_bundle(entries)
 
     def fetch_one(self, nid: str, record_index_id: int) -> dict:

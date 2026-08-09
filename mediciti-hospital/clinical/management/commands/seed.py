@@ -144,6 +144,21 @@ PATIENTS = {
         ec_name="Anil Gurung", ec_phone="9800000066",
         allergies=[("Aspirin", "Bronchospasm", "moderate", "2019-03-15")],
     ),
+    # --- Cross-facility demo patients (NIDs ...09/.10 match Norvic + both labs) ---
+    "12345678909": dict(
+        name="Laxmi Maya Tamang", dob="1993-04-14", gender="FEMALE", phone="9842000001",
+        address="Jhamsikhel, Lalitpur", blood_group="O+", marital="Single",
+        occupation="Registered Nurse", ethnicity="Tamang",
+        ec_name="Sunita Tamang", ec_phone="9800000099",
+        allergies=[("Penicillin", "Skin rash", "moderate", "2015-02-10")],
+    ),
+    "12345678910": dict(
+        name="Kiran Bahadur Limbu", dob="1985-09-19", gender="MALE", phone="9842000002",
+        address="Sundhara, Kathmandu", blood_group="A+", marital="Married",
+        occupation="IT Manager", ethnicity="Limbu",
+        ec_name="Roshni Limbu", ec_phone="9800000100",
+        allergies=[("Iodinated contrast dye", "Urticaria", "mild", "2020-08-01")],
+    ),
 }
 
 # Clinical journeys.  Each episode:
@@ -366,6 +381,59 @@ JOURNEYS = {
                 ("Complete Blood Count", "2022-02-15", {"Total WBC Count": ("13.5", "H"), "Hemoglobin": ("11.2", "L")}),
             ],
             meds=[("Anti-TB Fixed Dose Combination (HRZE)", "", "4 tablets", "once daily", "oral", "6 months")],
+        ),
+    ],
+    "12345678909": [  # Laxmi — young nurse: asthma + rhinitis -> subclinical hypothyroid
+        dict(
+            department="Pulmonology & Allergy Clinic", doctor="Dr. Prakash Thapa",
+            date="2024-03-18", type="OPD", reason="Recurrent wheeze, allergic rhinitis",
+            conditions=[("Bronchial Asthma", "J45.9", "2022-07-01"),
+                        ("Allergic Rhinitis", "J30.9", "2022-07-01")],
+            vitals=dict(sbp=112, dbp=74, pulse=70, temp=36.6, spo2=98, rr=17, height=160, weight=56, bmi=21.9),
+            labs=[
+                ("Complete Blood Count", "2024-03-18", {"Hemoglobin": ("13.1", "N"), "Total WBC Count": ("9.8", "N"), "Platelet Count": ("285", "N"), "Hematocrit": ("41", "N")}),
+            ],
+            meds=[("Budesonide Inhaler", "1808", "200 mcg", "twice daily", "inhalation", "ongoing"),
+                  ("Salbutamol Inhaler", "435", "100 mcg", "2 puffs as needed", "inhalation", "ongoing")],
+        ),
+        dict(
+            department="Internal Medicine & Endocrinology", doctor="Dr. Anil Karki",
+            date="2024-09-05", type="OPD", reason="Fatigue, dry skin",
+            conditions=[("Subclinical Hypothyroidism", "E03.9", "2024-09-05")],
+            vitals=dict(sbp=116, dbp=76, pulse=62, temp=36.4, spo2=99, rr=15, height=160, weight=57, bmi=22.3),
+            labs=[
+                ("Thyroid Function Test", "2024-09-05", {"TSH": ("6.9", "H"), "Free T4": ("0.9", "N"), "Free T3": ("2.7", "N")}),
+            ],
+            meds=[("Levothyroxine", "10582", "50 mcg", "once daily before breakfast", "oral", "ongoing")],
+        ),
+    ],
+    "12345678910": [  # Kiran — newly-diagnosed diabetes + HTN -> metabolic emergency
+        dict(
+            department="Internal Medicine & Endocrinology", doctor="Dr. Anil Karki",
+            date="2023-06-08", type="OPD", reason="Newly diagnosed type 2 diabetes",
+            conditions=[("Type 2 Diabetes Mellitus", "E11.9", "2023-06-08"),
+                        ("Essential Hypertension", "I10", "2023-06-08"),
+                        ("Obesity", "E66.9", "2021-01-15")],
+            vitals=dict(sbp=148, dbp=94, pulse=86, temp=36.6, spo2=97, rr=17, height=176, weight=98, bmi=31.6),
+            labs=[
+                ("Blood Sugar", "2023-06-08", {"Fasting Blood Glucose": ("168", "H"), "HbA1c": ("8.2", "H"), "Postprandial Glucose": ("238", "H")}),
+                ("Lipid Profile", "2023-06-08", {"Total Cholesterol": ("242", "H"), "LDL Cholesterol": ("164", "H"), "HDL Cholesterol": ("36", "L"), "Triglycerides": ("228", "H")}),
+            ],
+            meds=[("Metformin", "6809", "500 mg", "twice daily", "oral", "ongoing"),
+                  ("Losartan", "52175", "25 mg", "once daily", "oral", "ongoing")],
+        ),
+        dict(
+            department="Emergency Medicine And Pre-Hospital Care", doctor="Dr. Nabin Adhikari",
+            date="2024-07-02", type="Emergency", reason="Severe abdominal pain, vomiting, palpitations",
+            conditions=[("Acute Gastroenteritis", "A09", "2024-07-02"),
+                        ("Hypokalemia", "E87.6", "2024-07-02")],
+            vitals=dict(sbp=158, dbp=96, pulse=112, temp=37.9, spo2=96, rr=20, height=176, weight=97, bmi=31.3),
+            labs=[
+                ("Electrolytes", "2024-07-02", {"Sodium": ("140", "N"), "Potassium": ("3.2", "L"), "Chloride": ("106", "N")}),
+                ("Complete Blood Count", "2024-07-02", {"Total WBC Count": ("12.8", "H"), "Hemoglobin": ("15.4", "N")}),
+            ],
+            meds=[("Paracetamol", "161", "500 mg", "every 6 hours as needed", "oral", "5 days"),
+                  ("Metronidazole", "8621", "400 mg", "three times daily", "oral", "7 days")],
         ),
     ],
 }

@@ -113,6 +113,21 @@ PATIENTS = {
         ec_name="Rita Pradhan", ec_phone="9800000088",
         allergies=[("Latex", "Contact dermatitis", "mild", "2020-06-10")],
     ),
+    # --- Cross-facility demo patients (NIDs ...09/.10 match Mediciti + both labs) ---
+    "12345678909": dict(
+        first="Laxmi Maya", last="Tamang", dob="1993-04-14", gender="FEMALE", phone="9842000001",
+        address="Jhamsikhel, Lalitpur", blood_group="O+", marital="Single",
+        occupation="Registered Nurse", ethnicity="Tamang",
+        ec_name="Sunita Tamang", ec_phone="9800000099",
+        allergies=[("Penicillin", "Skin rash", "moderate", "2015-02-10")],
+    ),
+    "12345678910": dict(
+        first="Kiran Bahadur", last="Limbu", dob="1985-09-19", gender="MALE", phone="9842000002",
+        address="Sundhara, Kathmandu", blood_group="A+", marital="Married",
+        occupation="IT Manager", ethnicity="Limbu",
+        ec_name="Roshni Limbu", ec_phone="9800000100",
+        allergies=[("Iodinated contrast dye", "Urticaria", "mild", "2020-08-01")],
+    ),
 }
 
 # Clinical journeys (variant-B fields are filled by the writers below).
@@ -199,6 +214,34 @@ JOURNEYS = {
             ],
         ),
     ],
+    "12345678909": [  # Laxmi — also at Mediciti; here Norvic did her pre-marriage work-up
+        dict(
+            department="General Medicine & Travel Clinic", physician="Dr. Sabin Maharjan",
+            date="2024-09-02", category="OPD", complaint="Pre-marriage check-up, easy fatigability",
+            conditions=[("Iron Deficiency Anemia", "D50.9", "2024-09-02"),
+                        ("Subclinical Hypothyroidism", "E03.9", "2024-09-02")],
+            vitals=dict(sbp=110, dbp=70, pulse=74, temp=36.5, spo2=99, rr=15, height=160, weight=55, bmi=21.5),
+            labs=[
+                ("Complete Blood Count", "2024-09-02", {"Hemoglobin": ("10.8", "L"), "Hematocrit": ("35", "L"), "Platelet Count": ("240", "N")}),
+            ],
+            meds=[("Ferrous Ascorbate", "310965", "100 mg", "once daily", "oral", "3 months")],
+        ),
+    ],
+    "12345678910": [  # Kiran — also at Mediciti; Norvic's cardiology assessed his chest pain
+        dict(
+            department="Cardiology", physician="Dr. Bibek Rajbhandari",
+            date="2024-05-14", category="OPD", complaint="Atypical chest pain, diabetes follow-up",
+            conditions=[("Coronary Artery Disease", "I25.1", "2024-05-14"),
+                        ("Type 2 Diabetes Mellitus", "E11.9", "2023-06-08")],
+            vitals=dict(sbp=140, dbp=90, pulse=84, temp=36.6, spo2=97, rr=16, height=176, weight=96, bmi=31.0),
+            labs=[
+                ("Cardiac Markers", "2024-05-14", {"Troponin I": ("0.02", "N"), "NT-proBNP": ("96", "N"), "CRP": ("2.2", "N")}),
+                ("Blood Sugar", "2024-05-14", {"Fasting Blood Glucose": ("118", "H"), "HbA1c": ("6.4", "H")}),
+            ],
+            meds=[("Atorvastatin", "83367", "20 mg", "once daily at night", "oral", "ongoing"),
+                  ("Metformin", "6809", "850 mg", "twice daily", "oral", "ongoing")],
+        ),
+    ],
 }
 
 # Immunizations per patient: (vaccine, cvx, dose, lot, site, route, date, by)
@@ -217,6 +260,13 @@ IMMUNIZATIONS = {
         ("Hepatitis A", "52", "1", "HEPA-2024-07", "Left deltoid", "Intramuscular", "2024-08-20", "Nurse S. Thapa"),
         ("Typhoid (Vi polysaccharide)", "101", "1", "TYP-2024-19", "Left deltoid", "Intramuscular", "2024-08-20", "Nurse S. Thapa"),
         ("COVID-19 (Covishield)", "210", "2", "COV-2021-77", "Right deltoid", "Intramuscular", "2021-08-14", "Nurse S. Thapa"),
+    ],
+    "12345678909": [
+        ("Tetanus-diphtheria (Td)", "5", "Booster", "TD-2024-31", "Left deltoid", "Intramuscular", "2024-09-02", "Nurse S. Thapa"),
+        ("Influenza, seasonal", "141", "Annual", "FLU2024-92", "Right deltoid", "Intramuscular", "2024-09-02", "Nurse S. Thapa"),
+    ],
+    "12345678910": [
+        ("Influenza, seasonal", "141", "Annual", "FLU2024-95", "Left deltoid", "Intramuscular", "2024-05-14", "Nurse R. Lama"),
     ],
 }
 

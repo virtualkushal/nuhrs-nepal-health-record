@@ -21,6 +21,9 @@ DEMOGRAPHICS = {
     "12345678901": {"name": "Ram Bahadur Thapa", "dob": "1970-05-12", "gender": "MALE", "phone": "9841000001"},
     "12345678902": {"name": "Sita Kumari Sharma", "dob": "1988-11-23", "gender": "FEMALE", "phone": "9803000002"},
     "12345678903": {"name": "Hari Prasad Koirala", "dob": "1979-02-03", "gender": "MALE", "phone": "9841000003"},
+    # Cross-facility demo patients — match Mediciti / Norvic / Pathlabs seeds.
+    "12345678909": {"name": "Laxmi Maya Tamang", "dob": "1993-04-14", "gender": "FEMALE", "phone": "9842000001"},
+    "12345678910": {"name": "Kiran Bahadur Limbu", "dob": "1985-09-19", "gender": "MALE", "phone": "9842000002"},
 }
 
 # Central Diagnostic (LAB001) comprehensive test menu: distribute panels across
@@ -121,6 +124,61 @@ REPORTS_LAB001 = [
                 "Widal Test": "Negative", "Typhidot IgM": "Negative", "Dengue NS1 Antigen": "Negative",
                 "Dengue IgM": "Negative", "Malaria Antigen": "Negative", "Scrub Typhus IgM": "POSITIVE (ELISA)",
                 "C-Reactive Protein": "45"}),
+        ],
+    },
+
+    # Laxmi Maya (NID 09) — thyroid monitoring + anemia work-up
+    {
+        "nid": "12345678909", "panel": "Thyroid Function Test", "doctor": "Dr. Paudel",
+        "visits": [
+            ("2023-12-08", "Subclinical hypothyroidism", {
+                "TSH": "7.1", "Free T3": "2.9", "Free T4": "1.0"}),
+            ("2024-06-11", "Improved on levothyroxine", {
+                "TSH": "3.8", "Free T3": "3.0", "Free T4": "1.2"}),
+        ],
+    },
+    {
+        "nid": "12345678909", "panel": "Complete Blood Count", "doctor": "Dr. Gurung",
+        "visits": [
+            ("2024-04-12", "Mild anemia", {
+                "Hemoglobin": "10.9", "Total RBC Count": "3.9", "Total WBC Count": "6100", "Platelet Count": "265",
+                "Hematocrit": "34", "MCV": "81", "MCH": "27", "MCHC": "33"}),
+        ],
+    },
+    {
+        "nid": "12345678909", "panel": "Iron Studies", "doctor": "Dr. Gurung",
+        "visits": [
+            ("2024-04-12", "Iron deficiency", {
+                "Serum Iron": "50", "Ferritin": "21", "TIBC": "435"}),
+        ],
+    },
+
+    # Kiran Bahadur (NID 10) — diabetes control + lipids + early renal check
+    {
+        "nid": "12345678910", "panel": "Diabetic Profile", "doctor": "Dr. Sharma",
+        "visits": [
+            ("2023-06-10", "Poorly controlled diabetes", {
+                "Fasting Blood Sugar": "152", "Postprandial Blood Sugar": "226", "HbA1c": "8.0"}),
+            ("2024-02-14", "Improving control", {
+                "Fasting Blood Sugar": "124", "Postprandial Blood Sugar": "172", "HbA1c": "7.1"}),
+            ("2024-08-15", "Continued improvement", {
+                "Fasting Blood Sugar": "118", "Postprandial Blood Sugar": "158", "HbA1c": "6.8"}),
+        ],
+    },
+    {
+        "nid": "12345678910", "panel": "Lipid Profile", "doctor": "Dr. Sharma",
+        "visits": [
+            ("2023-06-10", "Dyslipidemia", {
+                "Total Cholesterol": "240", "LDL Cholesterol": "162", "HDL Cholesterol": "37", "Triglycerides": "222"}),
+            ("2024-08-15", "On statin", {
+                "Total Cholesterol": "198", "LDL Cholesterol": "118", "HDL Cholesterol": "42", "Triglycerides": "168"}),
+        ],
+    },
+    {
+        "nid": "12345678910", "panel": "Renal Function Test", "doctor": "Dr. Adhikari",
+        "visits": [
+            ("2024-05-12", "Mildly elevated creatinine", {
+                "Urea": "48", "Blood Urea Nitrogen": "22", "Creatinine": "1.4", "Uric Acid": "7.8"}),
         ],
     },
 ]
