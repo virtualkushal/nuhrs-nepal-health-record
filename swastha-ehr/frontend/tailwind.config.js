@@ -142,20 +142,6 @@ export default {
         "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
         "title-lg": ["20px", { lineHeight: "28px", fontWeight: "600" }],
       },
-      keyframes: {
-        float: {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-20px)" },
-        },
-        gradientMove: {
-          "0%, 100%": { backgroundPosition: "0% 50%" },
-          "50%": { backgroundPosition: "100% 50%" },
-        },
-      },
-      animation: {
-        float: "float 6s ease-in-out infinite",
-        gradientMove: "gradientMove 15s ease infinite",
-      },
     },
   },
   plugins: [],

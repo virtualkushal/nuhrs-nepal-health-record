@@ -37,7 +37,7 @@ export default function LoginPage() {
     <div className="auth-shell">
       <div className="w-full max-w-md">
         <div className="mb-6 flex flex-col items-center">
-          <Link to="/" className="rounded-2xl bg-gradient-to-br from-brand-500 to-brand-800 p-3 shadow-sm shadow-black/10">
+          <Link to="/" className="rounded-2xl bg-primary p-3 shadow-sm">
             <HeartPulse className="h-7 w-7 text-white" />
           </Link>
           <h1 className="mt-3 font-display text-2xl font-bold text-on-surface">
@@ -46,7 +46,7 @@ export default function LoginPage() {
           <p className="text-sm text-on-surface-variant">Sign in to your workspace</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="glass-card space-y-4 rounded-2xl p-8">
+        <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-outline-variant bg-surface-container-lowest p-8 shadow-sm">
           {error && <div className="alert-error">{error}</div>}
           <div>
             <label className="label">Email</label>

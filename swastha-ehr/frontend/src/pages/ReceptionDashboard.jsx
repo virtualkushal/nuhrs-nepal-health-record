@@ -81,7 +81,7 @@ export default function ReceptionDashboard() {
                   <td className="px-4 py-3 text-on-surface-variant">{p.allergies?.length ? p.allergies.join(", ") : "None"}</td>
                   <td className="px-4 py-3 text-right">
                     <button onClick={() => setCheckIn(p)}
-                      className="inline-flex items-center gap-1 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-500">
+                      className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90">
                       <LogIn className="h-3.5 w-3.5" /> Check in
                     </button>
                   </td>
@@ -160,7 +160,7 @@ function CheckInModal({ patient, onClose, onDone }) {
         </div>
         <div className="flex justify-end gap-2 pt-1">
           <button type="button" onClick={onClose} className="rounded-lg px-4 py-2 text-sm text-on-surface-variant hover:bg-surface-container-low">Cancel</button>
-          <button type="submit" disabled={busy} className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500 disabled:opacity-60">
+          <button type="submit" disabled={busy} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-60">
             {busy ? "Checking in…" : "Confirm check-in"}
           </button>
         </div>

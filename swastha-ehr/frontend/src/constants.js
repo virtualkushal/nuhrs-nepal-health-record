@@ -63,23 +63,22 @@ export const ROLE_HOME = {
 };
 
 // Per-role visual theme for the dashboard chrome. Badges/rings are tuned for
-// the light NUHRS surfaces; each role keeps its own accent gradient identity.
+// the light NUHRS surfaces; role identity is expressed through small badges
+// and rings only — surfaces, buttons and layout stay shared and neutral.
 export const ROLE_THEME = {
-  ADMIN: { label: "Administrator", badge: "bg-slate-500/10 text-slate-700 ring-1 ring-slate-500/40", gradient: "from-slate-500 to-slate-700", ring: "ring-slate-500/30", tint: "from-slate-500/10 to-transparent" },
-  DOCTOR: { label: "Consultation Room", badge: "bg-blue-500/10 text-blue-700 ring-1 ring-blue-500/40", gradient: "from-blue-500 to-indigo-600", ring: "ring-blue-500/30", tint: "from-blue-500/10 to-transparent" },
-  RECEPTIONIST: { label: "Front Desk", badge: "bg-amber-500/10 text-amber-700 ring-1 ring-amber-500/40", gradient: "from-amber-500 to-orange-600", ring: "ring-amber-500/30", tint: "from-amber-500/10 to-transparent" },
-  NURSE: { label: "Nursing Station", badge: "bg-rose-500/10 text-rose-700 ring-1 ring-rose-500/40", gradient: "from-rose-500 to-pink-600", ring: "ring-rose-500/30", tint: "from-rose-500/10 to-transparent" },
-  PHARMACIST: { label: "Dispensing Window", badge: "bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-500/40", gradient: "from-emerald-500 to-green-600", ring: "ring-emerald-500/30", tint: "from-emerald-500/10 to-transparent" },
-  LAB_TECH: { label: "Diagnostic Lab", badge: "bg-violet-500/10 text-violet-700 ring-1 ring-violet-500/40", gradient: "from-violet-500 to-purple-600", ring: "ring-violet-500/30", tint: "from-violet-500/10 to-transparent" },
-  PATIENT: { label: "Patient Portal", badge: "bg-brand-500/10 text-brand-700 ring-1 ring-brand-500/40", gradient: "from-brand-500 to-brand-800", ring: "ring-brand-500/30", tint: "from-brand-500/10 to-transparent" },
+  ADMIN: { label: "Administrator", badge: "bg-slate-500/10 text-slate-700 ring-1 ring-slate-500/40", ring: "ring-slate-500/30" },
+  DOCTOR: { label: "Consultation Room", badge: "bg-blue-500/10 text-blue-700 ring-1 ring-blue-500/40", ring: "ring-blue-500/30" },
+  RECEPTIONIST: { label: "Front Desk", badge: "bg-amber-500/10 text-amber-700 ring-1 ring-amber-500/40", ring: "ring-amber-500/30" },
+  NURSE: { label: "Nursing Station", badge: "bg-rose-500/10 text-rose-700 ring-1 ring-rose-500/40", ring: "ring-rose-500/30" },
+  PHARMACIST: { label: "Dispensing Window", badge: "bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-500/40", ring: "ring-emerald-500/30" },
+  LAB_TECH: { label: "Diagnostic Lab", badge: "bg-violet-500/10 text-violet-700 ring-1 ring-violet-500/40", ring: "ring-violet-500/30" },
+  PATIENT: { label: "Patient Portal", badge: "bg-brand-500/10 text-brand-700 ring-1 ring-brand-500/40", ring: "ring-brand-500/30" },
 };
 
 export const DEFAULT_THEME = {
   label: "Workspace",
   badge: "bg-brand-500/10 text-brand-700 ring-1 ring-brand-500/40",
-  gradient: "from-brand-500 to-brand-800",
   ring: "ring-brand-500/30",
-  tint: "from-brand-500/10 to-transparent",
 };
 
 

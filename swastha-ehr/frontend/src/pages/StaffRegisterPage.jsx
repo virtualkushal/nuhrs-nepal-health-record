@@ -51,7 +51,7 @@ export default function StaffRegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4 rounded-2xl bg-surface-container-lowest p-8 shadow-sm ring-1 ring-outline-variant">
         <div className="flex flex-col items-center">
-          <div className="rounded-2xl bg-gradient-to-br from-teal-500 to-blue-600 p-3 shadow-md">
+          <div className="rounded-2xl bg-primary p-3 shadow-sm">
             <HeartPulse className="h-6 w-6 text-white" />
           </div>
           <h1 className="mt-3 text-xl font-bold text-on-surface">Staff account request</h1>

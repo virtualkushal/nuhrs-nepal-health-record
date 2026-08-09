@@ -131,7 +131,7 @@ function EncounterView({ encounter, onBack }) {
           ["prescribe", "Prescribe", Pill],
         ].map(([key, label, Icon]) => (
           <button key={key} onClick={() => setTab(key)}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium ${tab === key ? "bg-blue-600 text-white" : "bg-surface-container-lowest text-on-surface-variant ring-1 ring-outline-variant"}`}>
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium ${tab === key ? "bg-primary text-white" : "bg-surface-container-lowest text-on-surface-variant ring-1 ring-outline-variant"}`}>
             <Icon className="h-4 w-4" /> {label}
           </button>
         ))}
@@ -221,7 +221,7 @@ function DiagnosePanel({ encounter, onDone }) {
       <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Clinical notes (optional)"
         className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface placeholder-on-surface-variant/60 px-3 py-2 text-sm" rows={3} />
       {msg && <p className="text-sm text-on-surface-variant">{msg}</p>}
-      <button disabled={busy} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60">
+      <button disabled={busy} className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-60">
         {busy && <Loader2 className="h-4 w-4 animate-spin" />} Save diagnosis
       </button>
     </form>
@@ -260,7 +260,7 @@ function OrderLabPanel({ encounter, onDone }) {
         <option value="URGENT">Urgent</option>
       </select>
       {msg && <p className="text-sm text-on-surface-variant">{msg}</p>}
-      <button disabled={busy} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60">
+      <button disabled={busy} className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-60">
         {busy && <Loader2 className="h-4 w-4 animate-spin" />} Send order
       </button>
     </form>
@@ -292,7 +292,7 @@ function PrescribePanel({ encounter, onDone }) {
       <input value={dosage} onChange={(e) => setDosage(e.target.value)} placeholder="Dosage (e.g. 1 tablet once daily)" required
         className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface placeholder-on-surface-variant/60 px-3 py-2 text-sm" />
       {msg && <p className="text-sm text-on-surface-variant">{msg}</p>}
-      <button disabled={busy} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60">
+      <button disabled={busy} className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-60">
         {busy && <Loader2 className="h-4 w-4 animate-spin" />} Send to pharmacy
       </button>
     </form>

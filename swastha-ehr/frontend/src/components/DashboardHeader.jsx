@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 import { ROLE_THEME, DEFAULT_THEME } from "../constants";
 
 
-// Shared top bar for every role dashboard. Picks up a per-role color theme
-// (gradient brand tile + role badge) so each workspace feels distinct while
-// staying consistent. `subtitle` overrides the theme's default workspace label.
+// Shared top bar for every role dashboard. Brand tile is flat NUHRS teal for
+// all roles; the per-role accent lives in the small role badge and ring.
+// `subtitle` overrides the theme's default workspace label.
 export default function DashboardHeader({ user, logout, subtitle }) {
   const theme = ROLE_THEME[user?.role] || DEFAULT_THEME;
   const initials = (user?.full_name || "?")
@@ -20,7 +20,7 @@ export default function DashboardHeader({ user, logout, subtitle }) {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
         <div className="flex items-center gap-3">
           <div
-            className={`rounded-xl bg-gradient-to-br ${theme.gradient} p-2 shadow-lg shadow-black/10`}
+            className="rounded-xl bg-primary p-2 shadow-sm"
           >
             <HeartPulse className="h-5 w-5 text-white" />
           </div>
@@ -67,7 +67,7 @@ export default function DashboardHeader({ user, logout, subtitle }) {
 
           <div className="flex items-center gap-2">
             <div
-              className={`flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br ${theme.gradient} text-xs font-semibold text-white`}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white"
             >
               {initials}
             </div>

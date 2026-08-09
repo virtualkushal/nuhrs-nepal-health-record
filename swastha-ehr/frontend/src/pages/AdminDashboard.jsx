@@ -4,7 +4,7 @@ import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import DashboardHeader from "../components/DashboardHeader";
 import StatCard from "../components/StatCard";
-import { ROLE_THEME, STAFF_ROLES, DEPARTMENTS } from "../constants";
+import { STAFF_ROLES, DEPARTMENTS } from "../constants";
 
 const CREATE_ROLES = [...STAFF_ROLES, { value: "ADMIN", label: "Administrator" }];
 const emptyForm = { email: "", full_name: "", role: "DOCTOR", department: "", password: "" };
@@ -64,7 +64,7 @@ export default function AdminDashboard() {
   const deptLabel = (v) => DEPARTMENTS.find((d) => d.value === v)?.label || v || "—";
 
   return (
-    <div className={`min-h-screen bg-gradient-to-b ${ROLE_THEME.ADMIN.tint}`}>
+    <div className="min-h-screen bg-background">
       <DashboardHeader user={user} logout={logout} subtitle="Staff & access control" />
 
       <div className="mx-auto max-w-6xl px-6 pt-6">

@@ -49,7 +49,7 @@ export default function NurseDashboard() {
                   </p>
                 </div>
                 <button onClick={() => setActive(e)}
-                  className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-500">
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">
                   Record vitals
                 </button>
               </div>
@@ -127,7 +127,7 @@ function VitalsModal({ encounter, onClose, onSaved }) {
         <div className="mt-5 flex justify-end gap-2">
           <button type="button" onClick={onClose} className="rounded-lg px-4 py-2 text-sm text-on-surface-variant hover:bg-surface-container-low">Cancel</button>
           <button type="submit" disabled={saving}
-            className="flex items-center gap-2 rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-500 disabled:opacity-60">
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-60">
             {saving && <Loader2 className="h-4 w-4 animate-spin" />} Save vitals
           </button>
         </div>

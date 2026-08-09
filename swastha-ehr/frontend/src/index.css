@@ -59,48 +59,21 @@
   --color-warn: 178 106 0;
 }
 
-/* Patient portal palette — warm blue/gold, matching the NUHRS patient theme.
-   Only overrides the tokens that differ; everything else inherits :root.
-   Scoped to the `.patient-theme` wrapper so no other dashboard is affected. */
+/* Patient portal palette — a very subtle blue accent on the shared teal/neutral
+   system. Only overrides the secondary (accent) tokens; primary stays NUHRS
+   teal so all actions match every other role. Scoped to the `.patient-theme`
+   wrapper so no other dashboard is affected. */
 .patient-theme {
   --font-headline: "Plus Jakarta Sans", "Inter", sans-serif;
 
-  --color-primary: 0 95 157;
-  --color-on-primary: 255 255 255;
-  --color-primary-container: 0 121 197;
-  --color-on-primary-container: 255 255 255;
-  --color-primary-fixed: 210 228 255;
-  --color-primary-fixed-dim: 156 202 255;
-  --color-on-primary-fixed: 0 29 52;
-  --color-on-primary-fixed-variant: 0 73 126;
-  --color-inverse-primary: 156 202 255;
-  --color-surface-tint: 0 95 157;
-  --color-secondary: 124 88 0;
+  --color-secondary: 0 95 157;
   --color-on-secondary: 255 255 255;
-  --color-secondary-container: 253 183 0;
-  --color-on-secondary-container: 79 57 0;
-  --color-secondary-fixed: 255 222 167;
-  --color-secondary-fixed-dim: 255 187 24;
-  --color-on-secondary-fixed: 61 46 0;
-  --color-on-secondary-fixed-variant: 94 68 0;
-  --color-tertiary: 184 0 75;
-  --color-on-tertiary: 255 255 255;
-  --color-tertiary-container: 255 144 172;
-  --color-on-tertiary-container: 63 0 24;
-  --color-background: 248 249 250;
-  --color-on-background: 25 28 29;
-  --color-surface: 248 249 250;
-  --color-surface-bright: 255 255 255;
-  --color-surface-container-lowest: 255 255 255;
-  --color-surface-container-low: 243 244 245;
-  --color-surface-container: 238 240 242;
-  --color-surface-container-high: 232 234 237;
-  --color-surface-container-highest: 226 229 232;
-  --color-surface-variant: 221 227 234;
-  --color-on-surface: 25 28 29;
-  --color-on-surface-variant: 65 71 81;
-  --color-outline: 112 120 130;
-  --color-outline-variant: 192 199 211;
+  --color-secondary-container: 210 228 255;
+  --color-on-secondary-container: 0 73 126;
+  --color-secondary-fixed: 210 228 255;
+  --color-secondary-fixed-dim: 156 202 255;
+  --color-on-secondary-fixed: 0 29 52;
+  --color-on-secondary-fixed-variant: 0 73 126;
 }
 
 html,
@@ -183,25 +156,6 @@ h4 {
   }
   .td {
     @apply px-4 py-3 text-sm text-on-surface;
-  }
-}
-
-@layer utilities {
-  /* Animated radial gradient mesh — softened for the light theme */
-  .gradient-mesh {
-    background-image:
-      radial-gradient(at 20% 30%, rgba(30, 58, 138, 0.15) 0px, transparent 50%),
-      radial-gradient(at 80% 20%, rgba(56, 189, 248, 0.1) 0px, transparent 50%),
-      radial-gradient(at 50% 80%, rgba(37, 99, 235, 0.12) 0px, transparent 50%);
-    background-size: 150% 150%;
-    animation: gradientMove 15s ease infinite;
-  }
-
-  /* Frosted card — light glass for the light theme */
-  .glass-card {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(189, 201, 202, 0.6);
   }
 }
 

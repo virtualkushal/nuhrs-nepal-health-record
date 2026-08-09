@@ -68,7 +68,7 @@ export default function HospitalBViewer() {
     <div className="min-h-screen bg-background px-4 py-8">
       <div className="mx-auto max-w-3xl">
         <div className="mb-6 flex items-center gap-3">
-          <div className="rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 p-2.5 shadow-sm">
+          <div className="rounded-xl bg-primary p-2.5 shadow-sm">
             <Building2 className="h-6 w-6 text-white" />
           </div>
           <div>
@@ -87,7 +87,7 @@ export default function HospitalBViewer() {
               required
               className="flex-1 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface placeholder-on-surface-variant/60 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
-            <button type="submit" className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+            <button type="submit" className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">
               <Search className="h-4 w-4" /> Request
             </button>
           </div>

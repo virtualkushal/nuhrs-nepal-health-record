@@ -106,7 +106,7 @@ export default function CrossHospital() {
 
       <div className="mx-auto max-w-4xl px-4 py-8">
         <div className="mb-6 flex items-center gap-3">
-          <div className="rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 p-2.5 shadow-sm">
+          <div className="rounded-xl bg-primary p-2.5 shadow-sm">
             <Building2 className="h-6 w-6 text-white" />
           </div>
           <div>

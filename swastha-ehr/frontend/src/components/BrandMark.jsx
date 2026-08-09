@@ -1,7 +1,7 @@
 import { HeartPulse } from "lucide-react";
 
 // Reusable SwasthyaEHR brand lockup. `variant="light"` renders white text for
-// use on dark/gradient backgrounds; the default is for light backgrounds.
+// use on dark/primary backgrounds; the default is for light backgrounds.
 export default function BrandMark({ variant = "dark", subtitle }) {
   const light = variant === "light";
   return (
@@ -9,8 +9,8 @@ export default function BrandMark({ variant = "dark", subtitle }) {
       <div
         className={
           light
-            ? "p-2 rounded-xl bg-white/15 backdrop-blur"
-            : "p-2 rounded-xl bg-gradient-to-br from-teal-500 to-blue-600"
+            ? "p-2 rounded-xl bg-white/15"
+            : "p-2 rounded-xl bg-primary"
         }
       >
         <HeartPulse className="w-6 h-6 text-white" />

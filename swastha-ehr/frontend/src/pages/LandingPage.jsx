@@ -41,9 +41,9 @@ function JourneyArt() {
         <div key={label} className="relative flex items-center gap-4">
           {/* connector line to next node */}
           {i < steps.length - 1 && (
-            <span className="absolute left-7 top-14 h-5 w-0.5 bg-gradient-to-b from-brand-500 to-brand-800" />
+            <span className="absolute left-7 top-14 h-5 w-0.5 bg-primary/40" />
           )}
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-800 text-white shadow-lg shadow-black/10">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary text-white shadow-sm">
             <Icon className="h-6 w-6" />
           </div>
           <div>
@@ -136,14 +136,14 @@ export default function LandingPage() {
       </nav>
 
       {/* ── Hero ────────────────────────────────────────────────────────── */}
-      <section className="gradient-mesh relative flex min-h-screen items-center overflow-hidden pt-32 pb-20">
+      <section className="relative flex min-h-screen items-center overflow-hidden pt-32 pb-20">
         <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2">
           <div className="space-y-8">
-            <h1 className="font-display text-4xl font-bold leading-tight text-on-surface lg:text-6xl">
+            <h1 className="font-display text-3xl font-bold leading-tight text-on-surface lg:text-5xl">
               Register, Get Diagnosed,{" "}
               <span className="text-primary">Track &amp; Share</span> Your Records
             </h1>
-            <p className="max-w-lg text-xl leading-relaxed text-on-surface-variant">
+            <p className="max-w-lg text-lg leading-relaxed text-on-surface-variant">
               Our system lets patients register once, get diagnosed with the
               doctor, track their health, and share their own data easily and
               in a standard way.
@@ -152,14 +152,14 @@ export default function LandingPage() {
             <div className="flex flex-wrap gap-4">
               <Link
                 to="/register"
-                className="flex items-center gap-2 rounded-full bg-primary px-8 py-4 font-semibold text-white shadow-xl shadow-black/10 transition hover:opacity-90"
+                className="flex items-center gap-2 rounded-full bg-primary px-8 py-4 font-semibold text-white shadow-sm shadow-black/10 transition hover:opacity-90"
               >
                 <UserPlus className="h-4 w-4" />
                 Register
               </Link>
               <Link
                 to="/login"
-                className="flex items-center gap-2 rounded-full border border-outline-variant bg-surface/60 px-8 py-4 font-semibold text-on-surface backdrop-blur-sm transition hover:border-primary/60"
+                className="flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-low px-8 py-4 font-semibold text-on-surface transition hover:border-primary/60"
               >
                 <LogIn className="h-4 w-4" />
                 Login to system
@@ -168,8 +168,8 @@ export default function LandingPage() {
           </div>
 
           {/* patient journey illustration */}
-          <div className="animate-float">
-            <div className="glass-card rounded-3xl p-8">
+          <div>
+            <div className="rounded-3xl border border-outline-variant bg-surface-container-lowest p-8 shadow-sm">
               <JourneyArt />
               <p className="mt-6 border-t border-outline-variant pt-5 text-center text-sm text-on-surface-variant">
                 One simple journey — from sign-up to sharing your health data
@@ -194,11 +194,11 @@ export default function LandingPage() {
       </section>
 
       {/* ── Departments (top priority) ──────────────────────────────────── */}
-      <section id="departments" className="bg-background py-28">
+      <section id="departments" className="bg-background py-20">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="mx-auto mb-16 max-w-3xl text-center">
-            <h2 className="font-display text-4xl font-bold text-on-surface md:text-5xl">Our Departments</h2>
-            <p className="mt-4 text-xl text-on-surface-variant">
+          <div className="mx-auto mb-12 max-w-3xl text-center">
+            <h2 className="font-display text-3xl font-bold text-on-surface md:text-4xl">Our Departments</h2>
+            <p className="mt-4 text-lg text-on-surface-variant">
               Specialist care across every corner of the hospital.
             </p>
           </div>
@@ -210,7 +210,7 @@ export default function LandingPage() {
                   key={d.value}
                   className="flex items-center gap-4 rounded-2xl border border-outline-variant bg-surface-container-low p-5 transition hover:border-primary/60 hover:bg-primary/5"
                 >
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-800 to-brand-600 text-white">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-white">
                     <Icon className="h-5 w-5" />
                   </div>
                   <span className="text-base font-semibold text-on-surface">{d.label}</span>
@@ -222,11 +222,11 @@ export default function LandingPage() {
       </section>
 
       {/* ── Services ────────────────────────────────────────────────────── */}
-      <section id="services" className="bg-surface-container-low py-28">
+      <section id="services" className="bg-surface-container-low py-20">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="mx-auto mb-16 max-w-3xl text-center">
-            <h2 className="font-display text-4xl font-bold text-on-surface md:text-5xl">Services</h2>
-            <p className="mt-4 text-xl text-on-surface-variant">
+          <div className="mx-auto mb-12 max-w-3xl text-center">
+            <h2 className="font-display text-3xl font-bold text-on-surface md:text-4xl">Services</h2>
+            <p className="mt-4 text-lg text-on-surface-variant">
               Everything a modern hospital needs, in one connected platform.
             </p>
           </div>
@@ -234,9 +234,9 @@ export default function LandingPage() {
             {services.map(({ icon: Icon, title, text }) => (
               <div
                 key={title}
-                className="rounded-3xl border border-outline-variant bg-surface-container-lowest p-8 transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_-15px_rgba(30,58,138,0.4)]"
+                className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 transition hover:border-primary/60"
               >
-                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-800 to-brand-600 text-white shadow-lg shadow-black/10">
+                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-white shadow-sm">
                   <Icon className="h-6 w-6" />
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-on-surface">{title}</h3>
@@ -248,22 +248,18 @@ export default function LandingPage() {
       </section>
 
       {/* ── CTA ─────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-800 to-brand-600 py-28">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute left-0 top-0 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-400 blur-3xl"></div>
-          <div className="absolute bottom-0 right-0 h-96 w-96 translate-x-1/2 translate-y-1/2 rounded-full bg-brand-300 blur-3xl"></div>
-        </div>
+      <section className="bg-primary py-24">
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
-          <h2 className="mb-6 font-display text-4xl font-bold text-white md:text-5xl">
+          <h2 className="mb-6 font-display text-3xl font-bold text-white md:text-4xl">
             Ready to join us and stay healthy?
           </h2>
-          <p className="mb-10 text-xl text-brand-100">
+          <p className="mb-10 text-lg text-white/85">
             Register once and carry your medical history to any hospital.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               to="/register"
-              className="group inline-flex items-center gap-3 rounded-full bg-white px-10 py-5 text-lg font-bold text-brand-900 shadow-2xl transition hover:bg-brand-50"
+              className="group inline-flex items-center gap-3 rounded-full bg-white px-10 py-5 text-lg font-bold text-primary shadow-lg transition hover:bg-white/90"
             >
               Register now
               <ArrowRight className="h-5 w-5 transition group-hover:translate-x-1" />

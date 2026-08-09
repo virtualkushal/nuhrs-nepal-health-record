@@ -3,7 +3,7 @@ import BrandMark from "./BrandMark";
 
 export default function AuthArtwork() {
   return (
-    <div className="relative hidden lg:flex flex-col justify-between overflow-hidden bg-gradient-to-br from-teal-500 via-sky-500 to-blue-700 p-10 text-white">
+    <div className="relative hidden lg:flex flex-col justify-between overflow-hidden bg-primary p-10 text-white">
       <style>{`
         @keyframes draw-path {
           from { stroke-dashoffset: 600; }
@@ -21,10 +21,6 @@ export default function AuthArtwork() {
         .node-in { opacity: 0; animation: node-in 0.5s ease-out forwards; }
         .pulse-dot { animation: pulse-dot 2s ease-in-out 1.6s infinite; }
       `}</style>
-
-      {/* soft decorative blobs */}
-      <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/10 blur-2xl" />
-      <div className="pointer-events-none absolute bottom-0 -left-16 h-72 w-72 rounded-full bg-white/10 blur-2xl" />
 
       <div className="relative z-10">
         <BrandMark variant="light" />
@@ -53,7 +49,7 @@ export default function AuthArtwork() {
 
           {/* Clinic */}
           <div
-            className="node-in absolute flex h-12 w-12 items-center justify-center rounded-full bg-white/15 backdrop-blur"
+            className="node-in absolute flex h-12 w-12 items-center justify-center rounded-full bg-white/10"
             style={{ left: 6, top: 84, animationDelay: "0.2s" }}
           >
             <Building2 className="h-6 w-6 text-white" strokeWidth={1.75} />
@@ -61,7 +57,7 @@ export default function AuthArtwork() {
 
           {/* Doctor */}
           <div
-            className="node-in absolute flex h-12 w-12 items-center justify-center rounded-full bg-white/15 backdrop-blur"
+            className="node-in absolute flex h-12 w-12 items-center justify-center rounded-full bg-white/10"
             style={{ left: 92, top: 20, animationDelay: "0.55s" }}
           >
             <Stethoscope className="h-6 w-6 text-white" strokeWidth={1.75} />
@@ -69,7 +65,7 @@ export default function AuthArtwork() {
 
           {/* Pharmacy */}
           <div
-            className="node-in absolute flex h-12 w-12 items-center justify-center rounded-full bg-white/15 backdrop-blur"
+            className="node-in absolute flex h-12 w-12 items-center justify-center rounded-full bg-white/10"
             style={{ left: 162, top: 96, animationDelay: "0.9s" }}
           >
             <Pill className="h-6 w-6 text-white" strokeWidth={1.75} />
@@ -77,7 +73,7 @@ export default function AuthArtwork() {
 
           {/* Patient — journey's end, gets the accent */}
           <div
-            className="node-in absolute flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-lg"
+            className="node-in absolute flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-md"
             style={{ left: 222, top: 42, animationDelay: "1.25s" }}
           >
             <User className="h-7 w-7 text-blue-600" strokeWidth={1.75} />

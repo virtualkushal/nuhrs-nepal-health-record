@@ -3,7 +3,6 @@ import { FlaskConical, CheckCircle2, Loader2, ClipboardList } from "lucide-react
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import DashboardHeader from "../components/DashboardHeader";
-import { ROLE_THEME } from "../constants";
 
 // Lab Technician station: work the pending order queue and submit a result for
 // each. The catalog tells us whether the test is QUANTITATIVE (numeric value)
@@ -33,7 +32,7 @@ export default function LabDashboard() {
   useEffect(() => { loadQueue(); }, []);
 
   return (
-    <div className={`min-h-screen bg-gradient-to-b ${ROLE_THEME.LAB_TECH.tint}`}>
+    <div className="min-h-screen bg-background">
       <DashboardHeader user={user} logout={logout} subtitle="Diagnostic lab station" />
       <main className="mx-auto grid max-w-4xl gap-6 p-6 md:grid-cols-2">
         <section className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm">
@@ -143,7 +142,7 @@ function ResultEntryPanel({ order, meta, onSaved }) {
           </div>
         )}
         <button type="submit" disabled={busy}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 py-2.5 font-medium text-white hover:bg-violet-700 disabled:opacity-60">
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 font-medium text-white hover:bg-primary/90 disabled:opacity-60">
           {busy && <Loader2 className="h-5 w-5 animate-spin" />}
           {busy ? "Saving…" : "Submit result"}
         </button>
