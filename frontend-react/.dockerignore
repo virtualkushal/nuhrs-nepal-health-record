@@ -1,0 +1,8 @@
+# Host-installed dependencies are platform-specific (native esbuild/rollup
+# binaries) and must not leak into the Linux build image — npm install runs
+# inside the container instead.
+node_modules
+dist
+.git
+.gitignore
+npm-debug.log*

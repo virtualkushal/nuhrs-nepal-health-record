@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
 import { api } from "../lib/api.js";
+import { dashboardPathFor } from "../lib/roles.js";
 import Brand from "../components/Brand.jsx";
-import background from "../assects/background.jpg"
-
+import background from "../assects/background.jpg";
 
 // Public home page — Stitch "NUHRS Health Portal" design with a working login card.
 export default function Landing() {
   const { login } = useAuth();
   const { show } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Login tab: PATIENT | DOCTOR | MINISTRY
   const [tab, setTab] = useState("PATIENT");
@@ -42,7 +43,7 @@ export default function Landing() {
     api
       .getActiveOrganizations()
       .then((orgs) =>
-        setHospitals(orgs.filter((o) => o.organization_type === "HOSPITAL"))
+        setHospitals(orgs.filter((o) => o.organization_type === "HOSPITAL")),
       )
       .catch(() => setHospitals([]));
   }, []);
@@ -62,11 +63,19 @@ export default function Landing() {
       } else if (tab === "PATIENT") {
         credentials = { scope: "PATIENT", username: username.trim(), password };
       } else {
-        credentials = { scope: "MINISTRY", username: username.trim(), password };
+        credentials = {
+          scope: "MINISTRY",
+          username: username.trim(),
+          password,
+        };
       }
-      await login(credentials);
+      const signedIn = await login(credentials);
       show("Welcome back", "ok");
-      navigate("/app");
+      // Return them to the protected page they originally asked for, otherwise
+      // drop them on their role's dashboard. ProtectedRoute re-checks the role,
+      // so a stale `from` for another portal is bounced to the right place.
+      const from = location.state?.from?.pathname;
+      navigate(from || dashboardPathFor(signedIn), { replace: true });
     } catch (err) {
       show(err.message, "err");
     } finally {
@@ -99,7 +108,6 @@ export default function Landing() {
     }
   }
 
-
   return (
     <div className="landing-theme font-body-md text-on-surface bg-background">
       {/* Header */}
@@ -107,13 +115,35 @@ export default function Landing() {
         <div className="h-20 max-w-container-max mx-auto px-margin-desktop flex items-center justify-between">
           <Brand size={36} />
           <nav className="hidden lg:flex items-center gap-stack-lg">
-
-            <a className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#features">About</a>
-            <a className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#login-portal">For Patients</a>
-            <a className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#login-portal">For Providers</a>
-            <a className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#features">Statistics</a>
+            <a
+              className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
+              href="#features"
+            >
+              About
+            </a>
+            <a
+              className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
+              href="#login-portal"
+            >
+              For Patients
+            </a>
+            <a
+              className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
+              href="#login-portal"
+            >
+              For Providers
+            </a>
+            <a
+              className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
+              href="#features"
+            >
+              Statistics
+            </a>
           </nav>
-          <a href="#login-portal" className="px-6 py-2 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:shadow-lg hover:shadow-primary/20 transition-all">
+          <a
+            href="#login-portal"
+            className="px-6 py-2 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:shadow-lg hover:shadow-primary/20 transition-all"
+          >
             Sign In
           </a>
         </div>
@@ -125,8 +155,19 @@ export default function Landing() {
           <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
             <svg height="100%" width="100%" src="http://www.w3.org/2000/svg">
               <defs>
-                <pattern height="40" id="grid" patternUnits="userSpaceOnUse" width="40">
-                  <path className="text-primary" d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                <pattern
+                  height="40"
+                  id="grid"
+                  patternUnits="userSpaceOnUse"
+                  width="40"
+                >
+                  <path
+                    className="text-primary"
+                    d="M 40 0 L 0 0 0 40"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="0.5"
+                  />
                 </pattern>
               </defs>
               <rect fill="url(#grid)" height="100%" width="100%" />
@@ -139,9 +180,9 @@ export default function Landing() {
                   All your health records in a single place.
                 </h1>
                 <p className="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
-                  Connecting citizens, hospitals, and the Ministry of Health through a
-                  secure, federated national health data network designed for clinical
-                  excellence.
+                  Connecting citizens, hospitals, and the Ministry of Health
+                  through a secure, federated national health data network
+                  designed for clinical excellence.
                 </p>
                 <div className="flex flex-wrap gap-stack-md mt-stack-md">
                   <button
@@ -149,7 +190,9 @@ export default function Landing() {
                     className="px-8 py-4 bg-primary text-on-primary rounded-xl font-title-lg shadow-xl hover:shadow-primary/20 transition-all flex items-center gap-stack-sm"
                   >
                     Activate Patient Account
-                    <span className="material-symbols-outlined">how_to_reg</span>
+                    <span className="material-symbols-outlined">
+                      how_to_reg
+                    </span>
                   </button>
                   <button
                     onClick={() => navigate("/register-org")}
@@ -166,7 +209,9 @@ export default function Landing() {
                 className="bg-surface-container-lowest p-stack-xl rounded-3xl border border-outline-variant shadow-2xl max-w-md w-full mx-auto lg:ml-auto"
               >
                 <div className="text-center mb-6">
-                  <h3 className="font-title-lg text-title-lg mb-2">Portal Sign In</h3>
+                  <h3 className="font-title-lg text-title-lg mb-2">
+                    Portal Sign In
+                  </h3>
                   <p className="text-body-md text-on-surface-variant">
                     Choose your role to continue
                   </p>
@@ -234,8 +279,15 @@ export default function Landing() {
                             />
                           </div>
                         </div>
-                        <PasswordField value={password} onChange={setPassword} />
-                        <SubmitButton busy={busy} label="Sign In" busyLabel="Signing in…" />
+                        <PasswordField
+                          value={password}
+                          onChange={setPassword}
+                        />
+                        <SubmitButton
+                          busy={busy}
+                          label="Sign In"
+                          busyLabel="Signing in…"
+                        />
                         <p className="text-center text-body-md text-on-surface-variant">
                           Have existing hospital records?{" "}
                           <button
@@ -322,7 +374,11 @@ export default function Landing() {
                             onChange={(e) => setRegPassword(e.target.value)}
                           />
                         </div>
-                        <SubmitButton busy={busy} label="Create Account" busyLabel="Creating…" />
+                        <SubmitButton
+                          busy={busy}
+                          label="Create Account"
+                          busyLabel="Creating…"
+                        />
                       </form>
                     )}
                   </>
@@ -366,9 +422,14 @@ export default function Landing() {
                       </div>
                     </div>
                     <PasswordField value={password} onChange={setPassword} />
-                    <SubmitButton busy={busy} label="Sign In" busyLabel="Signing in…" />
+                    <SubmitButton
+                      busy={busy}
+                      label="Sign In"
+                      busyLabel="Signing in…"
+                    />
                     <p className="text-center text-body-md text-on-surface-variant">
-                      Your credentials are issued by your hospital administrator.
+                      Your credentials are issued by your hospital
+                      administrator.
                     </p>
                   </form>
                 )}
@@ -391,7 +452,11 @@ export default function Landing() {
                       </div>
                     </div>
                     <PasswordField value={password} onChange={setPassword} />
-                    <SubmitButton busy={busy} label="Sign In" busyLabel="Signing in…" />
+                    <SubmitButton
+                      busy={busy}
+                      label="Sign In"
+                      busyLabel="Signing in…"
+                    />
                   </form>
                 )}
 
@@ -417,7 +482,6 @@ export default function Landing() {
         <ShowcaseBand navigate={navigate} />
 
         <StatsBand />
-
 
         {/* Features */}
         <section id="features" className="py-24 bg-surface">
@@ -458,12 +522,15 @@ export default function Landing() {
                 Institutional Grade Security
               </h2>
               <p className="font-body-lg text-body-lg text-on-primary/80">
-                NUHRS is governed by the Ministry of Health and Population, using
-                end-to-end encryption and a federated data architecture so patient
-                privacy is never compromised.
+                NUHRS is governed by the Ministry of Health and Population,
+                using end-to-end encryption and a federated data architecture so
+                patient privacy is never compromised.
               </p>
               <div className="grid grid-cols-2 gap-stack-md">
-                <Trust icon="enhanced_encryption" label="256-bit AES Encryption" />
+                <Trust
+                  icon="enhanced_encryption"
+                  label="256-bit AES Encryption"
+                />
                 <Trust icon="policy" label="Privacy Compliant" />
                 <Trust icon="account_balance" label="MoH Oversight" />
                 <Trust icon="analytics" label="Audit Logging" />
@@ -476,11 +543,16 @@ export default function Landing() {
       <footer className="w-full bg-surface-container-high border-t border-outline-variant py-stack-xl">
         <div className="max-w-container-max mx-auto px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary">health_and_safety</span>
-            <span className="font-headline-md text-[20px] text-primary">NUHRS</span>
+            <span className="material-symbols-outlined text-primary">
+              health_and_safety
+            </span>
+            <span className="font-headline-md text-[20px] text-primary">
+              NUHRS
+            </span>
           </div>
           <p className="text-body-md text-on-surface-variant">
-            A government initiative for digital health sovereignty · Kathmandu, Nepal
+            A government initiative for digital health sovereignty · Kathmandu,
+            Nepal
           </p>
         </div>
       </footer>
@@ -500,12 +572,13 @@ function ShowcaseBand({ navigate }) {
               One Network, Every Facility
             </span>
             <h2 className="font-headline-lg text-headline-lg text-on-surface max-w-lg">
-              Hospitals, labs, and citizens — connected through a single secure exchange.
+              Hospitals, labs, and citizens — connected through a single secure
+              exchange.
             </h2>
             <p className="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
-              NUHRS federates data across providers so a patient's history travels with
-              them. No silos, no duplicate tests, no lost records — just unified, secure
-              access at the point of care.
+              NUHRS federates data across providers so a patient's history
+              travels with them. No silos, no duplicate tests, no lost records —
+              just unified, secure access at the point of care.
             </p>
             <div className="flex flex-wrap gap-stack-md mt-stack-sm">
               <button
@@ -521,7 +594,9 @@ function ShowcaseBand({ navigate }) {
           <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
             {broken ? (
               <div className="w-full max-w-xl aspect-[16/10] rounded-3xl bg-primary/5 border border-outline-variant flex items-center justify-center">
-                <span className="material-symbols-outlined text-primary text-[64px]">hub</span>
+                <span className="material-symbols-outlined text-primary text-[64px]">
+                  hub
+                </span>
               </div>
             ) : (
               <img
@@ -571,14 +646,17 @@ function SubmitButton({ busy, label, busyLabel }) {
 }
 
 function Feature({ icon, title, body }) {
-
   return (
     <div className="group flex flex-col gap-stack-md p-stack-xl bg-surface-container-low rounded-2xl hover:bg-surface-container-high transition-all duration-300">
       <div className="w-16 h-16 bg-white rounded-xl shadow-md flex items-center justify-center group-hover:scale-110 transition-transform">
-        <span className="material-symbols-outlined text-primary text-[32px]">{icon}</span>
+        <span className="material-symbols-outlined text-primary text-[32px]">
+          {icon}
+        </span>
       </div>
       <h3 className="font-title-lg text-title-lg text-on-surface">{title}</h3>
-      <p className="font-body-md text-body-md text-on-surface-variant">{body}</p>
+      <p className="font-body-md text-body-md text-on-surface-variant">
+        {body}
+      </p>
     </div>
   );
 }
@@ -615,7 +693,9 @@ function StatsBand() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter max-w-4xl mx-auto">
           <div className="flex items-center gap-stack-lg p-stack-lg bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant">
             <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined text-[32px]">groups</span>
+              <span className="material-symbols-outlined text-[32px]">
+                groups
+              </span>
             </div>
             <div>
               <div className="font-display-lg text-[32px] text-on-surface tabular-nums">
@@ -628,7 +708,9 @@ function StatsBand() {
           </div>
           <div className="flex items-center gap-stack-lg p-stack-lg bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant">
             <div className="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
-              <span className="material-symbols-outlined text-[32px]">local_hospital</span>
+              <span className="material-symbols-outlined text-[32px]">
+                local_hospital
+              </span>
             </div>
             <div>
               <div className="font-display-lg text-[32px] text-on-surface tabular-nums">

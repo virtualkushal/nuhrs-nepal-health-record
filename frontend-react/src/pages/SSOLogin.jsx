@@ -2,14 +2,16 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../lib/api.js";
+import { dashboardPathFor } from "../lib/roles.js";
 
 // Landing page for the seamless SwasthyaEHR -> NUHRS handoff.
 //
 // SwasthyaEHR's backend already proved its identity to the National Platform
 // and obtained a single-use ticket; the doctor's browser arrives here as
 // /sso-login?ticket=...&nid=... . We redeem the ticket for JWT tokens, adopt the
-// session in the auth context, and route to /app — all within this single
-// document load, so the icon font and JS bundle are never re-fetched.
+// session in the auth context, and route to that user's role dashboard (usually
+// /doctor) — all within this single document load, so the icon font and JS
+// bundle are never re-fetched.
 export default function SSOLogin() {
   const [params] = useSearchParams();
   const { adoptSession } = useAuth();
@@ -38,8 +40,8 @@ export default function SSOLogin() {
         // Pass the patient context (if any) to the doctor dashboard.
         if (nid) window.sessionStorage.setItem("nuhrs_sso_nid", nid);
         else window.sessionStorage.removeItem("nuhrs_sso_nid");
-        adoptSession(data);
-        navigate("/app", { replace: true });
+        const signedIn = adoptSession(data);
+        navigate(dashboardPathFor(signedIn), { replace: true });
       })
 
       .catch((err) => {

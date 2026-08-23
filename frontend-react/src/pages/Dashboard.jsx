@@ -1,40 +1,14 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
-import AppShell from "../components/AppShell.jsx";
-import ChangePassword from "./ChangePassword.jsx";
-import SuperAdmin from "./dashboards/SuperAdmin.jsx";
-import OrgAdmin from "./dashboards/OrgAdmin.jsx";
-import Exchange from "./dashboards/Exchange.jsx";
-import DoctorPortal from "./dashboards/DoctorPortal.jsx";
-import PatientPortal from "./dashboards/PatientPortal.jsx";
+import { dashboardPathFor } from "../lib/roles.js";
 
-// Authenticated area: picks the right dashboard based on the user's role.
+// Legacy `/app` entry point.
+//
+// Role-based view switching now lives in the router: each role has its own
+// bookmarkable prefix (/ministry, /org-admin, /doctor, /patient, /exchange)
+// guarded by ProtectedRoute. This component only exists so old `/app` links
+// forward to the right place — anonymous visitors land on /login.
 export default function Dashboard() {
   const { user } = useAuth();
-
-  if (!user) return <Navigate to="/" replace />;
-  if (user.must_change_password) return <ChangePassword />;
-
-  let body;
-  switch (user.role) {
-    case "SUPER_ADMIN":
-      body = <SuperAdmin />;
-      break;
-    case "ORGANIZATION_ADMIN":
-      body = <OrgAdmin />;
-      break;
-    case "DOCTOR":
-      body = <DoctorPortal />;
-      break;
-    case "LAB_TECHNICIAN":
-      body = <Exchange />;
-      break;
-    case "PATIENT":
-      body = <PatientPortal />;
-      break;
-    default:
-      return <Navigate to="/" replace />;
-  }
-
-  return <AppShell>{body}</AppShell>;
+  return <Navigate to={dashboardPathFor(user)} replace />;
 }
