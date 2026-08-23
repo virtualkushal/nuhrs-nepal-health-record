@@ -14,13 +14,18 @@ doctor as a red banner instead).
 
 import secrets
 from datetime import timedelta
+from urllib.parse import quote
 
+import requests
+
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
+
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from rest_framework import generics, status
@@ -172,8 +177,76 @@ class ChangePasswordView(APIView):
         return Response({"detail": "Password changed successfully."})
 
 
+class NuhrsLaunchView(APIView):
+    """
+    Seamless SSO handoff to the NUHRS National Dashboard.
+
+    An already-authenticated SwasthyaEHR doctor calls this endpoint; the server
+    performs a server-to-server exchange with the National Platform (proving this
+    facility's identity with its X-API-Key) to mint a single-use SSO ticket, and
+    returns a one-shot `sso_url` the browser opens in a new tab. The doctor lands
+    in the National Dashboard already logged in — no second credential entry.
+
+    Every SwasthyaEHR doctor is mapped to this facility's national doctor account
+    (``settings.NUHRS_DOCTOR_USERNAME``), since Swastha's email-based Staff
+    accounts are distinct from the national platform's org-scoped accounts.
+    """
+
+    permission_classes = [EnforceStrictRole]
+    allowed_roles = [Role.DOCTOR]
+
+    def get(self, request):
+        if not getattr(settings, "NUHRS_ENABLED", False):
+            return Response(
+                {"detail": "NUHRS integration is disabled on this instance."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        nid = (request.query_params.get("nid") or "").strip()
+        platform_url = settings.NUHRS_PLATFORM_URL.rstrip("/")
+        doctor_username = getattr(
+            settings, "NUHRS_DOCTOR_USERNAME", f"{settings.NUHRS_ORG_CODE}-DOC-0001"
+        )
+
+        try:
+            resp = requests.post(
+                f"{platform_url}/api/auth/sso-exchange/",
+                json={"doctor_username": doctor_username},
+                headers={"X-API-Key": settings.NUHRS_API_KEY},
+                timeout=10,
+            )
+        except requests.RequestException:
+            return Response(
+                {"detail": "Could not reach the NUHRS National Platform."},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        if resp.status_code != 200:
+            detail = "NUHRS rejected the single sign-on request."
+            try:
+                detail = resp.json().get("detail", detail)
+            except ValueError:
+                pass
+            return Response({"detail": detail}, status=status.HTTP_502_BAD_GATEWAY)
+
+        data = resp.json()
+        ticket = data.get("ticket")
+        redirect_url = data.get("redirect_url")
+        if not ticket or not redirect_url:
+            return Response(
+                {"detail": "NUHRS returned an invalid single sign-on response."},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        sso_url = f"{redirect_url}?ticket={quote(ticket)}"
+        if nid:
+            sso_url += f"&nid={quote(nid)}"
+        return Response({"sso_url": sso_url})
+
+
 class StaffRegisterView(generics.CreateAPIView):
     """Public staff self-registration -> PENDING (cannot log in until approved)."""
+
 
     permission_classes = [AllowAny]
     serializer_class = StaffRegisterSerializer

@@ -131,14 +131,42 @@ body {
   color: #191c1d;
 }
 
+/* Material Symbols icon spans. The font-family and ligature settings are
+   declared here rather than relying on the Google Fonts stylesheet, which ships
+   only @font-face rules — without these, every icon renders as its literal
+   ligature name ("arrow_back", "search", ...) instead of a glyph.
+   No font-size is set, so the Tailwind text-[..] classes on each span win. */
 .material-symbols-outlined {
-  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: "liga";
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
 }
 
 @keyframes progress {
-  0% { transform: translateX(-100%); }
-  50% { transform: translateX(0); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Print-to-PDF: the patient's printable record document lives off-canvas until

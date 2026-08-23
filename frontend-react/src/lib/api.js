@@ -27,7 +27,7 @@ export function saveUser(user) {
 
 export function clearSession() {
   ["nuhrs_access", "nuhrs_refresh", "nuhrs_user"].forEach((k) =>
-    window.localStorage.removeItem(k)
+    window.localStorage.removeItem(k),
   );
 }
 
@@ -58,10 +58,18 @@ export const api = {
   //   Ministry: { scope: "MINISTRY", username, password }
   // A bare { username, password } (no scope) still works (legacy path).
   login: (credentials) => request("POST", "/auth/login/", credentials, false),
+  // Redeem a single-use SSO ticket issued to a trusted facility (e.g. a doctor
+  // arriving from SwasthyaEHR) for standard JWT tokens.
+  ssoVerify: (ticket) =>
+    request("POST", "/auth/sso-verify/", { ticket }, false),
+
   // current_password is optional — sent for user-initiated changes so the
   // server verifies the old password before applying the new one.
   changePassword: (new_password, current_password) =>
-    request("POST", "/auth/change-password/", { new_password, current_password }),
+    request("POST", "/auth/change-password/", {
+      new_password,
+      current_password,
+    }),
   // organizations
   registerOrg: (payload) => request("POST", "/orgs/register/", payload, false),
   listOrgs: (status) =>

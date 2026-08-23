@@ -10,6 +10,11 @@ urlpatterns = [
     path("auth/change-password/", views.ChangePasswordView.as_view()),
     path("auth/me/", views.me),
 
+    # single sign-on (seamless doctor handoff from a trusted facility)
+    path("auth/sso-exchange/", views.SSOExchangeView.as_view()),
+    path("auth/sso-verify/", views.SSOVerifyView.as_view()),
+
+
     # organizations
     path("orgs/", views.OrganizationListView.as_view()),
     path("orgs/active/", views.ActiveOrganizationsView.as_view()),

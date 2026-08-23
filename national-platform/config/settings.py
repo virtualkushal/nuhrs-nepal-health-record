@@ -107,3 +107,9 @@ CORS_ALLOW_ALL_ORIGINS = True  # prototype only
 
 # Trust store for organization api_keys is the Organization table itself.
 NID_SYSTEM = "https://nid.gov.np"
+
+# Base URL of the NUHRS National Dashboard (React portal). Used to build the
+# SSO redirect URL returned by /api/auth/sso-exchange/.
+NUHRS_PORTAL_URL = os.getenv("NUHRS_PORTAL_URL", "http://localhost:3000")
+
+

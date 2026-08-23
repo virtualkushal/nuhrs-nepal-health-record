@@ -16,9 +16,7 @@ import LabDashboard from "./pages/LabDashboard";
 import PatientPortal from "./pages/PatientPortal";
 import HospitalBViewer from "./pages/HospitalBViewer";
 import CrossHospital from "./pages/CrossHospital";
-import ImportedRecords from "./pages/ImportedRecords";
 import AdminShareApprovals from "./pages/AdminShareApprovals";
-
 
 // App routing.
 // Public: landing, login, patient register, staff register, password flows,
@@ -32,7 +30,10 @@ export default function App() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/staff-register" element={<StaffRegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      <Route path="/reset-password/:uid/:token/" element={<ResetPasswordPage />} />
+      <Route
+        path="/reset-password/:uid/:token/"
+        element={<ResetPasswordPage />}
+      />
       <Route path="/hospital-b" element={<HospitalBViewer />} />
 
       <Route
@@ -84,14 +85,6 @@ export default function App() {
         }
       />
       <Route
-        path="/doctor/imported-records"
-        element={
-          <ProtectedRoute roles={["DOCTOR"]}>
-            <ImportedRecords />
-          </ProtectedRoute>
-        }
-      />
-      <Route
         path="/admin/share-requests"
         element={
           <ProtectedRoute roles={["ADMIN"]}>
@@ -101,7 +94,6 @@ export default function App() {
       />
       <Route
         path="/pharmacy"
-
         element={
           <ProtectedRoute roles={["PHARMACIST"]}>
             <PharmacyDashboard />

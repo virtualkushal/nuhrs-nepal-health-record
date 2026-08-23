@@ -200,3 +200,38 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"{self.timestamp} {self.action} {self.nid}"
+
+
+class SSOTicket(models.Model):
+    """
+    Single-use, short-lived Single Sign-On ticket.
+
+    Issued by the /auth/sso-exchange/ endpoint when a trusted facility (verified
+    by X-API-Key) requests a seamless handoff for one of its doctors. Redeemed
+    exactly once at /auth/sso-verify/ in exchange for JWT access/refresh tokens.
+
+    A DB row (rather than the cache) is used so the ticket is reliably single-use
+    across multiple gunicorn workers and survives no shared in-memory store.
+    """
+
+    ticket = models.CharField(max_length=128, unique=True, db_index=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sso_tickets")
+    issued_by_org = models.ForeignKey(
+        Organization, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def is_valid(self):
+        from django.utils import timezone
+
+        return not self.used and self.expires_at > timezone.now()
+
+    def __str__(self):
+        return f"SSOTicket for {self.user.username} (used={self.used})"
+
+

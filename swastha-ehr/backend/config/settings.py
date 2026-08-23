@@ -157,6 +157,10 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 NUHRS_PLATFORM_URL = os.getenv("NUHRS_PLATFORM_URL", "http://localhost:8000")
 NUHRS_API_KEY = os.getenv("NUHRS_API_KEY", "swastha-demo-key-0005")
 NUHRS_ORG_CODE = os.getenv("NUHRS_ORG_CODE", "HOSP003")
+# National-platform doctor account every SwasthyaEHR doctor is mapped to when
+# launching the National Dashboard via SSO. Defaults to this org's seeded doctor.
+NUHRS_DOCTOR_USERNAME = os.getenv("NUHRS_DOCTOR_USERNAME", f"{NUHRS_ORG_CODE}-DOC-0001")
+
 NUHRS_ENABLED = env_bool("NUHRS_ENABLED", True)
 
 

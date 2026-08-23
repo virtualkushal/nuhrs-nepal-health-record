@@ -43,6 +43,9 @@ urlpatterns = [
         name="staff_reject",
     ),
     path("admin/overview/", views.AdminOverviewView.as_view(), name="admin_overview"),
+    # NUHRS National Dashboard SSO launch (doctor only)
+    path("nuhrs/launch/", views.NuhrsLaunchView.as_view(), name="nuhrs_launch"),
+
     # Reference catalogs
     path("departments/", views.departments_catalog, name="departments_catalog"),
     path("lab-catalog/", views.lab_catalog, name="lab_catalog"),

@@ -23,6 +23,17 @@ export function AuthProvider({ children }) {
     return data.user;
   }, []);
 
+  // Adopt a session that was obtained without a password prompt — currently the
+  // SwasthyaEHR single sign-on handoff, which redeems a ticket for tokens. Doing
+  // this in-context (rather than writing localStorage and reloading the page)
+  // keeps it to a single document load, so in-flight font/asset requests are not
+  // cancelled by a second navigation.
+  const adoptSession = useCallback((data) => {
+    setSession(data);
+    setUser(data.user);
+    return data.user;
+  }, []);
+
   const logout = useCallback(() => {
     clearSession();
     setUser(null);
@@ -39,7 +50,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, completePasswordChange }}
+      value={{ user, login, adoptSession, logout, completePasswordChange }}
     >
       {children}
     </AuthContext.Provider>

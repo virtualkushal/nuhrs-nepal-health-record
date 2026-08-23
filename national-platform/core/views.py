@@ -1,4 +1,9 @@
 """National Platform API views."""
+import secrets
+from datetime import timedelta
+
+from django.conf import settings
+from django.db import transaction
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -8,8 +13,17 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from . import services
-from .models import Announcement, AuditLog, Organization, PatientIdentity, RecordIndex, User
+from .models import (
+    Announcement,
+    AuditLog,
+    Organization,
+    PatientIdentity,
+    RecordIndex,
+    SSOTicket,
+    User,
+)
 from .validators import is_valid_nid, normalize_nid
+
 
 from .serializers import (
     AnnouncementSerializer,
@@ -120,8 +134,133 @@ def me(request):
 
 
 # ---------------------------------------------------------------------------
+# Single Sign-On (seamless doctor handoff from a trusted facility)
+# ---------------------------------------------------------------------------
+# A trusted facility (e.g. SwasthyaEHR) that already authenticated its doctor
+# exchanges its X-API-Key for a short-lived, single-use ticket tied to that
+# doctor's national-platform account. The NUHRS portal then redeems the ticket
+# for standard JWT tokens — so the doctor is dropped straight into the National
+# Dashboard without re-entering credentials.
+SSO_TICKET_TTL_SECONDS = 60
+
+
+class SSOExchangeView(APIView):
+    """
+    Step 1 (server-to-server). Facility presents X-API-Key + a doctor_username;
+    we mint a single-use ticket (60s TTL) and return it with the portal URL.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        api_key = request.headers.get("X-API-Key")
+        try:
+            org = Organization.objects.get(
+                api_key=api_key, status=Organization.Status.ACTIVE
+            )
+        except Organization.DoesNotExist:
+            return Response({"detail": "Invalid API key"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        doctor_username = (request.data.get("doctor_username") or "").strip()
+        if not doctor_username:
+            return Response(
+                {"detail": "doctor_username is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # The doctor must belong to the facility that owns this API key. If the
+        # account doesn't exist yet (fresh national DB), auto-provision it so the
+        # integrated handoff "just works" for the demo. It is created disabled
+        # for password login (unusable password) — it only ever arrives via SSO.
+        user = User.objects.filter(username=doctor_username, organization=org).first()
+        if user is None:
+            if User.objects.filter(username=doctor_username).exists():
+                # Username exists but under a different org — refuse the handoff.
+                return Response(
+                    {"detail": "Doctor does not belong to this facility."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+            login_name = doctor_username.split("-", 1)[-1].lower() or "doctor"
+            user = User.objects.create_user(
+                username=doctor_username,
+                login_name=login_name,
+                password=None,  # unusable password — SSO-only account
+                full_name=f"{org.organization_name} Doctor",
+                email=org.contact_email,
+                role=User.Role.DOCTOR,
+                organization=org,
+                must_change_password=False,
+            )
+        elif user.role != User.Role.DOCTOR:
+            return Response(
+                {"detail": "Target account is not a doctor."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        if not user.is_active:
+            return Response({"detail": "Doctor account is inactive."}, status=status.HTTP_403_FORBIDDEN)
+
+        ticket = secrets.token_urlsafe(32)
+        SSOTicket.objects.create(
+            ticket=ticket,
+            user=user,
+            issued_by_org=org,
+            expires_at=timezone.now() + timedelta(seconds=SSO_TICKET_TTL_SECONDS),
+        )
+
+        portal_url = getattr(settings, "NUHRS_PORTAL_URL", "http://localhost:3000").rstrip("/")
+        return Response({
+            "ticket": ticket,
+            "redirect_url": f"{portal_url}/sso-login",
+        })
+
+
+class SSOVerifyView(APIView):
+    """
+    Step 2 (browser). The portal posts the ticket; we validate + invalidate it
+    (single-use) and return standard JWT tokens for the doctor.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        ticket_value = (request.data.get("ticket") or "").strip()
+        if not ticket_value:
+            return Response({"detail": "ticket is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Atomically claim the ticket so a concurrent second request can't reuse
+        # it. select_for_update + the `used` flag guarantee single-use.
+        with transaction.atomic():
+            try:
+                ticket = (
+                    SSOTicket.objects.select_for_update()
+                    .select_related("user")
+                    .get(ticket=ticket_value)
+                )
+            except SSOTicket.DoesNotExist:
+                return Response(
+                    {"detail": "SSO session expired or invalid."},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+            if not ticket.is_valid():
+                return Response(
+                    {"detail": "SSO session expired or invalid."},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+            ticket.used = True
+            ticket.save(update_fields=["used"])
+            user = ticket.user
+
+        if not user.is_active:
+            return Response({"detail": "Doctor account is inactive."}, status=status.HTTP_403_FORBIDDEN)
+
+        user.last_login = timezone.now()
+        user.save(update_fields=["last_login"])
+        tokens = issue_tokens(user)
+        return Response({**tokens, "user": UserProfileSerializer(user).data})
+
+
+# ---------------------------------------------------------------------------
 # Organization registration & approval
 # ---------------------------------------------------------------------------
+
 class OrganizationRegisterView(APIView):
     permission_classes = [AllowAny]
 
