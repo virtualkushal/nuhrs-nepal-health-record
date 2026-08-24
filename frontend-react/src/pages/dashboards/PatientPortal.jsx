@@ -9,6 +9,7 @@ import { extractPatient, extractBloodGroup } from "../../lib/fhirUtils.js";
 import HealthCardHeader from "../../components/patient/HealthCardHeader.jsx";
 import VitalsCards from "../../components/patient/VitalsCards.jsx";
 import CareSummary from "../../components/patient/CareSummary.jsx";
+import AllergiesConditions from "../../components/patient/AllergiesConditions.jsx";
 import RecentVisits from "../../components/patient/RecentVisits.jsx";
 import HealthJourney from "../../components/patient/HealthJourney.jsx";
 import LabResultsFriendly from "../../components/patient/LabResultsFriendly.jsx";
@@ -30,7 +31,6 @@ const PATIENT_TABS = [
   { key: "medications", label: "Medications", icon: "medication" },
   { key: "visits", label: "Visits", icon: "local_hospital" },
   { key: "immunizations", label: "Immunizations", icon: "vaccines" },
-  { key: "updates", label: "Health Updates", icon: "campaign" },
   { key: "settings", label: "Settings", icon: "settings" },
 ];
 
@@ -129,8 +129,8 @@ export default function PatientPortal() {
       {tab === "overview" && (
         <div className="space-y-stack-lg">
           <CareSummary bundle={bundle} />
-          <Panel icon="favorite" title="Latest Vitals">
-            <VitalsCards bundle={bundle} />
+          <Panel icon="health_and_safety" title="Allergies & Conditions">
+            <AllergiesConditions bundle={bundle} />
           </Panel>
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-gutter">
             <Panel icon="local_hospital" title="Recent Visits" className="lg:col-span-3">
@@ -140,6 +140,12 @@ export default function PatientPortal() {
               <HealthJourney bundle={bundle} limit={6} />
             </Panel>
           </div>
+          <Panel icon="campaign" title="National Health Updates">
+            <p className="text-body-md text-on-surface-variant -mt-2 mb-4">
+              News and announcements from the Ministry of Health.
+            </p>
+            <AnnouncementsFeed />
+          </Panel>
         </div>
       )}
 
@@ -161,21 +167,6 @@ export default function PatientPortal() {
       )}
 
       {tab === "immunizations" && <ImmunizationsFriendly bundle={bundle} />}
-
-      {tab === "updates" && (
-        <div>
-          <div className="flex items-center gap-2 mb-4">
-            <span className="material-symbols-outlined text-primary">campaign</span>
-            <div>
-              <h2 className="font-headline-lg text-[22px] text-on-surface">National Health Updates</h2>
-              <p className="text-body-md text-on-surface-variant">
-                News and announcements from the Ministry of Health.
-              </p>
-            </div>
-          </div>
-          <AnnouncementsFeed />
-        </div>
-      )}
 
       {tab === "settings" && (
         <Panel icon="settings" title="Account Settings">

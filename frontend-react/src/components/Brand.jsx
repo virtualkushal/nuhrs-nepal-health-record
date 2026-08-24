@@ -28,15 +28,11 @@ export default function Brand({ size = 32, showText = true, subtitle = false }) 
       {showText && (
         <div className="leading-tight">
           <div className="font-headline-md text-headline-md text-primary tracking-tight">
-            NUHRS <br />
+            NUHRS
           </div>
-            <div >Nepal Unified Health Record System</div>
-            
-          {subtitle && (
-            <div className="text-[11px] text-on-surface-variant -mt-0.5">
-              Nepal Unified Health Record System
-            </div>
-          )}
+          <div className="text-[11px] text-on-surface-variant -mt-0.5">
+            Nepal Unified Health Record System
+          </div>
         </div>
       )}
     </div>
