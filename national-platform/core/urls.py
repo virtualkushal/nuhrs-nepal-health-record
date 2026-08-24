@@ -26,6 +26,10 @@ urlpatterns = [
 
     # staff
     path("staff/", views.StaffView.as_view()),
+    path("staff/<int:pk>/", views.StaffDetailView.as_view()),
+
+    # org admin facility self-service
+    path("facility/", views.FacilityView.as_view()),
 
     # ministry user management
     path("users/", views.AllUsersView.as_view()),
@@ -56,4 +60,5 @@ urlpatterns = [
     # audit & analytics
     path("audit/", views.AuditLogView.as_view()),
     path("analytics/summary/", views.AnalyticsSummaryView.as_view()),
+    path("analytics/facility/", views.FacilityAnalyticsView.as_view()),
 ]

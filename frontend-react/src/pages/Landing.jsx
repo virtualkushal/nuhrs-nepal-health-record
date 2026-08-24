@@ -524,12 +524,14 @@ export default function Landing() {
           <div className="max-w-container-max mx-auto px-margin-desktop relative z-10">
             <div className="flex flex-col gap-stack-lg max-w-2xl">
               <h2 className="font-headline-lg text-headline-lg">
-                Institutional Grade Security
+                Your Records Stay Where They Belong
               </h2>
               <p className="font-body-lg text-body-lg text-on-primary/80">
-                NUHRS is governed by the Ministry of Health and Population,
-                using end-to-end encryption and a federated data architecture so
-                patient privacy is never compromised.
+                Hospitals and labs keep their own patient files — NUHRS stores
+                none of them. The platform holds only a minimal index used to
+                locate a record, and logs every access: which facility, which
+                staff member, and when. The Ministry of Health governs the
+                network; the data stays at its source.
               </p>
               <div className="grid grid-cols-2 gap-stack-md">
                 <Trust

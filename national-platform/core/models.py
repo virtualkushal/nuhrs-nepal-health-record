@@ -186,12 +186,18 @@ class AuditLog(models.Model):
         SEARCH = "SEARCH", "Search"
         FETCH_ALL = "FETCH_ALL", "Fetch All"
         FETCH_ONE = "FETCH_ONE", "Fetch One"
+        # Facility-admin operations (accountability for staff/account changes).
+        STAFF_DEACTIVATE = "STAFF_DEACTIVATE", "Staff Deactivated"
+        STAFF_REACTIVATE = "STAFF_REACTIVATE", "Staff Reactivated"
+        STAFF_UPDATE = "STAFF_UPDATE", "Staff Updated"
+        ORG_UPDATE = "ORG_UPDATE", "Organization Updated"
+        PASSWORD_RESET = "PASSWORD_RESET", "Password Reset"
 
     actor_user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="audit_entries")
     actor_org = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
     nid = models.CharField(max_length=20, db_index=True)
     record_index = models.ForeignKey(RecordIndex, null=True, blank=True, on_delete=models.SET_NULL)
-    action = models.CharField(max_length=12, choices=Action.choices)
+    action = models.CharField(max_length=20, choices=Action.choices)
     target_orgs = models.CharField(max_length=255, blank=True, help_text="Orgs contacted (comma separated)")
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
