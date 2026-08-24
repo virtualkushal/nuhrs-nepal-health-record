@@ -5,7 +5,7 @@ import { dashboardPathFor } from "../lib/roles.js";
 // Legacy `/app` entry point.
 //
 // Role-based view switching now lives in the router: each role has its own
-// bookmarkable prefix (/ministry, /org-admin, /doctor, /patient, /exchange)
+// bookmarkable prefix (/admin, /ministry, /org-admin, /doctor, /patient, /exchange)
 // guarded by ProtectedRoute. This component only exists so old `/app` links
 // forward to the right place — anonymous visitors land on /login.
 export default function Dashboard() {

@@ -23,6 +23,9 @@ function renderAt(path) {
               <Route path="/patient/*" element={<div>patient portal</div>} />
             </Route>
             <Route element={<ProtectedRoute allowedRoles={["SUPER_ADMIN"]} />}>
+              <Route path="/admin/*" element={<div>admin portal</div>} />
+            </Route>
+            <Route element={<ProtectedRoute allowedRoles={["MINISTRY"]} />}>
               <Route path="/ministry/*" element={<div>ministry portal</div>} />
             </Route>
           </Routes>
@@ -46,12 +49,13 @@ afterEach(cleanup);
 
 describe("dashboardPathFor", () => {
   it("maps every supported role to its own URL prefix", () => {
-    expect(dashboardPathFor({ role: "SUPER_ADMIN" })).toBe("/ministry");
+    expect(dashboardPathFor({ role: "SUPER_ADMIN" })).toBe("/admin");
+    expect(dashboardPathFor({ role: "MINISTRY" })).toBe("/ministry");
     expect(dashboardPathFor({ role: "ORGANIZATION_ADMIN" })).toBe("/org-admin");
     expect(dashboardPathFor({ role: "DOCTOR" })).toBe("/doctor");
     expect(dashboardPathFor({ role: "PATIENT" })).toBe("/patient");
     expect(dashboardPathFor({ role: "LAB_TECHNICIAN" })).toBe("/exchange");
-    expect(Object.keys(ROLE_HOME)).toHaveLength(5);
+    expect(Object.keys(ROLE_HOME)).toHaveLength(6);
   });
 
   it("sends anonymous visitors to /login and unknown roles to /unauthorized", () => {
@@ -90,8 +94,21 @@ describe("ProtectedRoute", () => {
 
   it("supports deep links inside a portal", () => {
     signIn({ role: "SUPER_ADMIN", username: "superadmin" });
-    renderAt("/ministry/organizations");
+    renderAt("/admin/organizations");
+    expect(screen.getByText("admin portal")).toBeTruthy();
+  });
+
+  it("routes a Ministry official to their own restricted dashboard", () => {
+    signIn({ role: "MINISTRY", username: "ministry" });
+    renderAt("/ministry");
     expect(screen.getByText("ministry portal")).toBeTruthy();
+  });
+
+  it("bounces a Ministry official off the super-admin route to their own dashboard", () => {
+    signIn({ role: "MINISTRY", username: "ministry" });
+    renderAt("/admin");
+    expect(screen.getByText("ministry portal")).toBeTruthy();
+    expect(screen.queryByText("admin portal")).toBeNull();
   });
 
   it("forces a password change before any dashboard is reachable", () => {

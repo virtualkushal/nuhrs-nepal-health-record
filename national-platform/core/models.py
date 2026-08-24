@@ -111,6 +111,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     class Role(models.TextChoices):
         SUPER_ADMIN = "SUPER_ADMIN", "Super Admin"
+        MINISTRY = "MINISTRY", "Ministry"
         ORGANIZATION_ADMIN = "ORGANIZATION_ADMIN", "Organization Admin"
         DOCTOR = "DOCTOR", "Doctor"
         LAB_TECHNICIAN = "LAB_TECHNICIAN", "Lab Technician"

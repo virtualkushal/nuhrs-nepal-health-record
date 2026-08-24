@@ -22,20 +22,26 @@ def resolve_login_user(*, scope, org_code=None, login_name=None, username=None):
     """
     Resolve the internal User for a login attempt, given the login *scope*.
 
-    The frontend login card offers three scopes (a toggle):
+    The frontend login card offers these scopes (a toggle):
       - "STAFF"    -> org_code + login_name  (role auto-detected from the user)
       - "PATIENT"  -> username is the 11-digit NID
-      - "MINISTRY" -> username is the super-admin username
+      - "OFFICIAL" -> username of a privileged account; resolves EITHER a Super
+                      Admin OR a Ministry user. The caller routes to the right
+                      dashboard based on the returned account's actual role.
+
+    "MINISTRY" is accepted as a backward-compatible alias for "OFFICIAL".
 
     Returns the matching User instance, or None if no unique match is found.
     Password verification is done by the caller.
     """
     scope = (scope or "STAFF").upper()
 
-    if scope == "MINISTRY":
+    if scope in ("OFFICIAL", "MINISTRY"):
         return (
-            User.objects.filter(username=(username or "").strip(),
-                                 role=User.Role.SUPER_ADMIN).first()
+            User.objects.filter(
+                username=(username or "").strip(),
+                role__in=[User.Role.SUPER_ADMIN, User.Role.MINISTRY],
+            ).first()
         )
 
     if scope == "PATIENT":
