@@ -15,7 +15,7 @@ export function AuthProvider({ children }) {
   // Accepts a credentials object, e.g.
   //   { scope: "STAFF", org_code, login_name, password }
   //   { scope: "PATIENT", username, password }
-  //   { scope: "MINISTRY", username, password }
+  //   { scope: "OFFICIAL", username, password }   (Super Admin or Ministry)
   const login = useCallback(async (credentials) => {
     const data = await api.login(credentials);
     setSession(data);

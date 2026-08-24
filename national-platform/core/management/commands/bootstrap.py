@@ -79,6 +79,22 @@ class Command(BaseCommand):
         else:
             self.stdout.write("superadmin already exists")
 
+        # ministry official — the separate, restricted role (broadcast
+        # announcements + view national analytics only). Seeded ready-to-use
+        # (no forced password change) so the demo can show the role split.
+        if not User.objects.filter(username="ministry").exists():
+            User.objects.create_user(
+                username="ministry",
+                login_name="ministry",
+                password="ministry123",
+                full_name="Ministry of Health",
+                role=User.Role.MINISTRY,
+                must_change_password=False,
+            )
+            self.stdout.write(self.style.SUCCESS("Created ministry / ministry123"))
+        else:
+            self.stdout.write("ministry already exists")
+
         # organizations (pre-approved for demo)
         for data in SEED_ORGS:
             org, created = Organization.objects.update_or_create(

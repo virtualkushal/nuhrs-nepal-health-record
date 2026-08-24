@@ -55,7 +55,7 @@ export const api = {
   // Accepts a credentials object. Supported shapes:
   //   Staff:    { scope: "STAFF",    org_code, login_name, password }
   //   Patient:  { scope: "PATIENT",  username, password }   (username = NID)
-  //   Ministry: { scope: "MINISTRY", username, password }
+  //   Official: { scope: "OFFICIAL", username, password }   (Super Admin or Ministry)
   // A bare { username, password } (no scope) still works (legacy path).
   login: (credentials) => request("POST", "/auth/login/", credentials, false),
   // Redeem a single-use SSO ticket issued to a trusted facility (e.g. a doctor
@@ -89,6 +89,10 @@ export const api = {
   },
   resetUserPassword: (userId) =>
     request("POST", `/users/${userId}/reset-password/`),
+  // ministry accounts (super admin creates/lists/deletes the restricted role)
+  listMinistryUsers: () => request("GET", "/ministry-users/"),
+  createMinistryUser: (payload) => request("POST", "/ministry-users/", payload),
+  deleteMinistryUser: (id) => request("DELETE", `/ministry-users/${id}/`),
   // exchange
   lookupPatient: (nid) => request("GET", `/patients/${nid}/`),
   patientIndex: (nid) => request("GET", `/patients/${nid}/index/`),

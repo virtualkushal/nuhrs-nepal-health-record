@@ -7,7 +7,8 @@
 export const LOGIN_PATH = "/login";
 
 export const ROLE_HOME = {
-  SUPER_ADMIN: "/ministry",
+  SUPER_ADMIN: "/admin",
+  MINISTRY: "/ministry",
   ORGANIZATION_ADMIN: "/org-admin",
   DOCTOR: "/doctor",
   LAB_TECHNICIAN: "/exchange",

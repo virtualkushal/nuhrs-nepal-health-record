@@ -56,10 +56,12 @@ class LoginView(APIView):
     def post(self, request):
         password = request.data.get("password") or ""
 
-        # New scope-based login (Staff / Patient / Ministry).
-        #   STAFF   : {scope, org_code, login_name, password}  role auto-detected
-        #   PATIENT : {scope, username(=NID), password}
-        #   MINISTRY: {scope, username, password}
+        # New scope-based login (Staff / Patient / Official).
+        #   STAFF    : {scope, org_code, login_name, password}  role auto-detected
+        #   PATIENT  : {scope, username(=NID), password}
+        #   OFFICIAL : {scope, username, password}  -> resolves a Super Admin OR
+        #              a Ministry account; the returned role picks the dashboard.
+        #              ("MINISTRY" is still accepted as a legacy alias.)
         # Falls back to the legacy {username, password} form when no scope given.
         scope = request.data.get("scope")
         if scope:
@@ -451,6 +453,74 @@ class AllUsersView(APIView):
 
 
 # ---------------------------------------------------------------------------
+# Ministry accounts (Super Admin creates/lists/deletes the restricted role)
+# ---------------------------------------------------------------------------
+class MinistryUserView(APIView):
+    """Super admin creates and lists Ministry accounts.
+
+    A Ministry account is a privileged, organization-less user whose only
+    powers are broadcasting announcements and viewing national analytics.
+    Only a Super Admin may mint or list them — the gate below rejects Ministry
+    users themselves, so a Ministry account cannot create more of its own kind.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != User.Role.SUPER_ADMIN:
+            return Response({"detail": "Only super admin"}, status=status.HTTP_403_FORBIDDEN)
+        qs = User.objects.filter(role=User.Role.MINISTRY).order_by("-created_at")
+        return Response(StaffSerializer(qs, many=True).data)
+
+    def post(self, request):
+        if request.user.role != User.Role.SUPER_ADMIN:
+            return Response({"detail": "Only super admin"}, status=status.HTTP_403_FORBIDDEN)
+
+        username = (request.data.get("username") or "").strip()
+        if not username:
+            return Response({"detail": "Username is required."}, status=status.HTTP_400_BAD_REQUEST)
+        # username is the globally-unique handle the official types on the
+        # Official login tab, so it must not clash with any existing account.
+        if User.objects.filter(username__iexact=username).exists():
+            return Response(
+                {"detail": f"Username '{username}' is already taken."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        temp_password = services.generate_temp_password()
+        user = User.objects.create_user(
+            username=username,
+            login_name=username,
+            password=temp_password,
+            full_name=request.data.get("full_name", ""),
+            email=request.data.get("email", ""),
+            phone=request.data.get("phone", ""),
+            role=User.Role.MINISTRY,
+            organization=None,
+            must_change_password=True,
+        )
+        # Temp password is shown once, mirroring org-admin approval / StaffView.
+        return Response(
+            {**StaffSerializer(user).data, "temporary_password": temp_password},
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class MinistryUserDetailView(APIView):
+    """Super admin deletes a Ministry account."""
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        if request.user.role != User.Role.SUPER_ADMIN:
+            return Response({"detail": "Only super admin"}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            user = User.objects.get(pk=pk, role=User.Role.MINISTRY)
+        except User.DoesNotExist:
+            return Response({"detail": "Ministry account not found"}, status=status.HTTP_404_NOT_FOUND)
+        user.delete()
+        return Response({"detail": "Deleted"}, status=status.HTTP_204_NO_CONTENT)
+
+
+# ---------------------------------------------------------------------------
 # Exchange engine (doctor)
 # ---------------------------------------------------------------------------
 class PatientLookupView(APIView):
@@ -651,8 +721,10 @@ class AnnouncementListCreateView(APIView):
         return Response(AnnouncementSerializer(qs, many=True).data)
 
     def post(self, request):
-        if request.user.role != User.Role.SUPER_ADMIN:
-            return Response({"detail": "Only super admin"}, status=status.HTTP_403_FORBIDDEN)
+        # Broadcasting announcements is one of Ministry's two powers, so the
+        # gate is widened beyond Super Admin here (and on delete below).
+        if request.user.role not in (User.Role.SUPER_ADMIN, User.Role.MINISTRY):
+            return Response({"detail": "Only super admin or ministry"}, status=status.HTTP_403_FORBIDDEN)
         serializer = AnnouncementSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(author=request.user)
@@ -663,8 +735,8 @@ class AnnouncementDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, pk):
-        if request.user.role != User.Role.SUPER_ADMIN:
-            return Response({"detail": "Only super admin"}, status=status.HTTP_403_FORBIDDEN)
+        if request.user.role not in (User.Role.SUPER_ADMIN, User.Role.MINISTRY):
+            return Response({"detail": "Only super admin or ministry"}, status=status.HTTP_403_FORBIDDEN)
         try:
             announcement = Announcement.objects.get(pk=pk)
         except Announcement.DoesNotExist:
@@ -742,6 +814,10 @@ class AnalyticsSummaryView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        # National analytics is shared by the two privileged roles only —
+        # doctors/patients/org-admins must not read aggregate national stats.
+        if request.user.role not in (User.Role.SUPER_ADMIN, User.Role.MINISTRY):
+            return Response({"detail": "Only super admin or ministry"}, status=status.HTTP_403_FORBIDDEN)
         from django.db.models import Count
 
         top_conditions = list(

@@ -9,6 +9,7 @@ import SSOLogin from "./pages/SSOLogin.jsx";
 import Unauthorized from "./pages/Unauthorized.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import SuperAdmin from "./pages/dashboards/SuperAdmin.jsx";
+import Ministry from "./pages/dashboards/Ministry.jsx";
 import OrgAdmin from "./pages/dashboards/OrgAdmin.jsx";
 import Exchange from "./pages/dashboards/Exchange.jsx";
 import DoctorPortal from "./pages/dashboards/DoctorPortal.jsx";
@@ -48,7 +49,11 @@ export default function App() {
           deeper links (e.g. /doctor/patients/123) inside that portal rather than
           falling through to the catch-all. */}
       <Route element={<ProtectedRoute allowedRoles={["SUPER_ADMIN"]} />}>
-        <Route path="/ministry/*" element={<SuperAdmin />} />
+        <Route path="/admin/*" element={<SuperAdmin />} />
+      </Route>
+
+      <Route element={<ProtectedRoute allowedRoles={["MINISTRY"]} />}>
+        <Route path="/ministry/*" element={<Ministry />} />
       </Route>
 
       <Route element={<ProtectedRoute allowedRoles={["ORGANIZATION_ADMIN"]} />}>
