@@ -24,7 +24,7 @@ def resolve_login_user(*, scope, org_code=None, login_name=None, username=None):
 
     The frontend login card offers these scopes (a toggle):
       - "STAFF"    -> org_code + login_name  (role auto-detected from the user)
-      - "PATIENT"  -> username is the 11-digit NID
+      - "PATIENT"  -> username is the 10-digit NID
       - "OFFICIAL" -> username of a privileged account; resolves EITHER a Super
                       Admin OR a Ministry user. The caller routes to the right
                       dashboard based on the returned account's actual role.
@@ -82,9 +82,28 @@ def generate_org_code(org_type: str) -> str:
     return f"{prefix}{count + 1:03d}"
 
 
-def generate_temp_password(length: int = 10) -> str:
-    alphabet = string.ascii_letters + string.digits + "@#$%"
-    return "".join(secrets.choice(alphabet) for _ in range(length))
+def generate_temp_password(length: int = 12) -> str:
+    """
+    Generate a temp password that satisfies the shared NUHRS password policy
+    (>=8 chars, upper + lower + digit + special). Composed from one guaranteed
+    character of each class, padded with random ones, then shuffled.
+    """
+    specials = "@#$%!?*"
+    length = max(length, 8)
+    required = [
+        secrets.choice(string.ascii_lowercase),
+        secrets.choice(string.ascii_uppercase),
+        secrets.choice(string.digits),
+        secrets.choice(specials),
+    ]
+    alphabet = string.ascii_letters + string.digits + specials
+    rest = [secrets.choice(alphabet) for _ in range(length - len(required))]
+    chars = required + rest
+    # Fisher-Yates shuffle with a cryptographic RNG (random.shuffle is not safe).
+    for i in range(len(chars) - 1, 0, -1):
+        j = secrets.randbelow(i + 1)
+        chars[i], chars[j] = chars[j], chars[i]
+    return "".join(chars)
 
 
 def generate_api_key() -> str:

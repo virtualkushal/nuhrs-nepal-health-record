@@ -2,6 +2,24 @@ import { useState } from "react";
 import { Loader2, X } from "lucide-react";
 import { GENDER_OPTIONS, BLOOD_GROUPS, MARITAL_STATUS } from "../constants";
 
+// Shared Nepal mobile rule, mirrored from the backend
+// (core.serializers.NEPAL_MOBILE_RE / validators.NEPAL_MOBILE_RE):
+// optional +977 / 00977 / 0 prefix, then 9[678] + 8 digits. The backend
+// normalizes storage to the bare 10-digit subscriber number.
+export const NEPAL_MOBILE_PATTERN = "(\\+977|00977|0)?9[678]\\d{8}";
+export const NEPAL_MOBILE_TITLE =
+  "Enter a valid Nepal mobile number, e.g. 9841234567 or +9779841234567";
+
+// Nepal NIN (DoNIDCR): exactly 10 non-intelligible digits, no checksum.
+export const NIN_PATTERN = "\\d{10}";
+export const NIN_TITLE = "National ID must be exactly 10 digits (Nepal NIN)";
+
+export function isValidNepalMobile(value) {
+  return new RegExp(`^${NEPAL_MOBILE_PATTERN}$`).test(
+    String(value || "").replace(/[\s\-()]/g, "")
+  );
+}
+
 // Reusable patient demographics form (v2). Used by both public self-registration
 // and receptionist intake. Allergies are free-text tags (shown to the doctor as
 // a banner; no blocking). An optional email creates a portal login (a temporary
@@ -87,12 +105,12 @@ export default function PatientForm({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className={lbl}>National ID</label>
-          <input className={field} value={form.national_id} onChange={(e) => update("national_id", e.target.value.replace(/\D/g, "").slice(0, 11))} placeholder="11 digits" inputMode="numeric" maxLength={11} pattern="\d{11}" title="National ID must be exactly 11 digits" required />
+          <input className={field} value={form.national_id} onChange={(e) => update("national_id", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10 digits" inputMode="numeric" maxLength={10} pattern="\d{10}" title="National ID must be exactly 10 digits (Nepal NIN)" required />
 
         </div>
         <div>
           <label className={lbl}>Phone number</label>
-          <input className={field} value={form.phone_number} onChange={(e) => update("phone_number", e.target.value)} placeholder="+977-98XXXXXXXX" required />
+          <input className={field} value={form.phone_number} onChange={(e) => update("phone_number", e.target.value)} placeholder="9841234567 or +9779841234567" inputMode="tel" pattern={NEPAL_MOBILE_PATTERN} title={NEPAL_MOBILE_TITLE} required />
         </div>
       </div>
 
@@ -127,7 +145,7 @@ export default function PatientForm({
         </div>
         <div>
           <label className={lbl}>Emergency contact phone</label>
-          <input className={field} value={form.emergency_contact_phone} onChange={(e) => update("emergency_contact_phone", e.target.value)} />
+          <input className={field} value={form.emergency_contact_phone} onChange={(e) => update("emergency_contact_phone", e.target.value)} placeholder="9841234567 (optional)" inputMode="tel" pattern={NEPAL_MOBILE_PATTERN} title={NEPAL_MOBILE_TITLE} />
         </div>
       </div>
 

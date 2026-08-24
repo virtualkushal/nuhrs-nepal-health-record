@@ -16,7 +16,18 @@ export function Card({ title, subtitle, children, className = "" }) {
   );
 }
 
-export function Field({ label, id, type = "text", value, onChange, placeholder }) {
+export function Field({
+  label,
+  id,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+  pattern,
+  title,
+  maxLength,
+  inputMode,
+}) {
   return (
     <div>
       <label className="label" htmlFor={id}>
@@ -28,6 +39,10 @@ export function Field({ label, id, type = "text", value, onChange, placeholder }
         className="field"
         value={value}
         placeholder={placeholder}
+        pattern={pattern}
+        title={title}
+        maxLength={maxLength}
+        inputMode={inputMode}
         onChange={(e) => onChange(e.target.value)}
       />
     </div>

@@ -18,7 +18,7 @@ import logging
 import requests
 from django.conf import settings
 
-from core.models import Diagnosis, LabResult, Patient, Prescription
+from core.models import Diagnosis, Encounter, LabReport, LabResult, Patient, Prescription, Vitals
 
 logger = logging.getLogger(__name__)
 
@@ -78,13 +78,80 @@ def push_medication(rx: Prescription) -> None:
     _push(rx.patient, "MedicationRequest", rx.id, rx.created_at.date(), summary or "MedicationRequest")
 
 
+def vitals_summary(vitals: Vitals) -> str:
+    parts = []
+    if vitals.systolic_bp and vitals.diastolic_bp:
+        parts.append(f"BP {vitals.systolic_bp}/{vitals.diastolic_bp}")
+    if vitals.pulse:
+        parts.append(f"Pulse {vitals.pulse}")
+    if vitals.temperature_c is not None:
+        parts.append(f"Temp {vitals.temperature_c}")
+    if vitals.spo2:
+        parts.append(f"SpO2 {vitals.spo2}%")
+    if vitals.height_cm is not None:
+        parts.append(f"Ht {vitals.height_cm}cm")
+    if vitals.weight_kg is not None:
+        parts.append(f"Wt {vitals.weight_kg}kg")
+    if vitals.bmi is not None:
+        parts.append(f"BMI {vitals.bmi}")
+    return " · ".join(parts)
+
+
+def push_lab_report(report: LabReport) -> None:
+    order = report.lab_order
+    test_name = (order.test_name or order.test_code or "Laboratory test").strip()
+    values = [
+        f"{r.test_code}: {r.result_value}" if r.result_value is not None else f"{r.test_code}"
+        for r in report.results.all()
+    ]
+    summary = f"{test_name} — {'; '.join(values)}" if values else f"{test_name} (report)"
+    _push(
+        report.patient,
+        "DiagnosticReport",
+        report.id,
+        report.created_at.date(),
+        summary[:255],
+    )
+
+
+def push_encounter(e) -> None:
+    """Index a visit (Encounter) so it shows in the portal's visit lists."""
+    from core.constants import Department
+
+    dept = dict(Department.CHOICES).get(e.department, e.department)
+    _push(
+        e.patient,
+        "Encounter",
+        e.id,
+        e.created_at.date(),
+        f"Visit — {dept}",
+    )
+
+
+def push_vitals(v: Vitals) -> None:
+    summary = vitals_summary(v)
+    _push(
+        v.encounter.patient,
+        "Observation",
+        v.id,
+        v.created_at.date(),
+        f"Vitals — {summary}" if summary else "Vitals",
+    )
+
+
 # -- bulk publishers (used by the management command) ------------------------
 
 def push_patient_records(patient: Patient) -> None:
     """Index all records of one patient (used by --nid or startup push)."""
+    for e in Encounter.objects.filter(patient=patient):
+        push_encounter(e)
     for dx in Diagnosis.objects.filter(patient=patient):
         push_condition(dx)
     for res in LabResult.objects.filter(patient=patient):
         push_observation(res)
     for rx in Prescription.objects.filter(patient=patient):
         push_medication(rx)
+    for rep in LabReport.objects.filter(patient=patient).select_related("lab_order"):
+        push_lab_report(rep)
+    for v in Vitals.objects.filter(encounter__patient=patient):
+        push_vitals(v)

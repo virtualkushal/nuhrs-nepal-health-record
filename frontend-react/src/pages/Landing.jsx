@@ -276,7 +276,7 @@ export default function Landing() {
                             </span>
                             <input
                               className="field pl-10"
-                              placeholder="e.g. 12345678901"
+                              placeholder="e.g. 2345678901"
                               value={username}
                               onChange={(e) => setUsername(e.target.value)}
                             />
@@ -310,7 +310,7 @@ export default function Landing() {
                           <label className="label">National ID (NID)</label>
                           <input
                             className="field"
-                            placeholder="11-digit NID"
+                            placeholder="10-digit NIN"
                             value={regNid}
                             onChange={(e) => setRegNid(e.target.value)}
                           />

@@ -7,7 +7,7 @@ This proves the adapter output is standards-shaped BEFORE the National Platform
 ever fetches it.
 
 Run:  python manage.py validate_fhir            # validates every seeded patient
-      python manage.py validate_fhir --nid 12345678901
+      python manage.py validate_fhir --nid 2345678901
 """
 from django.core.management.base import BaseCommand
 

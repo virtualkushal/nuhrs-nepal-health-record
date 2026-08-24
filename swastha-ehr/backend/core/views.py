@@ -13,6 +13,7 @@ doctor as a red banner instead).
 """
 
 import secrets
+import string
 from datetime import timedelta
 from urllib.parse import quote
 
@@ -107,7 +108,25 @@ def _fhir_error(msg, code="not-found", http=status.HTTP_404_NOT_FOUND):
 
 
 def _generate_password():
-    return secrets.token_urlsafe(9)
+    """
+    Generate a temp password that satisfies the shared NUHRS password policy
+    (>=8 chars, upper + lower + digit + special) — see
+    core.password_validation.NuhrsPasswordPolicyValidator.
+    """
+    specials = "@#$%!?*"
+    required = [
+        secrets.choice(string.ascii_lowercase),
+        secrets.choice(string.ascii_uppercase),
+        secrets.choice(string.digits),
+        secrets.choice(specials),
+    ]
+    alphabet = string.ascii_letters + string.digits + specials
+    chars = required + [secrets.choice(alphabet) for _ in range(8)]
+    # Fisher-Yates shuffle with a cryptographic RNG (random.shuffle is not safe).
+    for i in range(len(chars) - 1, 0, -1):
+        j = secrets.randbelow(i + 1)
+        chars[i], chars[j] = chars[j], chars[i]
+    return "".join(chars)
 
 
 def _email_credentials(user, password):

@@ -77,7 +77,10 @@ DATABASES = {
 AUTH_USER_MODEL = "core.User"
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+     "OPTIONS": {"min_length": 8}},
+    # Shared NUHRS policy: >=8 chars, upper + lower + digit + special.
+    {"NAME": "core.password_validation.NuhrsPasswordPolicyValidator"},
 ]
 
 LANGUAGE_CODE = "en-us"

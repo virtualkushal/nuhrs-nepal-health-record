@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import Announcement, AuditLog, Organization, PatientIdentity, RecordIndex, User
+from .validators import validate_nid, validate_phone
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
@@ -30,6 +31,15 @@ class PatientIdentitySerializer(serializers.ModelSerializer):
     class Meta:
         model = PatientIdentity
         fields = ["nid", "full_name", "date_of_birth", "gender", "phone", "email"]
+
+    def validate_nid(self, value):
+        return validate_nid(value)
+
+    def validate_phone(self, value):
+        # Optional field: only validate/normalize when a value was supplied.
+        if not (value or "").strip():
+            return ""
+        return validate_phone(value)
 
 
 class RecordIndexSerializer(serializers.ModelSerializer):

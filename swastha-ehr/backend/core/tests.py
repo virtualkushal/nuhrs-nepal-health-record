@@ -55,12 +55,12 @@ def make_staff(email, role, department=None, password="pass12345"):
     return u
 
 
-def make_patient(nid="1234567890", **kw):
+def make_patient(nid="2345678901", **kw):
     defaults = dict(
         national_id=nid,
         first_name="Ram",
         last_name="Bahadur",
-        phone_number="+977-9841000001",
+        phone_number="9841000001",
         date_of_birth=date(1990, 1, 1),
         gender="male",
         blood_group="O+",
@@ -77,9 +77,9 @@ class ModelTests(APITestCase):
         self.assertTrue(p.hospital_identifier.startswith("HOSP-"))
 
     def test_national_id_unique(self):
-        make_patient(nid="1111111111")
+        make_patient(nid="9811111111")
         with self.assertRaises(Exception):
-            make_patient(nid="1111111111")
+            make_patient(nid="9811111111")
 
     def test_vitals_bmi_computed(self):
         recep = make_staff("r@x.np", Role.RECEPTIONIST)
