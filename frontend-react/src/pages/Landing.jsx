@@ -14,7 +14,7 @@ export default function Landing() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Login tab: PATIENT | DOCTOR | MINISTRY
+  // Login tab: PATIENT | DOCTOR | OFFICIAL
   const [tab, setTab] = useState("PATIENT");
   // Patient sub-mode: SIGNIN | REGISTER
   const [patientMode, setPatientMode] = useState("SIGNIN");
@@ -23,7 +23,7 @@ export default function Landing() {
   const [hospitals, setHospitals] = useState([]);
   const [hospitalCode, setHospitalCode] = useState("");
   const [loginName, setLoginName] = useState("");
-  // PATIENT / MINISTRY shared username
+  // PATIENT / OFFICIAL shared username
   const [username, setUsername] = useState("");
   // shared
   const [password, setPassword] = useState("");
@@ -63,8 +63,11 @@ export default function Landing() {
       } else if (tab === "PATIENT") {
         credentials = { scope: "PATIENT", username: username.trim(), password };
       } else {
+        // OFFICIAL tab: one privileged login for both Super Admin and Ministry.
+        // The backend resolves either role by username; dashboardPathFor then
+        // routes Super Admin -> /admin and Ministry -> /ministry.
         credentials = {
-          scope: "MINISTRY",
+          scope: "OFFICIAL",
           username: username.trim(),
           password,
         };
@@ -217,12 +220,12 @@ export default function Landing() {
                   </p>
                 </div>
 
-                {/* Role tabs: Patient / Doctor / Ministry */}
+                {/* Role tabs: Patient / Doctor / Official */}
                 <div className="grid grid-cols-3 gap-1 p-1 bg-surface-container-low rounded-xl mb-6">
                   {[
                     { key: "PATIENT", label: "Patient" },
                     { key: "DOCTOR", label: "Doctor" },
-                    { key: "MINISTRY", label: "Ministry" },
+                    { key: "OFFICIAL", label: "Official" },
                   ].map((opt) => (
                     <button
                       key={opt.key}
@@ -434,8 +437,10 @@ export default function Landing() {
                   </form>
                 )}
 
-                {/* --------------------------------------------------- MINISTRY */}
-                {tab === "MINISTRY" && (
+                {/* --------------------------------------------------- OFFICIAL */}
+                {/* One privileged login for Super Admin AND Ministry; the
+                    returned role decides which dashboard they land on. */}
+                {tab === "OFFICIAL" && (
                   <form className="space-y-6" onSubmit={doLogin}>
                     <div>
                       <label className="label">Username</label>
@@ -445,7 +450,7 @@ export default function Landing() {
                         </span>
                         <input
                           className="field pl-10"
-                          placeholder="e.g. superadmin"
+                          placeholder="e.g. superadmin or ministry"
                           value={username}
                           onChange={(e) => setUsername(e.target.value)}
                         />

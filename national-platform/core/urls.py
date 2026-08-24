@@ -31,6 +31,10 @@ urlpatterns = [
     path("users/", views.AllUsersView.as_view()),
     path("users/<int:user_id>/reset-password/", views.AdminResetPasswordView.as_view()),
 
+    # ministry accounts (super admin creates/lists/deletes Ministry officials)
+    path("ministry-users/", views.MinistryUserView.as_view()),
+    path("ministry-users/<int:pk>/", views.MinistryUserDetailView.as_view()),
+
     # exchange engine
     path("patients/<str:nid>/", views.PatientLookupView.as_view()),
     path("patients/<str:nid>/index/", views.PatientIndexView.as_view()),
