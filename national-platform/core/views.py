@@ -5,7 +5,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -22,7 +22,12 @@ from .models import (
     SSOTicket,
     User,
 )
-from .validators import is_valid_nid, normalize_nid
+from .validators import (
+    is_valid_nid,
+    normalize_nid,
+    validate_password_policy,
+    validate_phone,
+)
 
 
 from .serializers import (
@@ -91,8 +96,10 @@ class ChangePasswordView(APIView):
     def post(self, request):
         new_password = request.data.get("new_password")
         current_password = request.data.get("current_password")
-        if not new_password or len(new_password) < 6:
-            return Response({"detail": "Password too short"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            validate_password_policy(new_password or "")
+        except serializers.ValidationError as exc:
+            return Response({"detail": exc.detail[0]}, status=status.HTTP_400_BAD_REQUEST)
         # If current_password is supplied, this is a user-initiated change from a
         # dashboard (not a forced first-login change) — verify it before allowing.
         if current_password and not request.user.check_password(current_password):
@@ -412,6 +419,12 @@ class StaffView(APIView):
         # username stays globally unique (Django auth requirement) but is never
         # typed by the user; compose it from org code + login_name.
         username = f"{org.organization_code}-{login_name}"
+        phone = (request.data.get("phone") or "").strip()
+        if phone:
+            try:
+                phone = validate_phone(phone)
+            except serializers.ValidationError as exc:
+                return Response({"detail": exc.detail[0]}, status=status.HTTP_400_BAD_REQUEST)
         temp_password = services.generate_temp_password()
         user = User.objects.create_user(
             username=username,
@@ -419,7 +432,7 @@ class StaffView(APIView):
             password=temp_password,
             full_name=request.data.get("full_name", ""),
             email=request.data.get("email", ""),
-            phone=request.data.get("phone", ""),
+            phone=phone,
             role=role,
             organization=org,
             must_change_password=True,
@@ -503,14 +516,13 @@ class PatientActivateView(APIView):
         password = request.data.get("password")
         if not is_valid_nid(nid):
             return Response(
-                {"detail": "National ID must be exactly 11 digits (Nepal NIN)."},
+                {"detail": "National ID must be exactly 10 digits (Nepal NIN)."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        if not password or len(password) < 6:
-            return Response(
-                {"detail": "Choose a password of at least 6 characters."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        try:
+            validate_password_policy(password or "")
+        except serializers.ValidationError as exc:
+            return Response({"detail": exc.detail[0]}, status=status.HTTP_400_BAD_REQUEST)
         # Identity must exist in the national Master Patient Index. It is created
         # when any hospital/lab first indexes a record for this NID (or by the
         # demo bootstrap). If it's missing, the citizen has no records anywhere
@@ -568,14 +580,18 @@ class PatientRegisterView(APIView):
 
         if not is_valid_nid(nid):
             return Response(
-                {"detail": "National ID must be exactly 11 digits (Nepal NIN)."},
+                {"detail": "National ID must be exactly 10 digits (Nepal NIN)."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        if not password or len(password) < 6:
-            return Response(
-                {"detail": "Choose a password of at least 6 characters."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        try:
+            validate_password_policy(password or "")
+        except serializers.ValidationError as exc:
+            return Response({"detail": exc.detail[0]}, status=status.HTTP_400_BAD_REQUEST)
+        if phone:
+            try:
+                phone = validate_phone(phone)
+            except serializers.ValidationError as exc:
+                return Response({"detail": exc.detail[0]}, status=status.HTTP_400_BAD_REQUEST)
         if not full_name or not dob:
             return Response(
                 {"detail": "Full name and date of birth are required."},
@@ -690,7 +706,7 @@ class IndexIngestView(APIView):
         nid = normalize_nid(request.data.get("nid") or p.get("nid"))
         if not is_valid_nid(nid):
             return Response(
-                {"detail": "National ID must be exactly 11 digits (Nepal NIN)."},
+                {"detail": "National ID must be exactly 10 digits (Nepal NIN)."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         patient, _ = PatientIdentity.objects.get_or_create(

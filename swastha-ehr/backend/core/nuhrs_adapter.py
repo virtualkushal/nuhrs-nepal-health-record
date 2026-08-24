@@ -25,12 +25,14 @@ from rest_framework.response import Response
 
 from .fhir_serializers import (
     condition_to_fhir,
+    diagnosticreport_to_fhir,
     encounter_to_fhir,
     medicationrequest_to_fhir,
     observation_to_fhir,
     patient_to_fhir,
+    vitals_to_fhir,
 )
-from .models import Diagnosis, Encounter, LabResult, Patient, Prescription
+from .models import Diagnosis, Encounter, LabReport, LabResult, Patient, Prescription, Vitals
 
 
 # --------------------------------------------------------------------------- #
@@ -103,10 +105,19 @@ def condition_search(request):
 def observation_search(request):
     if not _check_api_key(request):
         return _unauthorized()
-    qs = LabResult.objects.filter(patient__national_id=_nid(request))
-    if request.query_params.get("_id"):
-        qs = qs.filter(id=request.query_params["_id"])
-    return Response(_bundle([observation_to_fhir(o) for o in qs]))
+    nid = _nid(request)
+    record_id = request.query_params.get("_id")
+    qs = LabResult.objects.filter(patient__national_id=nid)
+    if record_id:
+        qs = qs.filter(id=record_id)
+    # Vitals panels are Observations too (LOINC-coded, one per vital sign).
+    vq = Vitals.objects.filter(encounter__patient__national_id=nid)
+    if record_id:
+        vq = vq.filter(id=record_id)
+    resources = [observation_to_fhir(o) for o in qs]
+    for v in vq:
+        resources.extend(vitals_to_fhir(v))
+    return Response(_bundle(resources))
 
 
 @api_view(["GET"])
@@ -118,6 +129,17 @@ def medicationrequest_search(request):
     if request.query_params.get("_id"):
         qs = qs.filter(id=request.query_params["_id"])
     return Response(_bundle([medicationrequest_to_fhir(p) for p in qs]))
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def diagnosticreport_search(request):
+    if not _check_api_key(request):
+        return _unauthorized()
+    qs = LabReport.objects.filter(patient__national_id=_nid(request))
+    if request.query_params.get("_id"):
+        qs = qs.filter(id=request.query_params["_id"])
+    return Response(_bundle([diagnosticreport_to_fhir(r) for r in qs]))
 
 
 @api_view(["GET"])
@@ -136,6 +158,10 @@ def patient_everything(request):
         resources.append(condition_to_fhir(d))
     for o in LabResult.objects.filter(patient__national_id=nid):
         resources.append(observation_to_fhir(o))
+    for rep in LabReport.objects.filter(patient__national_id=nid).select_related("lab_order"):
+        resources.append(diagnosticreport_to_fhir(rep))
+    for v in Vitals.objects.filter(encounter__patient__national_id=nid):
+        resources.extend(vitals_to_fhir(v))
     for rx in Prescription.objects.filter(patient__national_id=nid):
         resources.append(medicationrequest_to_fhir(rx))
     return Response(_bundle(resources))

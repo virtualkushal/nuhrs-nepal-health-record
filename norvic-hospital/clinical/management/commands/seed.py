@@ -78,35 +78,35 @@ PANELS = {
 # Canonical demographics. NIDs ...901/902/903 MUST match Mediciti's seed so the
 # National Platform links them to one citizen. first/last split for variant B.
 PATIENTS = {
-    "12345678901": dict(
+    "2345678901": dict(
         first="Ram Bahadur", last="Thapa", dob="1970-05-12", gender="MALE", phone="9841000001",
         address="Kupondole, Lalitpur", blood_group="O+", marital="Married",
         occupation="Retired Teacher", ethnicity="Chhetri",
         ec_name="Sita Thapa", ec_phone="9800000011",
         allergies=[("Penicillin", "Skin rash", "moderate", "2015-04-10")],
     ),
-    "12345678902": dict(
+    "2345678902": dict(
         first="Sita Kumari", last="Sharma", dob="1988-11-23", gender="FEMALE", phone="9803000002",
         address="Baneshwor, Kathmandu", blood_group="A+", marital="Married",
         occupation="Bank Officer", ethnicity="Brahmin",
         ec_name="Gopal Sharma", ec_phone="9800000022",
         allergies=[],
     ),
-    "12345678903": dict(
+    "2345678903": dict(
         first="Hari Prasad", last="Koirala", dob="1979-02-03", gender="MALE", phone="9841000003",
         address="Biratnagar, Morang", blood_group="B+", marital="Married",
         occupation="Businessman", ethnicity="Brahmin",
         ec_name="Radha Koirala", ec_phone="9800000033",
         allergies=[("Sulfonamides", "Urticaria", "severe", "2018-09-01")],
     ),
-    "12345678907": dict(
+    "2345678907": dict(
         first="Deepak", last="Tamang", dob="1965-09-17", gender="MALE", phone="9851000007",
         address="Bhaktapur", blood_group="A-", marital="Married",
         occupation="Retired Army", ethnicity="Tamang",
         ec_name="Nisha Tamang", ec_phone="9800000077",
         allergies=[],
     ),
-    "12345678908": dict(
+    "2345678908": dict(
         first="Anjali", last="Pradhan", dob="1992-12-05", gender="FEMALE", phone="9861000008",
         address="Patan, Lalitpur", blood_group="O+", marital="Single",
         occupation="Software Engineer", ethnicity="Newar",
@@ -114,14 +114,14 @@ PATIENTS = {
         allergies=[("Latex", "Contact dermatitis", "mild", "2020-06-10")],
     ),
     # --- Cross-facility demo patients (NIDs ...09/.10 match Mediciti + both labs) ---
-    "12345678909": dict(
+    "2345678909": dict(
         first="Laxmi Maya", last="Tamang", dob="1993-04-14", gender="FEMALE", phone="9842000001",
         address="Jhamsikhel, Lalitpur", blood_group="O+", marital="Single",
         occupation="Registered Nurse", ethnicity="Tamang",
         ec_name="Sunita Tamang", ec_phone="9800000099",
         allergies=[("Penicillin", "Skin rash", "moderate", "2015-02-10")],
     ),
-    "12345678910": dict(
+    "2345678910": dict(
         first="Kiran Bahadur", last="Limbu", dob="1985-09-19", gender="MALE", phone="9842000002",
         address="Sundhara, Kathmandu", blood_group="A+", marital="Married",
         occupation="IT Manager", ethnicity="Limbu",
@@ -132,7 +132,7 @@ PATIENTS = {
 
 # Clinical journeys (variant-B fields are filled by the writers below).
 JOURNEYS = {
-    "12345678901": [  # Ram — also seen at Mediciti; here Norvic did his cardiac work-up
+    "2345678901": [  # Ram — also seen at Mediciti; here Norvic did his cardiac work-up
         dict(
             department="Cardiology", physician="Dr. Bibek Rajbhandari",
             date="2024-04-10", category="OPD", complaint="Exertional chest discomfort",
@@ -146,7 +146,7 @@ JOURNEYS = {
                   ("Aspirin", "1191", "75 mg", "once daily", "oral", "ongoing")],
         ),
     ],
-    "12345678903": [  # Hari — cardiac interventions done AT NORVIC (Procedures live here)
+    "2345678903": [  # Hari — cardiac interventions done AT NORVIC (Procedures live here)
         dict(
             department="Cardiology", physician="Dr. Bibek Rajbhandari",
             date="2024-01-24", category="Inpatient", complaint="Post-MI revascularization",
@@ -166,7 +166,7 @@ JOURNEYS = {
             ],
         ),
     ],
-    "12345678907": [  # Deepak — Norvic-only, valvular heart disease -> valve replacement
+    "2345678907": [  # Deepak — Norvic-only, valvular heart disease -> valve replacement
         dict(
             department="Cardiothoracic & Vascular Surgery (CTVS)", physician="Dr. Manish Shakya",
             date="2023-05-15", category="Inpatient", complaint="Progressive breathlessness, murmur",
@@ -197,7 +197,7 @@ JOURNEYS = {
             meds=[],
         ),
     ],
-    "12345678908": [  # Anjali — Norvic-only, travel medicine + minor procedure
+    "2345678908": [  # Anjali — Norvic-only, travel medicine + minor procedure
         dict(
             department="General Medicine & Travel Clinic", physician="Dr. Sabin Maharjan",
             date="2024-08-20", category="OPD", complaint="Pre-travel vaccination and check-up",
@@ -214,7 +214,7 @@ JOURNEYS = {
             ],
         ),
     ],
-    "12345678909": [  # Laxmi — also at Mediciti; here Norvic did her pre-marriage work-up
+    "2345678909": [  # Laxmi — also at Mediciti; here Norvic did her pre-marriage work-up
         dict(
             department="General Medicine & Travel Clinic", physician="Dr. Sabin Maharjan",
             date="2024-09-02", category="OPD", complaint="Pre-marriage check-up, easy fatigability",
@@ -227,7 +227,7 @@ JOURNEYS = {
             meds=[("Ferrous Ascorbate", "310965", "100 mg", "once daily", "oral", "3 months")],
         ),
     ],
-    "12345678910": [  # Kiran — also at Mediciti; Norvic's cardiology assessed his chest pain
+    "2345678910": [  # Kiran — also at Mediciti; Norvic's cardiology assessed his chest pain
         dict(
             department="Cardiology", physician="Dr. Bibek Rajbhandari",
             date="2024-05-14", category="OPD", complaint="Atypical chest pain, diabetes follow-up",
@@ -246,26 +246,26 @@ JOURNEYS = {
 
 # Immunizations per patient: (vaccine, cvx, dose, lot, site, route, date, by)
 IMMUNIZATIONS = {
-    "12345678901": [
+    "2345678901": [
         ("Influenza, seasonal", "141", "Annual", "FLU2024-88", "Left deltoid", "Intramuscular", "2024-04-10", "Nurse R. Lama"),
     ],
-    "12345678903": [
+    "2345678903": [
         ("COVID-19 (Covishield)", "210", "Booster", "COV-BST-33", "Left deltoid", "Intramuscular", "2023-02-11", "Nurse P. Gurung"),
     ],
-    "12345678907": [
+    "2345678907": [
         ("Pneumococcal (PCV13)", "133", "1", "PCV-2023-12", "Right deltoid", "Intramuscular", "2023-05-20", "Nurse R. Lama"),
         ("Influenza, seasonal", "141", "Annual", "FLU2023-51", "Left deltoid", "Intramuscular", "2023-10-05", "Nurse R. Lama"),
     ],
-    "12345678908": [
+    "2345678908": [
         ("Hepatitis A", "52", "1", "HEPA-2024-07", "Left deltoid", "Intramuscular", "2024-08-20", "Nurse S. Thapa"),
         ("Typhoid (Vi polysaccharide)", "101", "1", "TYP-2024-19", "Left deltoid", "Intramuscular", "2024-08-20", "Nurse S. Thapa"),
         ("COVID-19 (Covishield)", "210", "2", "COV-2021-77", "Right deltoid", "Intramuscular", "2021-08-14", "Nurse S. Thapa"),
     ],
-    "12345678909": [
+    "2345678909": [
         ("Tetanus-diphtheria (Td)", "5", "Booster", "TD-2024-31", "Left deltoid", "Intramuscular", "2024-09-02", "Nurse S. Thapa"),
         ("Influenza, seasonal", "141", "Annual", "FLU2024-92", "Right deltoid", "Intramuscular", "2024-09-02", "Nurse S. Thapa"),
     ],
-    "12345678910": [
+    "2345678910": [
         ("Influenza, seasonal", "141", "Annual", "FLU2024-95", "Left deltoid", "Intramuscular", "2024-05-14", "Nurse R. Lama"),
     ],
 }

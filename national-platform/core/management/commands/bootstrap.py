@@ -112,17 +112,17 @@ class Command(BaseCommand):
         # Canonical demographics per NID — MUST match hospital/lab/swastha seeds.
         demo_patients = [
             {
-                "nid": "12345678901", "full_name": "Ram Bahadur Thapa",
+                "nid": "2345678901", "full_name": "Ram Bahadur Thapa",
                 "date_of_birth": "1970-05-12", "gender": "MALE", "phone": "9841000001",
                 "email": "ram@demo.np",
             },
             {
-                "nid": "12345678902", "full_name": "Sita Kumari Sharma",
+                "nid": "2345678902", "full_name": "Sita Kumari Sharma",
                 "date_of_birth": "1988-11-23", "gender": "FEMALE", "phone": "9803000002",
                 "email": "sita@demo.np",
             },
             {
-                "nid": "12345678903", "full_name": "Hari Prasad Koirala",
+                "nid": "2345678903", "full_name": "Hari Prasad Koirala",
                 "date_of_birth": "1979-02-03", "gender": "MALE", "phone": "9841000003",
                 "email": "hari@demo.np",
             },

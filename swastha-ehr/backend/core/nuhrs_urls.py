@@ -17,6 +17,7 @@ urlpatterns = [
     path("Encounter", nuhrs_adapter.encounter_search),
     path("Condition", nuhrs_adapter.condition_search),
     path("Observation", nuhrs_adapter.observation_search),
+    path("DiagnosticReport", nuhrs_adapter.diagnosticreport_search),
     path("MedicationRequest", nuhrs_adapter.medicationrequest_search),
     path("$everything", nuhrs_adapter.patient_everything),
 ]

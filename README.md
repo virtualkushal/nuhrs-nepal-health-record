@@ -7,7 +7,7 @@ Hospitals and diagnostic laboratories keep ownership of their own patient data. 
 logs) and securely fetches full medical records from the originating organization on demand
 using standardized FHIR APIs.
 
-> Minor Project · Federated architecture · HL7 FHIR R4 · Nepal National ID (11-digit NIN) as patient identifier
+> Minor Project · Federated architecture · HL7 FHIR R4 · Nepal National ID (10-digit NIN) as patient identifier
 
 ---
 
@@ -112,21 +112,21 @@ docker compose exec swastha-backend python manage.py seed_demo
 | Super Admin (Ministry) | `superadmin` | `admin123` |
 | Org Admin | `HOSP001-ADM-0001` (also HOSP002/HOSP003/LAB001/LAB002) | `org123` |
 | Doctor (ready to use) | `HOSP001-DOC-0001` (per org) | `doctor123` |
-| Patient (pre-activated) | `12345678901` | `patient123` |
-| Patient (self-activate) | activate with NID `12345678901` + DOB `1970-05-12` | (you choose) |
+| Patient (pre-activated) | `2345678901` | `patient123` |
+| Patient (self-activate) | activate with NID `2345678901` + DOB `1970-05-12` | (you choose) |
 
-**Shared demo patients** (11-digit NIN, present across all facilities):
+**Shared demo patients** (10-digit NIN, present across all facilities):
 
 | NID | Name | DOB |
 |---|---|---|
-| `12345678901` | Ram Bahadur Thapa | 1970-05-12 |
-| `12345678902` | Sita Kumari Sharma | 1988-11-23 |
-| `12345678903` | Hari Prasad Koirala | 1979-02-03 |
+| `2345678901` | Ram Bahadur Thapa | 1970-05-12 |
+| `2345678902` | Sita Kumari Sharma | 1988-11-23 |
+| `2345678903` | Hari Prasad Koirala | 1979-02-03 |
 
 ### Try the exchange
 
 1. Sign in as a **Doctor** (`HOSP001-DOC-0001` / `doctor123`), or create one as an Org Admin.
-2. Search **`12345678901`** (Ram Bahadur Thapa).
+2. Search **`2345678901`** (Ram Bahadur Thapa).
 3. Click **Fetch full unified record** — the routing engine pulls diagnoses, vitals,
    medications, allergies, and lab reports from **all facilities** into one FHIR bundle,
    each entry tagged with its source facility — even though the hospitals store their
@@ -138,7 +138,7 @@ docker compose exec swastha-backend python manage.py seed_demo
 
 - **Federation:** the National Platform never stores clinical records — only pointers (the
   Record Index). Full detail always stays in the originating hospital/lab.
-- **NID:** the Nepal National Identity Number (11-digit NIN) links a patient across all organizations.
+- **NID:** the Nepal National Identity Number (10-digit NIN) links a patient across all organizations.
 - **FHIR adapter:** each org maps its own local schema to identical HL7 FHIR R4 output,
   regardless of column names (variant A vs B) or storage engine (PostgreSQL vs MySQL).
 - **Rich clinical data:** beyond diagnoses, the federation exchanges Encounters, Vitals

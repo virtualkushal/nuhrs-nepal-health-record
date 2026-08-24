@@ -1,7 +1,7 @@
 """
 Seed Pathlabs Nepal with comprehensive demo reports.
 
-Uses the shared NIDs (12345678901, 02, 03) so reports merge into the unified
+Uses the shared NIDs (2345678901, 02, 03) so reports merge into the unified
 exchange. Demographics are CANONICAL per NID. Each panel gets multiple dated
 reports (a series) for trend visualization.
 
@@ -21,12 +21,12 @@ ORG_CODE = settings.ORG_CODE
 
 # Canonical demographics per NID — MUST match the hospital and swastha seeds.
 DEMOGRAPHICS = {
-    "12345678901": {"name": "Ram Bahadur Thapa", "dob": "1970-05-12", "gender": "MALE", "phone": "9841000001"},
-    "12345678902": {"name": "Sita Kumari Sharma", "dob": "1988-11-23", "gender": "FEMALE", "phone": "9803000002"},
-    "12345678903": {"name": "Hari Prasad Koirala", "dob": "1979-02-03", "gender": "MALE", "phone": "9841000003"},
+    "2345678901": {"name": "Ram Bahadur Thapa", "dob": "1970-05-12", "gender": "MALE", "phone": "9841000001"},
+    "2345678902": {"name": "Sita Kumari Sharma", "dob": "1988-11-23", "gender": "FEMALE", "phone": "9803000002"},
+    "2345678903": {"name": "Hari Prasad Koirala", "dob": "1979-02-03", "gender": "MALE", "phone": "9841000003"},
     # Cross-facility demo patients — match Mediciti / Norvic / Central Diagnostic seeds.
-    "12345678909": {"name": "Laxmi Maya Tamang", "dob": "1993-04-14", "gender": "FEMALE", "phone": "9842000001"},
-    "12345678910": {"name": "Kiran Bahadur Limbu", "dob": "1985-09-19", "gender": "MALE", "phone": "9842000002"},
+    "2345678909": {"name": "Laxmi Maya Tamang", "dob": "1993-04-14", "gender": "FEMALE", "phone": "9842000001"},
+    "2345678910": {"name": "Kiran Bahadur Limbu", "dob": "1985-09-19", "gender": "MALE", "phone": "9842000002"},
 }
 
 # Pathlabs Nepal (LAB002) comprehensive test menu: DIFFERENT panels than Central
@@ -34,7 +34,7 @@ DEMOGRAPHICS = {
 REPORTS_LAB002 = [
     # Ram Bahadur (NID 01) — Renal Function + Coagulation + Viral Markers
     {
-        "nid": "12345678901", "panel": "Renal Function Test", "doctor": "Dr. Adhikari",
+        "nid": "2345678901", "panel": "Renal Function Test", "doctor": "Dr. Adhikari",
         "visits": [
             ("2023-11-20", "Impaired renal function", {
                 "Urea": "58", "Blood Urea Nitrogen": "27", "Creatinine": "1.7", "Uric Acid": "8.5"}),
@@ -45,14 +45,14 @@ REPORTS_LAB002 = [
         ],
     },
     {
-        "nid": "12345678901", "panel": "Coagulation Profile", "doctor": "Dr. Rai",
+        "nid": "2345678901", "panel": "Coagulation Profile", "doctor": "Dr. Rai",
         "visits": [
             ("2024-02-10", "Prolonged PT", {
                 "Prothrombin Time": "15.2", "INR": "1.4", "aPTT": "32"}),
         ],
     },
     {
-        "nid": "12345678901", "panel": "Viral Markers", "doctor": "Dr. Joshi",
+        "nid": "2345678901", "panel": "Viral Markers", "doctor": "Dr. Joshi",
         "visits": [
             ("2024-06-15", "Negative for viral hepatitis and HIV", {
                 "HBsAg": "NEGATIVE", "Anti-HCV": "NEGATIVE", "HIV I/II": "NEGATIVE", "VDRL": "Non-reactive"}),
@@ -61,7 +61,7 @@ REPORTS_LAB002 = [
     
     # Sita Kumari (NID 02) — Electrolytes + Urine + Stool
     {
-        "nid": "12345678902", "panel": "Electrolyte Panel", "doctor": "Dr. Paudel",
+        "nid": "2345678902", "panel": "Electrolyte Panel", "doctor": "Dr. Paudel",
         "visits": [
             ("2023-09-20", "Mild hyponatremia", {
                 "Sodium": "132", "Potassium": "4.2", "Chloride": "98", "Calcium": "8.8"}),
@@ -70,14 +70,14 @@ REPORTS_LAB002 = [
         ],
     },
     {
-        "nid": "12345678902", "panel": "Urine Routine Examination", "doctor": "Dr. Gurung",
+        "nid": "2345678902", "panel": "Urine Routine Examination", "doctor": "Dr. Gurung",
         "visits": [
             ("2024-03-15", "Mild proteinuria", {
                 "Urine Routine & Microscopy": "Protein 1+, RBC 2-3/hpf, WBC occasional"}),
         ],
     },
     {
-        "nid": "12345678902", "panel": "Stool Examination", "doctor": "Dr. Thapa",
+        "nid": "2345678902", "panel": "Stool Examination", "doctor": "Dr. Thapa",
         "visits": [
             ("2024-07-10", "Normal stool", {
                 "Stool Routine & Microscopy": "No ova/cysts seen, no RBC/WBC", "Culture & Sensitivity": "No pathogen isolated"}),
@@ -86,7 +86,7 @@ REPORTS_LAB002 = [
     
     # Hari Prasad (NID 03) — CBC (for comparison with Central) + Febrile + Vitamin
     {
-        "nid": "12345678903", "panel": "Complete Blood Count", "doctor": "Dr. Sharma",
+        "nid": "2345678903", "panel": "Complete Blood Count", "doctor": "Dr. Sharma",
         "visits": [
             ("2024-01-15", "Mild leukocytosis", {
                 "Hemoglobin": "14.2", "Total RBC Count": "4.8", "Total WBC Count": "12500", "Platelet Count": "320",
@@ -94,7 +94,7 @@ REPORTS_LAB002 = [
         ],
     },
     {
-        "nid": "12345678903", "panel": "Febrile Illness Panel", "doctor": "Dr. Adhikari",
+        "nid": "2345678903", "panel": "Febrile Illness Panel", "doctor": "Dr. Adhikari",
         "visits": [
             ("2024-07-25", "Dengue IgM positive", {
                 "Widal Test": "Negative", "Typhidot IgM": "Negative", "Dengue NS1 Antigen": "POSITIVE",
@@ -103,7 +103,7 @@ REPORTS_LAB002 = [
         ],
     },
     {
-        "nid": "12345678903", "panel": "Vitamin Assay", "doctor": "Dr. Rai",
+        "nid": "2345678903", "panel": "Vitamin Assay", "doctor": "Dr. Rai",
         "visits": [
             ("2024-05-20", "Low Vitamin D", {
                 "Vitamin D (25-OH)": "22", "Vitamin B12": "450"}),
@@ -112,7 +112,7 @@ REPORTS_LAB002 = [
 
     # Laxmi Maya (NID 09) — routine wellness panels at Pathlabs
     {
-        "nid": "12345678909", "panel": "Electrolyte Panel", "doctor": "Dr. Paudel",
+        "nid": "2345678909", "panel": "Electrolyte Panel", "doctor": "Dr. Paudel",
         "visits": [
             ("2023-11-08", "Normal electrolytes", {
                 "Sodium": "139", "Potassium": "4.0", "Chloride": "101", "Calcium": "9.4"}),
@@ -121,14 +121,14 @@ REPORTS_LAB002 = [
         ],
     },
     {
-        "nid": "12345678909", "panel": "Urine Routine Examination", "doctor": "Dr. Gurung",
+        "nid": "2345678909", "panel": "Urine Routine Examination", "doctor": "Dr. Gurung",
         "visits": [
             ("2024-02-14", "Unremarkable", {
                 "Urine Routine & Microscopy": "Clear, no protein, no cells seen"}),
         ],
     },
     {
-        "nid": "12345678909", "panel": "Vitamin Assay", "doctor": "Dr. Thapa",
+        "nid": "2345678909", "panel": "Vitamin Assay", "doctor": "Dr. Thapa",
         "visits": [
             ("2024-01-30", "Normal vitamin levels", {
                 "Vitamin D (25-OH)": "38", "Vitamin B12": "520"}),
@@ -137,7 +137,7 @@ REPORTS_LAB002 = [
 
     # Kiran Bahadur (NID 10) — pre-procedure screening + CBC follow-up
     {
-        "nid": "12345678910", "panel": "Complete Blood Count", "doctor": "Dr. Sharma",
+        "nid": "2345678910", "panel": "Complete Blood Count", "doctor": "Dr. Sharma",
         "visits": [
             ("2024-05-16", "Normal, mild leukocytosis", {
                 "Hemoglobin": "15.1", "Total RBC Count": "5.0", "Total WBC Count": "11800", "Platelet Count": "300",
@@ -145,14 +145,14 @@ REPORTS_LAB002 = [
         ],
     },
     {
-        "nid": "12345678910", "panel": "Viral Markers", "doctor": "Dr. Joshi",
+        "nid": "2345678910", "panel": "Viral Markers", "doctor": "Dr. Joshi",
         "visits": [
             ("2024-07-01", "Negative screen", {
                 "HBsAg": "NEGATIVE", "Anti-HCV": "NEGATIVE", "HIV I/II": "NEGATIVE", "VDRL": "Non-reactive"}),
         ],
     },
     {
-        "nid": "12345678910", "panel": "Coagulation Profile", "doctor": "Dr. Rai",
+        "nid": "2345678910", "panel": "Coagulation Profile", "doctor": "Dr. Rai",
         "visits": [
             ("2024-07-05", "Normal coagulation", {
                 "Prothrombin Time": "12.1", "INR": "1.0", "aPTT": "31"}),

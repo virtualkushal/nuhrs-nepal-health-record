@@ -1,7 +1,7 @@
 """
 Seed Central Diagnostic Laboratory with comprehensive demo reports.
 
-Uses the shared NIDs (12345678901, 02, 03) so reports merge into the unified
+Uses the shared NIDs (2345678901, 02, 03) so reports merge into the unified
 exchange. Demographics are CANONICAL per NID. Each panel gets multiple dated
 reports (a series) for trend visualization.
 
@@ -18,12 +18,12 @@ ORG_CODE = settings.ORG_CODE
 
 # Canonical demographics per NID — MUST match the hospital and swastha seeds.
 DEMOGRAPHICS = {
-    "12345678901": {"name": "Ram Bahadur Thapa", "dob": "1970-05-12", "gender": "MALE", "phone": "9841000001"},
-    "12345678902": {"name": "Sita Kumari Sharma", "dob": "1988-11-23", "gender": "FEMALE", "phone": "9803000002"},
-    "12345678903": {"name": "Hari Prasad Koirala", "dob": "1979-02-03", "gender": "MALE", "phone": "9841000003"},
+    "2345678901": {"name": "Ram Bahadur Thapa", "dob": "1970-05-12", "gender": "MALE", "phone": "9841000001"},
+    "2345678902": {"name": "Sita Kumari Sharma", "dob": "1988-11-23", "gender": "FEMALE", "phone": "9803000002"},
+    "2345678903": {"name": "Hari Prasad Koirala", "dob": "1979-02-03", "gender": "MALE", "phone": "9841000003"},
     # Cross-facility demo patients — match Mediciti / Norvic / Pathlabs seeds.
-    "12345678909": {"name": "Laxmi Maya Tamang", "dob": "1993-04-14", "gender": "FEMALE", "phone": "9842000001"},
-    "12345678910": {"name": "Kiran Bahadur Limbu", "dob": "1985-09-19", "gender": "MALE", "phone": "9842000002"},
+    "2345678909": {"name": "Laxmi Maya Tamang", "dob": "1993-04-14", "gender": "FEMALE", "phone": "9842000001"},
+    "2345678910": {"name": "Kiran Bahadur Limbu", "dob": "1985-09-19", "gender": "MALE", "phone": "9842000002"},
 }
 
 # Central Diagnostic (LAB001) comprehensive test menu: distribute panels across
@@ -31,7 +31,7 @@ DEMOGRAPHICS = {
 REPORTS_LAB001 = [
     # Ram Bahadur (NID 01) — Lipid Profile + Diabetic Profile + LFT
     {
-        "nid": "12345678901", "panel": "Lipid Profile", "doctor": "Dr. Sharma",
+        "nid": "2345678901", "panel": "Lipid Profile", "doctor": "Dr. Sharma",
         "visits": [
             ("2023-08-11", "Dyslipidemia", {
                 "Total Cholesterol": "245", "LDL Cholesterol": "165", "HDL Cholesterol": "38", "Triglycerides": "210"}),
@@ -42,7 +42,7 @@ REPORTS_LAB001 = [
         ],
     },
     {
-        "nid": "12345678901", "panel": "Diabetic Profile", "doctor": "Dr. Sharma",
+        "nid": "2345678901", "panel": "Diabetic Profile", "doctor": "Dr. Sharma",
         "visits": [
             ("2023-09-10", "Impaired fasting glucose", {
                 "Fasting Blood Sugar": "115", "Postprandial Blood Sugar": "165", "HbA1c": "6.2"}),
@@ -51,7 +51,7 @@ REPORTS_LAB001 = [
         ],
     },
     {
-        "nid": "12345678901", "panel": "Liver Function Test", "doctor": "Dr. Adhikari",
+        "nid": "2345678901", "panel": "Liver Function Test", "doctor": "Dr. Adhikari",
         "visits": [
             ("2024-01-20", "Mildly elevated transaminases", {
                 "Total Bilirubin": "0.9", "Direct Bilirubin": "0.2", "SGPT / ALT": "68", "SGOT / AST": "55",
@@ -61,7 +61,7 @@ REPORTS_LAB001 = [
     
     # Sita Kumari (NID 02) — CBC + Thyroid + Iron Studies
     {
-        "nid": "12345678902", "panel": "Complete Blood Count", "doctor": "Dr. Gurung",
+        "nid": "2345678902", "panel": "Complete Blood Count", "doctor": "Dr. Gurung",
         "visits": [
             ("2023-05-30", "Mild anemia", {
                 "Hemoglobin": "10.5", "Total RBC Count": "4.0", "Total WBC Count": "7500", "Platelet Count": "280",
@@ -75,7 +75,7 @@ REPORTS_LAB001 = [
         ],
     },
     {
-        "nid": "12345678902", "panel": "Thyroid Function Test", "doctor": "Dr. Paudel",
+        "nid": "2345678902", "panel": "Thyroid Function Test", "doctor": "Dr. Paudel",
         "visits": [
             ("2023-11-15", "Subclinical hypothyroidism", {
                 "TSH": "6.2", "Free T3": "2.8", "Free T4": "0.9"}),
@@ -84,7 +84,7 @@ REPORTS_LAB001 = [
         ],
     },
     {
-        "nid": "12345678902", "panel": "Iron Studies", "doctor": "Dr. Gurung",
+        "nid": "2345678902", "panel": "Iron Studies", "doctor": "Dr. Gurung",
         "visits": [
             ("2024-03-01", "Iron deficiency", {
                 "Serum Iron": "45", "Ferritin": "18", "TIBC": "420"}),
@@ -93,7 +93,7 @@ REPORTS_LAB001 = [
     
     # Hari Prasad (NID 03) — Cardiac Markers + Electrolyte + Vitamin Assay + Febrile Illness
     {
-        "nid": "12345678903", "panel": "Cardiac Markers", "doctor": "Dr. Rai",
+        "nid": "2345678903", "panel": "Cardiac Markers", "doctor": "Dr. Rai",
         "visits": [
             ("2020-08-10", "Elevated markers", {
                 "Troponin I": "0.9", "CK-MB": "8.5", "D-Dimer": "620"}),
@@ -104,21 +104,21 @@ REPORTS_LAB001 = [
         ],
     },
     {
-        "nid": "12345678903", "panel": "Electrolyte Panel", "doctor": "Dr. Rai",
+        "nid": "2345678903", "panel": "Electrolyte Panel", "doctor": "Dr. Rai",
         "visits": [
             ("2024-02-10", "Mild hypokalemia", {
                 "Sodium": "138", "Potassium": "3.3", "Chloride": "102", "Calcium": "9.2"}),
         ],
     },
     {
-        "nid": "12345678903", "panel": "Vitamin Assay", "doctor": "Dr. Thapa",
+        "nid": "2345678903", "panel": "Vitamin Assay", "doctor": "Dr. Thapa",
         "visits": [
             ("2024-04-15", "Vitamin D deficiency", {
                 "Vitamin D (25-OH)": "18", "Vitamin B12": "320"}),
         ],
     },
     {
-        "nid": "12345678903", "panel": "Febrile Illness Panel", "doctor": "Dr. Joshi",
+        "nid": "2345678903", "panel": "Febrile Illness Panel", "doctor": "Dr. Joshi",
         "visits": [
             ("2024-08-05", "Scrub typhus suspected", {
                 "Widal Test": "Negative", "Typhidot IgM": "Negative", "Dengue NS1 Antigen": "Negative",
@@ -129,7 +129,7 @@ REPORTS_LAB001 = [
 
     # Laxmi Maya (NID 09) — thyroid monitoring + anemia work-up
     {
-        "nid": "12345678909", "panel": "Thyroid Function Test", "doctor": "Dr. Paudel",
+        "nid": "2345678909", "panel": "Thyroid Function Test", "doctor": "Dr. Paudel",
         "visits": [
             ("2023-12-08", "Subclinical hypothyroidism", {
                 "TSH": "7.1", "Free T3": "2.9", "Free T4": "1.0"}),
@@ -138,7 +138,7 @@ REPORTS_LAB001 = [
         ],
     },
     {
-        "nid": "12345678909", "panel": "Complete Blood Count", "doctor": "Dr. Gurung",
+        "nid": "2345678909", "panel": "Complete Blood Count", "doctor": "Dr. Gurung",
         "visits": [
             ("2024-04-12", "Mild anemia", {
                 "Hemoglobin": "10.9", "Total RBC Count": "3.9", "Total WBC Count": "6100", "Platelet Count": "265",
@@ -146,7 +146,7 @@ REPORTS_LAB001 = [
         ],
     },
     {
-        "nid": "12345678909", "panel": "Iron Studies", "doctor": "Dr. Gurung",
+        "nid": "2345678909", "panel": "Iron Studies", "doctor": "Dr. Gurung",
         "visits": [
             ("2024-04-12", "Iron deficiency", {
                 "Serum Iron": "50", "Ferritin": "21", "TIBC": "435"}),
@@ -155,7 +155,7 @@ REPORTS_LAB001 = [
 
     # Kiran Bahadur (NID 10) — diabetes control + lipids + early renal check
     {
-        "nid": "12345678910", "panel": "Diabetic Profile", "doctor": "Dr. Sharma",
+        "nid": "2345678910", "panel": "Diabetic Profile", "doctor": "Dr. Sharma",
         "visits": [
             ("2023-06-10", "Poorly controlled diabetes", {
                 "Fasting Blood Sugar": "152", "Postprandial Blood Sugar": "226", "HbA1c": "8.0"}),
@@ -166,7 +166,7 @@ REPORTS_LAB001 = [
         ],
     },
     {
-        "nid": "12345678910", "panel": "Lipid Profile", "doctor": "Dr. Sharma",
+        "nid": "2345678910", "panel": "Lipid Profile", "doctor": "Dr. Sharma",
         "visits": [
             ("2023-06-10", "Dyslipidemia", {
                 "Total Cholesterol": "240", "LDL Cholesterol": "162", "HDL Cholesterol": "37", "Triglycerides": "222"}),
@@ -175,7 +175,7 @@ REPORTS_LAB001 = [
         ],
     },
     {
-        "nid": "12345678910", "panel": "Renal Function Test", "doctor": "Dr. Adhikari",
+        "nid": "2345678910", "panel": "Renal Function Test", "doctor": "Dr. Adhikari",
         "visits": [
             ("2024-05-12", "Mildly elevated creatinine", {
                 "Urea": "48", "Blood Urea Nitrogen": "22", "Creatinine": "1.4", "Uric Acid": "7.8"}),

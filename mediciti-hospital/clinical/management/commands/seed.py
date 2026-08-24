@@ -102,42 +102,42 @@ PANELS = {
 
 # Canonical demographics — NIDs 901..903 MUST match other services.
 PATIENTS = {
-    "12345678901": dict(
+    "2345678901": dict(
         name="Ram Bahadur Thapa", dob="1970-05-12", gender="MALE", phone="9841000001",
         address="Kupondole, Lalitpur", blood_group="O+", marital="Married",
         occupation="Retired Teacher", ethnicity="Chhetri",
         ec_name="Sita Thapa", ec_phone="9800000011",
         allergies=[("Penicillin", "Skin rash", "moderate", "2015-04-10")],
     ),
-    "12345678902": dict(
+    "2345678902": dict(
         name="Sita Kumari Sharma", dob="1988-11-23", gender="FEMALE", phone="9803000002",
         address="Baneshwor, Kathmandu", blood_group="A+", marital="Married",
         occupation="Bank Officer", ethnicity="Brahmin",
         ec_name="Gopal Sharma", ec_phone="9800000022",
         allergies=[],
     ),
-    "12345678903": dict(
+    "2345678903": dict(
         name="Hari Prasad Koirala", dob="1979-02-03", gender="MALE", phone="9841000003",
         address="Biratnagar, Morang", blood_group="B+", marital="Married",
         occupation="Businessman", ethnicity="Brahmin",
         ec_name="Radha Koirala", ec_phone="9800000033",
         allergies=[("Sulfonamides", "Urticaria", "severe", "2018-09-01")],
     ),
-    "12345678904": dict(
+    "2345678904": dict(
         name="Gita Devi Rai", dob="1996-07-19", gender="FEMALE", phone="9812000004",
         address="Dharan, Sunsari", blood_group="O-", marital="Single",
         occupation="Student", ethnicity="Rai",
         ec_name="Man Bahadur Rai", ec_phone="9800000044",
         allergies=[],
     ),
-    "12345678905": dict(
+    "2345678905": dict(
         name="Bikash Shrestha", dob="1962-01-30", gender="MALE", phone="9856000005",
         address="Pokhara, Kaski", blood_group="AB+", marital="Married",
         occupation="Farmer", ethnicity="Newar",
         ec_name="Kamala Shrestha", ec_phone="9800000055",
         allergies=[],
     ),
-    "12345678906": dict(
+    "2345678906": dict(
         name="Maya Gurung", dob="1975-10-08", gender="FEMALE", phone="9846000006",
         address="Lakeside, Pokhara", blood_group="B-", marital="Widowed",
         occupation="Hotel Owner", ethnicity="Gurung",
@@ -145,14 +145,14 @@ PATIENTS = {
         allergies=[("Aspirin", "Bronchospasm", "moderate", "2019-03-15")],
     ),
     # --- Cross-facility demo patients (NIDs ...09/.10 match Norvic + both labs) ---
-    "12345678909": dict(
+    "2345678909": dict(
         name="Laxmi Maya Tamang", dob="1993-04-14", gender="FEMALE", phone="9842000001",
         address="Jhamsikhel, Lalitpur", blood_group="O+", marital="Single",
         occupation="Registered Nurse", ethnicity="Tamang",
         ec_name="Sunita Tamang", ec_phone="9800000099",
         allergies=[("Penicillin", "Skin rash", "moderate", "2015-02-10")],
     ),
-    "12345678910": dict(
+    "2345678910": dict(
         name="Kiran Bahadur Limbu", dob="1985-09-19", gender="MALE", phone="9842000002",
         address="Sundhara, Kathmandu", blood_group="A+", marital="Married",
         occupation="IT Manager", ethnicity="Limbu",
@@ -168,7 +168,7 @@ PATIENTS = {
 #   labs: [(panel, date, {test: (value, interp)})],  (interp: H/L/N/A)
 #   meds: [(name, rxnorm, dose, freq, route, duration)]
 JOURNEYS = {
-    "12345678901": [  # Ram — diabetes -> nephropathy -> anemia -> dyslipidemia
+    "2345678901": [  # Ram — diabetes -> nephropathy -> anemia -> dyslipidemia
         dict(
             department="Internal Medicine & Endocrinology", doctor="Dr. Anil Karki",
             date="2023-01-15", type="OPD", reason="Follow-up diabetes",
@@ -205,7 +205,7 @@ JOURNEYS = {
                   ("Furosemide", "4603", "40 mg", "once daily", "oral", "ongoing")],
         ),
     ],
-    "12345678902": [  # Sita — hypertension + hypothyroidism + asthma
+    "2345678902": [  # Sita — hypertension + hypothyroidism + asthma
         dict(
             department="Internal Medicine & Endocrinology", doctor="Dr. Anil Karki",
             date="2022-03-15", type="OPD", reason="Fatigue, weight gain",
@@ -232,7 +232,7 @@ JOURNEYS = {
                   ("Budesonide Inhaler", "1808", "200 mcg", "twice daily", "inhalation", "ongoing")],
         ),
     ],
-    "12345678903": [  # Hari — cardiology + diabetes + COPD
+    "2345678903": [  # Hari — cardiology + diabetes + COPD
         dict(
             department="Cardiology", doctor="Dr. Rajesh Malla",
             date="2020-08-10", type="OPD", reason="Chest pain on exertion",
@@ -272,7 +272,7 @@ JOURNEYS = {
             meds=[("Tiotropium Inhaler", "69420", "18 mcg", "once daily", "inhalation", "ongoing")],
         ),
     ],
-    "12345678904": [  # Gita — emergency dengue + anemia + thrombocytopenia
+    "2345678904": [  # Gita — emergency dengue + anemia + thrombocytopenia
         dict(
             department="Emergency Medicine And Pre-Hospital Care", doctor="Dr. Nabin Adhikari",
             date="2024-09-10", type="Emergency", reason="High fever, body ache, rash",
@@ -302,7 +302,7 @@ JOURNEYS = {
             meds=[("Azithromycin", "18631", "500 mg", "once daily", "oral", "7 days")],
         ),
     ],
-    "12345678905": [  # Bikash — CKD + hypertension + heart failure + anemia
+    "2345678905": [  # Bikash — CKD + hypertension + heart failure + anemia
         dict(
             department="Nephrology & Kidney Transplantation", doctor="Dr. Sabina Rana",
             date="2022-04-12", type="OPD", reason="Swelling of legs, fatigue",
@@ -343,7 +343,7 @@ JOURNEYS = {
             meds=[("Nitrofurantoin", "7454", "100 mg", "twice daily", "oral", "7 days")],
         ),
     ],
-    "12345678906": [  # Maya — hepatology (Hep B, cirrhosis) + diabetes + PUD + TB
+    "2345678906": [  # Maya — hepatology (Hep B, cirrhosis) + diabetes + PUD + TB
         dict(
             department="Gastroenterology, Hepatology and Endoscopy", doctor="Dr. Suresh Basnet",
             date="2021-07-14", type="OPD", reason="Jaundice, abdominal distension",
@@ -383,7 +383,7 @@ JOURNEYS = {
             meds=[("Anti-TB Fixed Dose Combination (HRZE)", "", "4 tablets", "once daily", "oral", "6 months")],
         ),
     ],
-    "12345678909": [  # Laxmi — young nurse: asthma + rhinitis -> subclinical hypothyroid
+    "2345678909": [  # Laxmi — young nurse: asthma + rhinitis -> subclinical hypothyroid
         dict(
             department="Pulmonology & Allergy Clinic", doctor="Dr. Prakash Thapa",
             date="2024-03-18", type="OPD", reason="Recurrent wheeze, allergic rhinitis",
@@ -407,7 +407,7 @@ JOURNEYS = {
             meds=[("Levothyroxine", "10582", "50 mcg", "once daily before breakfast", "oral", "ongoing")],
         ),
     ],
-    "12345678910": [  # Kiran — newly-diagnosed diabetes + HTN -> metabolic emergency
+    "2345678910": [  # Kiran — newly-diagnosed diabetes + HTN -> metabolic emergency
         dict(
             department="Internal Medicine & Endocrinology", doctor="Dr. Anil Karki",
             date="2023-06-08", type="OPD", reason="Newly diagnosed type 2 diabetes",

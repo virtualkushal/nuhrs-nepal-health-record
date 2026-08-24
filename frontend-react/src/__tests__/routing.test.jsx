@@ -75,14 +75,14 @@ describe("ProtectedRoute", () => {
   it("keeps the user on their own route after a hard refresh (session read from localStorage)", () => {
     // Nothing but localStorage is populated here — exactly the state a browser
     // reload of /patient starts from.
-    signIn({ role: "PATIENT", username: "12345678901" });
+    signIn({ role: "PATIENT", username: "2345678901" });
     renderAt("/patient");
     expect(screen.getByText("patient portal")).toBeTruthy();
     expect(screen.queryByText("sign in page")).toBeNull();
   });
 
   it("bounces a signed-in user off another role's route to their own dashboard", () => {
-    signIn({ role: "PATIENT", username: "12345678901" });
+    signIn({ role: "PATIENT", username: "2345678901" });
     renderAt("/doctor");
     expect(screen.getByText("patient portal")).toBeTruthy();
     expect(screen.queryByText("doctor portal")).toBeNull();

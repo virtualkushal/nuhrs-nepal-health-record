@@ -219,6 +219,7 @@ services:
     build: ./swastha-ehr/backend
     environment:
       DJANGO_DEBUG: "True"
+      ORG_NAME: "SwasthyaEHR Hospital"
       DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,swastha-backend"
       DB_HOST: db-swastha
       DB_NAME: swastha_db

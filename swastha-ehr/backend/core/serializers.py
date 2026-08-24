@@ -45,11 +45,24 @@ Staff = get_user_model()
 # --------------------------------------------------------------------------- #
 
 NAME_RE = re.compile(r"^[A-Za-z][A-Za-z\s.'-]{1,49}$")
-# Nepali mobile: +977-98XXXXXXXX or 98XXXXXXXX (10 digits starting 97/98).
-PHONE_RE = re.compile(r"^(\+977[-\s]?)?9[78]\d{8}$")
-# Nepal National Identity Number (NIN): exactly 11 non-intelligible digits,
-# no checksum (National Identity Card and Registration Act, 2076).
-NID_RE = re.compile(r"^\d{11}$")
+# Nepal mobile numbers: NTC (984/985/986, 974/975), Ncell (980/981/982, 970/971)
+# and Smart Cell (961/962, 988) all fall under the 9[678]XXXXXXXX pattern. An
+# optional +977 / 00977 / 0 trunk prefix is accepted on input and stripped on
+# normalization, so storage is always the bare 10-digit subscriber number.
+# Kept identical to the nuhrs edge services' validators.NEPAL_MOBILE_RE.
+NEPAL_MOBILE_RE = re.compile(r"^(\+977|00977|0)?9[678]\d{8}$")
+PHONE_RE = NEPAL_MOBILE_RE  # backwards-compatible alias
+# Nepal National Identification Number (NIN): exactly 10 non-intelligible digits,
+# no checksum (DoNIDCR, National Identity Card and Registration Act, 2076).
+NID_RE = re.compile(r"^\d{10}$")
+# Shared password policy: >=8 chars with upper + lower + digit + special.
+# Mirrored by core.password_validation.NuhrsPasswordPolicyValidator.
+PASSWORD_RE = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$")
+
+PASSWORD_POLICY_MESSAGE = (
+    "Password must be at least 8 characters and include an uppercase letter, "
+    "a lowercase letter, a digit and a special character."
+)
 
 
 
@@ -62,13 +75,36 @@ def validate_person_name(value):
     return value
 
 
+def normalize_phone(value):
+    """Strip separators and any +977 / 00977 / 0 prefix -> bare 10 digits."""
+    cleaned = re.sub(r"[\s\-()]", "", (value or "").strip())
+    if not NEPAL_MOBILE_RE.match(cleaned):
+        return cleaned
+    for prefix in ("+977", "00977"):
+        if cleaned.startswith(prefix):
+            return cleaned[len(prefix):]
+    # A single leading 0 is the domestic trunk prefix; a leading 9 is already bare.
+    if cleaned.startswith("0"):
+        return cleaned[1:]
+    return cleaned
+
+
 def validate_phone(value):
-    value = (value or "").strip()
-    if not PHONE_RE.match(value):
+    """Validate a Nepal mobile and return it normalized to bare 10 digits."""
+    cleaned = re.sub(r"[\s\-()]", "", (value or "").strip())
+    if not NEPAL_MOBILE_RE.match(cleaned):
         raise serializers.ValidationError(
-            "Enter a valid Nepali mobile number, e.g. +977-9841234567."
+            "Enter a valid Nepal mobile number, e.g. 9841234567 or +9779841234567."
         )
+    return normalize_phone(cleaned)
+
+
+def validate_password_policy(value):
+    """Enforce the shared NUHRS password policy at the serializer boundary."""
+    if not PASSWORD_RE.match(value or ""):
+        raise serializers.ValidationError(PASSWORD_POLICY_MESSAGE)
     return value
+
 
 
 def validate_dob(value):
@@ -167,6 +203,9 @@ class StaffCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"'{value}' is not a valid role.")
         return value
 
+    def validate_password(self, value):
+        return validate_password_policy(value)
+
     def create(self, validated_data):
         password = validated_data.pop("password", None)
         staff = Staff(
@@ -223,6 +262,9 @@ class ChangePasswordSerializer(serializers.Serializer):
         if not user.check_password(value):
             raise serializers.ValidationError("Current password is incorrect.")
         return value
+
+    def validate_new_password(self, value):
+        return validate_password_policy(value)
 
 
 # --------------------------------------------------------------------------- #
@@ -285,6 +327,12 @@ class PatientSerializer(serializers.ModelSerializer):
     def validate_phone_number(self, value):
         return validate_phone(value)
 
+    def validate_emergency_contact_phone(self, value):
+        # Optional field: only validate/normalize when a value was supplied.
+        if not (value or "").strip():
+            return ""
+        return validate_phone(value)
+
     def validate_date_of_birth(self, value):
         return validate_dob(value)
 
@@ -292,7 +340,7 @@ class PatientSerializer(serializers.ModelSerializer):
         value = re.sub(r"[\s-]", "", (value or "").strip())
         if not NID_RE.match(value):
             raise serializers.ValidationError(
-                "National ID must be exactly 11 digits (Nepal NIN)."
+                "National ID must be exactly 10 digits (Nepal NIN)."
             )
 
         qs = Patient.objects.filter(national_id=value)
@@ -684,6 +732,9 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     uid = serializers.CharField()
     token = serializers.CharField()
     new_password = serializers.CharField(min_length=8, write_only=True)
+
+    def validate_new_password(self, value):
+        return validate_password_policy(value)
 
     def validate(self, attrs):
         try:

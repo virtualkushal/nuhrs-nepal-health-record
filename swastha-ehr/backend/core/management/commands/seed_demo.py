@@ -61,20 +61,20 @@ DEMO_STAFF = [
 
 # first, last, phone, dob, gender, blood_group, allergies, reg_by, portal_email, dept
 DEMO_PATIENTS = [
-    ("Ram", "Bahadur", "+977-9841000001", date(1970, 5, 12), Gender.MALE, "O+",
+    ("Ram", "Bahadur", "9841000001", date(1970, 5, 12), Gender.MALE, "O+",
      ["Penicillin"], RegisteredBy.SELF, "ram@demo.np", Department.ENDOCRINOLOGY),
-    ("Sita", "Kumari", "+977-9803000002", date(1988, 11, 23), Gender.FEMALE, "A+",
+    ("Sita", "Kumari", "9803000002", date(1988, 11, 23), Gender.FEMALE, "A+",
      [], RegisteredBy.RECEPTIONIST, None, Department.CARDIOLOGY),
-    ("Hari", "Prasad", "+977-9841000003", date(1979, 2, 3), Gender.MALE, "B+",
+    ("Hari", "Prasad", "9841000003", date(1979, 2, 3), Gender.MALE, "B+",
      ["Aspirin"], RegisteredBy.RECEPTIONIST, None, Department.INFECTIOUS_DISEASES),
-    ("Gita", "Devi", "+977-9803000004", date(2001, 7, 19), Gender.FEMALE, "AB+",
+    ("Gita", "Devi", "9803000004", date(2001, 7, 19), Gender.FEMALE, "AB+",
      [], RegisteredBy.SELF, "gita@demo.np", Department.NEPHROLOGY),
 ]
 
-# National IDs (11-digit Nepal NIN) assigned in order to the demo patients.
+# National IDs (10-digit Nepal NIN) assigned in order to the demo patients.
 # The first three match the NUHRS hospital/lab seed NIDs so the same patient is
 # recognisable across SwasthyaEHR and the national exchange demo.
-DEMO_NIDS = ["12345678901", "12345678902", "12345678903", "12345678904"]
+DEMO_NIDS = ["2345678901", "2345678902", "2345678903", "2345678904"]
 
 
 

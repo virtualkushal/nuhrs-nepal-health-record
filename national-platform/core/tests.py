@@ -55,7 +55,7 @@ def _run_fetch_all(orgs, responses):
         services.Organization, "objects",
         mock.Mock(filter=mock.Mock(return_value=_FakeQS(orgs))),
     ):
-        bundle = engine.fetch_all("11112222333")
+        bundle = engine.fetch_all("1112222333")
     return engine, bundle
 
 
@@ -76,7 +76,7 @@ class FetchAllOrderingTests(unittest.TestCase):
             [e["resource"]["id"] for e in bundle["entry"]], ["a1", "b1", "c1"]
         )
         engine._audit.assert_called_once_with(
-            "11112222333",
+            "1112222333",
             AuditLog.Action.FETCH_ALL,
             ["Hospital A", "Hospital B", "Hospital C"],
         )
@@ -117,7 +117,7 @@ class FetchAllConcurrencyTests(unittest.TestCase):
             mock.Mock(filter=mock.Mock(return_value=_FakeQS(orgs))),
         ):
             start = time.monotonic()
-            bundle = engine.fetch_all("11112222333")
+            bundle = engine.fetch_all("1112222333")
             elapsed = time.monotonic() - start
 
         serial_total = 1.9
@@ -149,7 +149,7 @@ class FetchAllFailureTests(unittest.TestCase):
         self.assertEqual(entries[1]["_source"], "Hospital B")
         self.assertEqual(entries[2]["id"], "c1")
         engine._audit.assert_called_once_with(
-            "11112222333",
+            "1112222333",
             AuditLog.Action.FETCH_ALL,
             ["Hospital A", "Hospital B", "Hospital C"],
         )

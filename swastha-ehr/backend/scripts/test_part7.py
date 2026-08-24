@@ -64,7 +64,7 @@ def main():
         body={
             "first_name": "Portal",
             "last_name": "Tester",
-            "phone_number": "+977-9800000000",
+            "phone_number": "9800000000",
             "date_of_birth": "1990-01-01",
             "gender": "male",
             "allergies": ["Penicillin"],
@@ -101,7 +101,7 @@ def main():
         body={
             "first_name": "NoLogin",
             "last_name": "Walkin",
-            "phone_number": "+977-9811111111",
+            "phone_number": "9811111111",
             "date_of_birth": "1985-06-15",
             "gender": "female",
             "allergies": ["None"],
@@ -118,7 +118,7 @@ def main():
         body={
             "first_name": "Dupe",
             "last_name": "User",
-            "phone_number": "+977-9822222222",
+            "phone_number": "9822222222",
             "date_of_birth": "1992-02-02",
             "gender": "male",
             "allergies": ["None"],
