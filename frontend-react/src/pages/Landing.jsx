@@ -112,7 +112,7 @@ export default function Landing() {
   }
 
   return (
-    <div className="landing-theme font-body-md text-on-surface bg-background">
+    <div className="font-body-md text-on-surface bg-background">
       {/* Header */}
       <header className="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
         <div className="h-20 max-w-container-max mx-auto px-margin-desktop flex items-center justify-between">
@@ -129,18 +129,6 @@ export default function Landing() {
               href="#login-portal"
             >
               For Patients
-            </a>
-            <a
-              className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
-              href="#login-portal"
-            >
-              For Providers
-            </a>
-            <a
-              className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
-              href="#features"
-            >
-              Statistics
             </a>
           </nav>
           <a
@@ -257,7 +245,7 @@ export default function Landing() {
                           onClick={() => setPatientMode(opt.key)}
                           className={`flex-1 py-2 rounded-lg font-label-md text-label-md transition-colors ${
                             patientMode === opt.key
-                              ? "bg-secondary text-on-secondary shadow"
+                              ? "bg-primary text-on-primary shadow"
                               : "text-on-surface-variant hover:bg-surface-container-high"
                           }`}
                         >
@@ -492,7 +480,7 @@ export default function Landing() {
         <section id="features" className="py-24 bg-surface">
           <div className="max-w-container-max mx-auto px-margin-desktop">
             <div className="flex flex-col gap-stack-sm mb-16 text-center max-w-2xl mx-auto">
-              <span className="font-label-md text-label-md text-secondary uppercase tracking-[0.2em]">
+              <span className="font-label-md text-label-md text-primary uppercase tracking-[0.2em]">
                 National Infrastructure
               </span>
               <h2 className="font-headline-lg text-headline-lg text-on-surface">
@@ -575,7 +563,7 @@ function ShowcaseBand({ navigate }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-stack-xl items-center">
           {/* Copy on the left */}
           <div className="flex flex-col gap-stack-lg order-2 lg:order-1">
-            <span className="font-label-md text-label-md text-secondary uppercase tracking-[0.2em]">
+            <span className="font-label-md text-label-md text-primary uppercase tracking-[0.2em]">
               One Network, Every Facility
             </span>
             <h2 className="font-headline-lg text-headline-lg text-on-surface max-w-lg">
@@ -714,7 +702,7 @@ function StatsBand() {
             </div>
           </div>
           <div className="flex items-center gap-stack-lg p-stack-lg bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant">
-            <div className="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
               <span className="material-symbols-outlined text-[32px]">
                 local_hospital
               </span>

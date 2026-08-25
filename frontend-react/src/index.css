@@ -113,18 +113,6 @@ html {
   --color-outline-variant: 192 199 211;
 }
 
-/* Public landing page — keeps the original blue primary (#007DCC) rather than
-   the teal the dashboards adopted in the doctor-dashboard redesign. Scoped to
-   the `.landing-theme` wrapper so no dashboard is affected; `secondary` is
-   already blue in :root, so only the primary family is overridden here. */
-.landing-theme {
-  --color-primary: 0 125 204;
-  --color-primary-container: 0 125 204;
-  --color-on-primary: 255 255 255;
-  --color-surface-tint: 0 125 204;
-  --color-inverse-primary: 156 202 255;
-}
-
 body {
   font-family: "Inter", sans-serif;
   background: #f8f9fa;
