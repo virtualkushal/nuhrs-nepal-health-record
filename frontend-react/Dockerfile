@@ -4,9 +4,8 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install
 COPY . .
-# Platform API base can be injected at build time.
-ARG VITE_PLATFORM_API=http://localhost:8000
-ENV VITE_PLATFORM_API=$VITE_PLATFORM_API
+# The SPA talks to the backend same-origin via the nginx "/api" proxy (see
+# nginx.conf), so no build-time API URL is needed.
 RUN npm run build
 
 # --- serve stage ---

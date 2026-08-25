@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useToast } from "../context/ToastContext.jsx";
 import { api } from "../lib/api.js";
+import { FieldError, FormBanner } from "./ui.jsx";
+import { parseApiError } from "../lib/formErrors.js";
 
 // Self-service password change. Verifies the current password server-side
 // before applying the new one (see ChangePasswordView).
@@ -10,15 +12,23 @@ export default function UserChangePassword() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setErrors({});
+    setFormError("");
+    // Client-side checks, reported inline on the offending field.
+    const nextErrors = {};
     if (newPassword !== confirmPassword) {
-      show("New passwords do not match", "err");
-      return;
+      nextErrors.confirm = "New passwords do not match.";
     }
     if (newPassword.length < 6) {
-      show("Password must be at least 6 characters", "err");
+      nextErrors.new = "Password must be at least 6 characters.";
+    }
+    if (Object.keys(nextErrors).length) {
+      setErrors(nextErrors);
       return;
     }
     setBusy(true);
@@ -29,7 +39,9 @@ export default function UserChangePassword() {
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
-      show(err.message, "err");
+      // The endpoint reports "Current password is incorrect" / policy failures
+      // as { detail } — surface it in the banner.
+      setFormError(parseApiError(err).formError);
     } finally {
       setBusy(false);
     }
@@ -39,9 +51,11 @@ export default function UserChangePassword() {
     <div className="max-w-md">
       <h2 className="font-title-lg text-title-lg mb-4">Change Password</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
+        <FormBanner message={formError} />
         <div>
-          <label className="label">Current Password</label>
+          <label className="label" htmlFor="cur-pw">Current Password</label>
           <input
+            id="cur-pw"
             type="password"
             className="field"
             value={currentPassword}
@@ -50,24 +64,32 @@ export default function UserChangePassword() {
           />
         </div>
         <div>
-          <label className="label">New Password</label>
+          <label className="label" htmlFor="new-pw">New Password</label>
           <input
+            id="new-pw"
             type="password"
-            className="field"
+            className={`field ${errors.new ? "field-error" : ""}`}
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
+            aria-invalid={errors.new ? "true" : undefined}
+            aria-describedby={errors.new ? "new-pw-error" : undefined}
             required
           />
+          <FieldError id="new-pw-error">{errors.new}</FieldError>
         </div>
         <div>
-          <label className="label">Confirm New Password</label>
+          <label className="label" htmlFor="confirm-pw">Confirm New Password</label>
           <input
+            id="confirm-pw"
             type="password"
-            className="field"
+            className={`field ${errors.confirm ? "field-error" : ""}`}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            aria-invalid={errors.confirm ? "true" : undefined}
+            aria-describedby={errors.confirm ? "confirm-pw-error" : undefined}
             required
           />
+          <FieldError id="confirm-pw-error">{errors.confirm}</FieldError>
         </div>
         <button
           type="submit"

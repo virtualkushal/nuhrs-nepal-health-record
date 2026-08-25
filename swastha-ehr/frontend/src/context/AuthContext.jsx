@@ -1,8 +1,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import api, { TOKEN_KEY, REFRESH_KEY, USER_KEY } from "../services/api";
+import api, { USER_KEY, ensureCsrf } from "../services/api";
 
 // Global authentication state: who is logged in, their role, and login/logout
 // helpers. Login is by EMAIL in v2. Any component reads this via useAuth().
+//
+// Auth tokens live in httpOnly cookies set by the backend; this context only
+// tracks the non-sensitive user object (mirrored to localStorage so a hard
+// refresh renders the right screen before the first API call returns).
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
@@ -10,6 +14,8 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Prime the CSRF cookie early so the first write has a token to echo.
+    ensureCsrf();
     const stored = localStorage.getItem(USER_KEY);
     if (stored) {
       try {
@@ -22,10 +28,9 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function login(email, password) {
+    // On success the backend sets the httpOnly JWT cookies and returns { user }.
     const res = await api.post("/v1/auth/login/", { email, password });
-    const { access, refresh, user: userData } = res.data;
-    localStorage.setItem(TOKEN_KEY, access);
-    localStorage.setItem(REFRESH_KEY, refresh);
+    const userData = res.data.user;
     localStorage.setItem(USER_KEY, JSON.stringify(userData));
     setUser(userData);
     return userData;
@@ -41,9 +46,14 @@ export function AuthProvider({ children }) {
     });
   }
 
-  function logout() {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(REFRESH_KEY);
+  async function logout() {
+    // Best-effort server-side cookie clear; local state is dropped regardless so
+    // a network hiccup can never strand the user in a logged-in-looking shell.
+    try {
+      await api.post("/v1/auth/logout/");
+    } catch {
+      /* ignore — clearing local state below is what matters */
+    }
     localStorage.removeItem(USER_KEY);
     setUser(null);
   }

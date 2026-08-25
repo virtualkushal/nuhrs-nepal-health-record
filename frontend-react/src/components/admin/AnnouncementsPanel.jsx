@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api.js";
 import { useToast } from "../../context/ToastContext.jsx";
-import { Card, Table, Badge, Field } from "../ui.jsx";
+import { Card, Table, Badge, Field, FieldError, FormBanner } from "../ui.jsx";
+import { parseApiError } from "../../lib/formErrors.js";
 
 const CATEGORY_OPTIONS = [
   { value: "PUBLIC_HEALTH", label: "Public Health" },
@@ -24,6 +25,8 @@ export default function AnnouncementsPanel() {
   const [body, setBody] = useState("");
   const [category, setCategory] = useState("PUBLIC_HEALTH");
   const [busy, setBusy] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState("");
 
   const load = async () => {
     try {
@@ -38,8 +41,14 @@ export default function AnnouncementsPanel() {
 
   async function create(e) {
     e.preventDefault();
-    if (!title.trim() || !body.trim()) {
-      show("Title and body are required", "err");
+    setErrors({});
+    setFormError("");
+    // Client-side required checks, reported inline on the field.
+    const nextErrors = {};
+    if (!title.trim()) nextErrors.title = "Title is required.";
+    if (!body.trim()) nextErrors.body = "Message is required.";
+    if (Object.keys(nextErrors).length) {
+      setErrors(nextErrors);
       return;
     }
     setBusy(true);
@@ -50,8 +59,10 @@ export default function AnnouncementsPanel() {
       setBody("");
       setCategory("PUBLIC_HEALTH");
       load();
-    } catch (e) {
-      show(e.message, "err");
+    } catch (err) {
+      const { fieldErrors, formError } = parseApiError(err);
+      setErrors(fieldErrors);
+      setFormError(formError);
     } finally {
       setBusy(false);
     }
@@ -71,16 +82,20 @@ export default function AnnouncementsPanel() {
     <div className="space-y-stack-lg">
       <Card title="Publish Announcement" subtitle="Health updates and news shown to every patient in their portal.">
         <form onSubmit={create} className="space-y-4 max-w-2xl">
-          <Field label="Title" id="ann-title" value={title} onChange={setTitle} placeholder="e.g. Free measles-rubella vaccination camp" />
+          <FormBanner message={formError} />
+          <Field label="Title" id="ann-title" value={title} onChange={setTitle} placeholder="e.g. Free measles-rubella vaccination camp" error={errors.title} />
           <div>
             <label className="label" htmlFor="ann-body">Message</label>
             <textarea
               id="ann-body"
-              className="field min-h-[120px]"
+              className={`field min-h-[120px] ${errors.body ? "field-error" : ""}`}
               value={body}
               onChange={(e) => setBody(e.target.value)}
               placeholder="Write the announcement patients will read…"
+              aria-invalid={errors.body ? "true" : undefined}
+              aria-describedby={errors.body ? "ann-body-error" : undefined}
             />
+            <FieldError id="ann-body-error">{errors.body}</FieldError>
           </div>
           <div>
             <label className="label" htmlFor="ann-category">Category</label>

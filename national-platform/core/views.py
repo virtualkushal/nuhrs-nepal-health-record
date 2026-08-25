@@ -11,8 +11,18 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from . import services
+from .permissions import IsExchangeUser, IsMinistryOrSuperAdmin
+from .jwt_cookies import (
+    REFRESH_COOKIE,
+    clear_auth_cookies,
+    enforce_csrf,
+    set_auth_cookies,
+)
 from .models import (
     Announcement,
     AuditLog,
@@ -58,6 +68,7 @@ def issue_tokens(user):
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
+    @method_decorator(ensure_csrf_cookie)
     def post(self, request):
         password = request.data.get("password") or ""
 
@@ -89,7 +100,8 @@ class LoginView(APIView):
         user.last_login = timezone.now()
         user.save(update_fields=["last_login"])
         tokens = issue_tokens(user)
-        return Response({**tokens, "user": UserProfileSerializer(user).data})
+        response = Response({"user": UserProfileSerializer(user).data})
+        return set_auth_cookies(response, tokens["access"], tokens["refresh"])
 
 
 class ChangePasswordView(APIView):
@@ -140,6 +152,50 @@ class AdminResetPasswordView(APIView):
 @permission_classes([IsAuthenticated])
 def me(request):
     return Response(UserProfileSerializer(request.user).data)
+
+
+class CsrfView(APIView):
+    """Prime the readable csrftoken cookie so the SPA can send X-CSRFToken.
+
+    The SPA calls this once on load (before any write / silent refresh) so the
+    double-submit token is in place even on a cold start with an existing
+    session cookie.
+    """
+    permission_classes = [AllowAny]
+
+    @method_decorator(ensure_csrf_cookie)
+    def get(self, request):
+        return Response({"detail": "ok"})
+
+
+class LogoutView(APIView):
+    """Clear the JWT cookies. CSRF-protected like any other state change."""
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        enforce_csrf(request)
+        response = Response({"detail": "Logged out."})
+        return clear_auth_cookies(response)
+
+
+class CookieTokenRefreshView(APIView):
+    """Mint a fresh access cookie from the httpOnly refresh cookie."""
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        enforce_csrf(request)
+        raw = request.COOKIES.get(REFRESH_COOKIE)
+        if not raw:
+            return Response({"detail": "Not authenticated."}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            refresh = RefreshToken(raw)
+        except TokenError:
+            return Response(
+                {"detail": "Session expired. Please sign in again."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        response = Response({"detail": "ok"})
+        return set_auth_cookies(response, access=str(refresh.access_token))
 
 
 # ---------------------------------------------------------------------------
@@ -229,6 +285,7 @@ class SSOVerifyView(APIView):
     """
     permission_classes = [AllowAny]
 
+    @method_decorator(ensure_csrf_cookie)
     def post(self, request):
         ticket_value = (request.data.get("ticket") or "").strip()
         if not ticket_value:
@@ -263,7 +320,8 @@ class SSOVerifyView(APIView):
         user.last_login = timezone.now()
         user.save(update_fields=["last_login"])
         tokens = issue_tokens(user)
-        return Response({**tokens, "user": UserProfileSerializer(user).data})
+        response = Response({"user": UserProfileSerializer(user).data})
+        return set_auth_cookies(response, tokens["access"], tokens["refresh"])
 
 
 # ---------------------------------------------------------------------------
@@ -537,7 +595,7 @@ class MinistryUserDetailView(APIView):
 # Exchange engine (doctor)
 # ---------------------------------------------------------------------------
 class PatientLookupView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsExchangeUser]
 
     def get(self, request, nid):
         try:
@@ -552,7 +610,7 @@ class PatientLookupView(APIView):
 
 
 class PatientIndexView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsExchangeUser]
 
     def get(self, request, nid):
         qs = RecordIndex.objects.filter(patient__nid=nid).select_related("organization")
@@ -560,7 +618,7 @@ class PatientIndexView(APIView):
 
 
 class PatientFetchView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsExchangeUser]
 
     def post(self, request, nid):
         mode = request.data.get("mode", "ALL")
@@ -815,7 +873,7 @@ class IndexIngestView(APIView):
 # Audit & analytics
 # ---------------------------------------------------------------------------
 class AuditLogView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsMinistryOrSuperAdmin]
 
     def get(self, request):
         qs = AuditLog.objects.all().select_related("actor_user", "actor_org")
