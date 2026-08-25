@@ -128,6 +128,50 @@ PATIENTS = {
         ec_name="Roshni Limbu", ec_phone="9800000100",
         allergies=[("Iodinated contrast dye", "Urticaria", "mild", "2020-08-01")],
     ),
+    # --- Expanded federation cohort. Demographics are CANONICAL: name/dob/gender/
+    # phone MUST match Mediciti + both labs. ...23 / ...24 are Norvic-EXCLUSIVE. ---
+    "2345678915": dict(
+        first="Prakash Bahadur", last="Magar", dob="1963-11-27", gender="MALE", phone="9841000015",
+        address="Tansen, Palpa", blood_group="O+", marital="Married",
+        occupation="Retired Police", ethnicity="Magar",
+        ec_name="Dil Kumari Magar", ec_phone="9800000115",
+        allergies=[],
+    ),
+    "2345678920": dict(
+        first="Anita Rai", last="Subba", dob="1998-02-25", gender="FEMALE", phone="9841000020",
+        address="Itahari, Sunsari", blood_group="A+", marital="Single",
+        occupation="Hotel Receptionist", ethnicity="Rai",
+        ec_name="Bhim Rai", ec_phone="9800000120",
+        allergies=[("Penicillin", "Angioedema", "severe", "2017-11-02")],
+    ),
+    "2345678921": dict(
+        first="Gopal Krishna", last="Neupane", dob="1960-04-16", gender="MALE", phone="9841000021",
+        address="Gorkha Bazar, Gorkha", blood_group="B+", marital="Married",
+        occupation="Retired Farmer", ethnicity="Brahmin",
+        ec_name="Tulasa Neupane", ec_phone="9800000121",
+        allergies=[],
+    ),
+    "2345678923": dict(
+        first="Rajesh", last="Basnet", dob="1985-01-21", gender="MALE", phone="9841000023",
+        address="Baluwatar, Kathmandu", blood_group="B-", marital="Married",
+        occupation="Civil Engineer", ethnicity="Chhetri",
+        ec_name="Prativa Basnet", ec_phone="9800000123",
+        allergies=[],
+    ),
+    "2345678924": dict(
+        first="Puja Sharma", last="Poudel", dob="1993-06-14", gender="FEMALE", phone="9841000024",
+        address="Lekhnath, Kaski", blood_group="O+", marital="Married",
+        occupation="Primary School Teacher", ethnicity="Brahmin",
+        ec_name="Dipesh Poudel", ec_phone="9800000124",
+        allergies=[],
+    ),
+    "2345678927": dict(
+        first="Krishna Bahadur", last="Khadka", dob="1966-12-01", gender="MALE", phone="9841000027",
+        address="Kalanki, Kathmandu", blood_group="O+", marital="Married",
+        occupation="Bus Driver", ethnicity="Chhetri",
+        ec_name="Nirmala Khadka", ec_phone="9800000127",
+        allergies=[],
+    ),
 }
 
 # Clinical journeys (variant-B fields are filled by the writers below).
@@ -242,6 +286,129 @@ JOURNEYS = {
                   ("Metformin", "6809", "850 mg", "twice daily", "oral", "ongoing")],
         ),
     ],
+    # --- Expanded cohort (NIDs ...15/...20/...21/...23/...24/...27) ---
+    "2345678915": [  # Prakash — also at Mediciti; Norvic performed his PCI
+        dict(
+            department="Cardiology", physician="Dr. Bibek Rajbhandari",
+            date="2021-08-04", category="Inpatient", complaint="Acute inferior wall MI, for revascularization",
+            conditions=[("ST-Elevation Myocardial Infarction", "I21.0", "2021-08-01"),
+                        ("Coronary Artery Disease", "I25.1", "2021-08-01")],
+            vitals=dict(sbp=132, dbp=84, pulse=98, temp=36.7, spo2=94, rr=21, height=165, weight=70, bmi=25.7),
+            labs=[
+                ("Cardiac Markers", "2021-08-04", {"Troponin I": ("6.4", "H"), "CK-MB": ("42", "H"), "NT-proBNP": ("720", "H")}),
+                ("Coagulation Profile", "2021-08-04", {"INR": ("1.1", "N"), "Prothrombin Time": ("12.6", "N")}),
+                ("Renal Function Test", "2021-08-04", {"Serum Creatinine": ("1.1", "N"), "Blood Urea": ("36", "N"), "eGFR": ("78", "L")}),
+            ],
+            meds=[("Ticagrelor", "1116632", "90 mg", "twice daily", "oral", "12 months"),
+                  ("Aspirin", "1191", "75 mg", "once daily", "oral", "ongoing")],
+            procedures=[
+                ("Percutaneous Coronary Intervention (PCI) with drug-eluting stent to RCA",
+                 "415070008", "Cardiac Intervention", "2021-08-04", "Dr. Bibek Rajbhandari",
+                 "Successful, TIMI-3 flow restored", "Single DES to mid RCA; no periprocedural complication."),
+            ],
+        ),
+        dict(
+            department="Cardiology", physician="Dr. Bibek Rajbhandari",
+            date="2024-08-02", category="OPD", complaint="Heart failure follow-up, echo review",
+            conditions=[],
+            vitals=dict(sbp=134, dbp=82, pulse=88, temp=36.5, spo2=94, rr=20, height=165, weight=73, bmi=26.8),
+            labs=[
+                ("Cardiac Markers", "2024-08-02", {"NT-proBNP": ("1240", "H"), "Troponin I": ("0.03", "N"), "CRP": ("4.8", "H")}),
+                ("Electrolytes", "2024-08-02", {"Sodium": ("135", "N"), "Potassium": ("4.9", "N"), "Chloride": ("102", "N")}),
+            ],
+            meds=[("Sacubitril/Valsartan", "1656340", "49/51 mg", "twice daily", "oral", "ongoing")],
+        ),
+    ],
+    "2345678920": [  # Anita — also at Mediciti; Norvic ran her pre-travel clinic
+        dict(
+            department="General Medicine & Travel Clinic", physician="Dr. Sabin Maharjan",
+            date="2024-04-12", category="OPD", complaint="Pre-employment travel screening, asthma review",
+            conditions=[("Bronchial Asthma", "J45.9", "2019-05-01")],
+            vitals=dict(sbp=110, dbp=72, pulse=78, temp=36.6, spo2=98, rr=18, height=158, weight=52, bmi=20.8),
+            labs=[
+                ("Complete Blood Count", "2024-04-12", {"Hemoglobin": ("12.6", "L"), "Hematocrit": ("39", "L"), "Platelet Count": ("272", "N")}),
+            ],
+            meds=[("Salbutamol Inhaler", "435", "100 mcg", "2 puffs as needed", "inhalation", "ongoing")],
+        ),
+    ],
+    "2345678921": [  # Gopal — also at Mediciti; Norvic cardiology assessed his cor pulmonale
+        dict(
+            department="Cardiology", physician="Dr. Bibek Rajbhandari",
+            date="2024-03-05", category="OPD", complaint="Right heart failure secondary to COPD",
+            conditions=[("Cor Pulmonale", "I27.9", "2024-02-08"),
+                        ("Pulmonary Hypertension", "I27.0", "2024-03-05")],
+            vitals=dict(sbp=124, dbp=76, pulse=96, temp=36.5, spo2=89, rr=24, height=163, weight=55, bmi=20.7),
+            labs=[
+                ("Cardiac Markers", "2024-03-05", {"NT-proBNP": ("980", "H"), "Troponin I": ("0.02", "N"), "CRP": ("8.2", "H")}),
+                ("Complete Blood Count", "2024-03-05", {"Hemoglobin": ("16.9", "H"), "Hematocrit": ("53", "H")}),
+            ],
+            meds=[("Furosemide", "4603", "40 mg", "once daily", "oral", "ongoing"),
+                  ("Spironolactone", "9997", "25 mg", "once daily", "oral", "ongoing")],
+        ),
+    ],
+    "2345678923": [  # Rajesh — Norvic-only: bicuspid aortic stenosis -> AVR, INR series
+        dict(
+            department="Cardiothoracic & Vascular Surgery (CTVS)", physician="Dr. Manish Shakya",
+            date="2023-11-09", category="Inpatient", complaint="Exertional syncope, ejection systolic murmur",
+            conditions=[("Severe Aortic Stenosis", "I35.0", "2023-06-01"),
+                        ("Bicuspid Aortic Valve", "Q23.1", "2023-06-01")],
+            vitals=dict(sbp=128, dbp=78, pulse=84, temp=36.6, spo2=96, rr=18, height=174, weight=76, bmi=25.1),
+            labs=[
+                ("Complete Blood Count", "2023-11-09", {"Hemoglobin": ("13.4", "L"), "Platelet Count": ("232", "N"), "Hematocrit": ("41", "N")}),
+                ("Coagulation Profile", "2023-11-09", {"INR": ("1.0", "N"), "Prothrombin Time": ("12.2", "N")}),
+                ("Renal Function Test", "2023-11-09", {"Serum Creatinine": ("1.0", "N"), "Blood Urea": ("30", "N"), "eGFR": ("94", "N")}),
+            ],
+            meds=[("Warfarin", "11289", "5 mg", "once daily", "oral", "ongoing"),
+                  ("Bisoprolol", "19484", "2.5 mg", "once daily", "oral", "ongoing")],
+            procedures=[
+                ("Aortic Valve Replacement (mechanical prosthesis)",
+                 "232717009", "Cardiac Surgery", "2023-11-12", "Dr. Manish Shakya",
+                 "Successful, uneventful recovery", "On-pump AVR for bicuspid valve; lifelong anticoagulation advised."),
+            ],
+        ),
+        dict(
+            department="Cardiology", physician="Dr. Bibek Rajbhandari",
+            date="2024-06-25", category="OPD", complaint="Warfarin dose titration",
+            conditions=[],
+            vitals=dict(sbp=120, dbp=76, pulse=72, temp=36.5, spo2=98, rr=16, height=174, weight=78, bmi=25.8),
+            labs=[
+                ("Coagulation Profile", "2024-01-15", {"INR": ("1.8", "H"), "Prothrombin Time": ("17.6", "H")}),
+                ("Coagulation Profile", "2024-06-25", {"INR": ("2.7", "H"), "Prothrombin Time": ("24.8", "H")}),
+            ],
+            meds=[("Warfarin", "11289", "6 mg", "once daily", "oral", "ongoing")],
+        ),
+    ],
+    "2345678924": [  # Puja — Norvic-only: iron deficiency anemia + subclinical hypothyroid
+        dict(
+            department="General Medicine & Travel Clinic", physician="Dr. Sabin Maharjan",
+            date="2024-02-19", category="OPD", complaint="Postpartum fatigue, palpitations",
+            conditions=[("Iron Deficiency Anemia", "D50.9", "2024-02-19"),
+                        ("Subclinical Hypothyroidism", "E03.9", "2024-02-19")],
+            vitals=dict(sbp=108, dbp=68, pulse=88, temp=36.5, spo2=99, rr=16, height=159, weight=54, bmi=21.4),
+            labs=[
+                ("Complete Blood Count", "2024-02-19", {"Hemoglobin": ("9.4", "L"), "Hematocrit": ("30", "L"), "Platelet Count": ("298", "N")}),
+                ("Complete Blood Count", "2024-09-10", {"Hemoglobin": ("11.8", "L"), "Hematocrit": ("36", "L"), "Platelet Count": ("264", "N")}),
+            ],
+            meds=[("Ferrous Ascorbate", "310965", "100 mg", "twice daily", "oral", "6 months"),
+                  ("Folic Acid", "4511", "5 mg", "once daily", "oral", "3 months")],
+        ),
+    ],
+    "2345678927": [  # Krishna — also at Mediciti + both labs; Norvic did the cardiac work-up
+        dict(
+            department="Cardiology", physician="Dr. Bibek Rajbhandari",
+            date="2024-06-14", category="OPD", complaint="Diabetic with exertional angina, for stress test",
+            conditions=[("Coronary Artery Disease", "I25.1", "2024-05-30"),
+                        ("Type 2 Diabetes Mellitus", "E11.9", "2014-03-01")],
+            vitals=dict(sbp=144, dbp=88, pulse=80, temp=36.6, spo2=97, rr=17, height=169, weight=83, bmi=29.1),
+            labs=[
+                ("Cardiac Markers", "2024-06-14", {"Troponin I": ("0.03", "N"), "NT-proBNP": ("168", "H"), "CRP": ("5.6", "H")}),
+                ("Blood Sugar", "2024-06-14", {"Fasting Blood Glucose": ("148", "H"), "HbA1c": ("7.4", "H")}),
+                ("Lipid Profile", "2024-06-14", {"Total Cholesterol": ("202", "H"), "LDL Cholesterol": ("124", "H"), "HDL Cholesterol": ("40", "N"), "Triglycerides": ("172", "H")}),
+            ],
+            meds=[("Clopidogrel", "32968", "75 mg", "once daily", "oral", "ongoing"),
+                  ("Metoprolol", "6918", "25 mg", "twice daily", "oral", "ongoing")],
+        ),
+    ],
 }
 
 # Immunizations per patient: (vaccine, cvx, dose, lot, site, route, date, by)
@@ -267,6 +434,30 @@ IMMUNIZATIONS = {
     ],
     "2345678910": [
         ("Influenza, seasonal", "141", "Annual", "FLU2024-95", "Left deltoid", "Intramuscular", "2024-05-14", "Nurse R. Lama"),
+    ],
+    # --- Expanded cohort immunizations ---
+    "2345678915": [
+        ("Influenza, seasonal", "141", "Annual", "FLU2024-101", "Left deltoid", "Intramuscular", "2024-08-02", "Nurse R. Lama"),
+        ("Pneumococcal (PCV13)", "133", "1", "PCV-2024-08", "Right deltoid", "Intramuscular", "2024-08-02", "Nurse R. Lama"),
+    ],
+    "2345678920": [
+        ("Hepatitis A", "52", "1", "HEPA-2024-14", "Left deltoid", "Intramuscular", "2024-04-12", "Nurse S. Thapa"),
+        ("Typhoid (Vi polysaccharide)", "101", "1", "TYP-2024-27", "Left deltoid", "Intramuscular", "2024-04-12", "Nurse S. Thapa"),
+        ("Tetanus-diphtheria (Td)", "5", "Booster", "TD-2024-44", "Right deltoid", "Intramuscular", "2024-04-12", "Nurse S. Thapa"),
+    ],
+    "2345678921": [
+        ("Influenza, seasonal", "141", "Annual", "FLU2024-108", "Left deltoid", "Intramuscular", "2024-03-05", "Nurse R. Lama"),
+        ("Pneumococcal (PCV13)", "133", "1", "PCV-2024-11", "Right deltoid", "Intramuscular", "2024-03-05", "Nurse R. Lama"),
+    ],
+    "2345678923": [
+        ("Influenza, seasonal", "141", "Annual", "FLU2023-64", "Left deltoid", "Intramuscular", "2023-11-09", "Nurse R. Lama"),
+        ("COVID-19 (Covishield)", "210", "Booster", "COV-BST-51", "Right deltoid", "Intramuscular", "2023-11-09", "Nurse R. Lama"),
+    ],
+    "2345678924": [
+        ("Tetanus-diphtheria (Td)", "5", "Booster", "TD-2024-58", "Left deltoid", "Intramuscular", "2024-02-19", "Nurse S. Thapa"),
+    ],
+    "2345678927": [
+        ("Influenza, seasonal", "141", "Annual", "FLU2024-117", "Left deltoid", "Intramuscular", "2024-06-14", "Nurse R. Lama"),
     ],
 }
 

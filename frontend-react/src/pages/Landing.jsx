@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
@@ -112,7 +112,7 @@ export default function Landing() {
   }
 
   return (
-    <div className="landing-theme font-body-md text-on-surface bg-background">
+    <div className="font-body-md text-on-surface bg-background">
       {/* Header */}
       <header className="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
         <div className="h-20 max-w-container-max mx-auto px-margin-desktop flex items-center justify-between">
@@ -129,18 +129,6 @@ export default function Landing() {
               href="#login-portal"
             >
               For Patients
-            </a>
-            <a
-              className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
-              href="#login-portal"
-            >
-              For Providers
-            </a>
-            <a
-              className="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
-              href="#features"
-            >
-              Statistics
             </a>
           </nav>
           <a
@@ -176,18 +164,39 @@ export default function Landing() {
               <rect fill="url(#grid)" height="100%" width="100%" />
             </svg>
           </div>
+          {/* Soft gradient blobs for depth */}
+          <div className="absolute -top-40 -left-40 w-[520px] h-[520px] rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -right-32 w-[460px] h-[460px] rounded-full bg-primary-fixed/40 blur-3xl pointer-events-none" />
           <div className="max-w-container-max mx-auto px-margin-desktop relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-stack-xl items-center">
               <div className="flex flex-col gap-stack-lg">
-                <h1 className="font-display-lg text-display-lg text-on-surface max-w-xl">
+                <span
+                  className="animate-fade-up inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary font-label-md text-label-md w-max"
+                >
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                  </span>
+                  Nepal's Unified Health Record Network
+                </span>
+                <h1
+                  className="animate-fade-up font-display-lg text-display-lg text-on-surface max-w-xl"
+                  style={{ animationDelay: "120ms" }}
+                >
                   All your health records in a single place.
                 </h1>
-                <p className="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
+                <p
+                  className="animate-fade-up font-body-lg text-body-lg text-on-surface-variant max-w-lg"
+                  style={{ animationDelay: "240ms" }}
+                >
                   Connecting citizens, hospitals, and the Ministry of Health
                   through a secure, federated national health data network
                   designed for clinical excellence.
                 </p>
-                <div className="flex flex-wrap gap-stack-md mt-stack-md">
+                <div
+                  className="animate-fade-up flex flex-wrap gap-stack-md mt-stack-md"
+                  style={{ animationDelay: "360ms" }}
+                >
                   <button
                     onClick={() => navigate("/activate")}
                     className="px-8 py-4 bg-primary text-on-primary rounded-xl font-title-lg shadow-xl hover:shadow-primary/20 transition-all flex items-center gap-stack-sm"
@@ -209,8 +218,10 @@ export default function Landing() {
               {/* Login card */}
               <div
                 id="login-portal"
-                className="bg-surface-container-lowest p-stack-xl rounded-3xl border border-outline-variant shadow-2xl max-w-md w-full mx-auto lg:ml-auto"
+                className="animate-fade-up relative max-w-md w-full mx-auto lg:ml-auto"
+                style={{ animationDelay: "200ms" }}
               >
+                <div className="bg-surface-container-lowest p-stack-xl rounded-3xl border border-outline-variant shadow-2xl">
                 <div className="text-center mb-6">
                   <h3 className="font-title-lg text-title-lg mb-2">
                     Portal Sign In
@@ -257,7 +268,7 @@ export default function Landing() {
                           onClick={() => setPatientMode(opt.key)}
                           className={`flex-1 py-2 rounded-lg font-label-md text-label-md transition-colors ${
                             patientMode === opt.key
-                              ? "bg-secondary text-on-secondary shadow"
+                              ? "bg-primary text-on-primary shadow"
                               : "text-on-surface-variant hover:bg-surface-container-high"
                           }`}
                         >
@@ -479,10 +490,13 @@ export default function Landing() {
                 >
                   Register Organization
                 </button>
+                </div>
               </div>
             </div>
           </div>
         </section>
+
+        <PartnerMarquee />
 
         <ShowcaseBand navigate={navigate} />
 
@@ -491,45 +505,62 @@ export default function Landing() {
         {/* Features */}
         <section id="features" className="py-24 bg-surface">
           <div className="max-w-container-max mx-auto px-margin-desktop">
-            <div className="flex flex-col gap-stack-sm mb-16 text-center max-w-2xl mx-auto">
-              <span className="font-label-md text-label-md text-secondary uppercase tracking-[0.2em]">
-                National Infrastructure
-              </span>
-              <h2 className="font-headline-lg text-headline-lg text-on-surface">
-                Designed for Resilience and Reach
-              </h2>
-            </div>
+            <Reveal>
+              <div className="flex flex-col gap-stack-sm mb-16 text-center max-w-2xl mx-auto">
+                <span className="font-label-md text-label-md text-primary uppercase tracking-[0.2em]">
+                  National Infrastructure
+                </span>
+                <h2 className="font-headline-lg text-headline-lg text-on-surface">
+                  Designed for Resilience and Reach
+                </h2>
+              </div>
+            </Reveal>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-stack-xl">
-              <Feature
-                icon="fingerprint"
-                title="Secure Identity"
-                body="National ID (NID) integration ensures every health record is accurately linked to the right individual."
-              />
-              <Feature
-                icon="travel_explore"
-                title="Seamless Portability"
-                body="Your records follow you across any province, so doctors can access your history instantly."
-              />
-              <Feature
-                icon="clinical_notes"
-                title="Empowered Doctors"
-                body="Real-time access to longitudinal patient history reduces diagnostic errors and duplicate testing."
-              />
+              {[
+                {
+                  icon: "fingerprint",
+                  title: "Secure Identity",
+                  body: "National ID (NID) integration ensures every health record is accurately linked to the right individual.",
+                },
+                {
+                  icon: "travel_explore",
+                  title: "Seamless Portability",
+                  body: "Your records follow you across any province, so doctors can access your history instantly.",
+                },
+                {
+                  icon: "clinical_notes",
+                  title: "Empowered Doctors",
+                  body: "Real-time access to longitudinal patient history reduces diagnostic errors and duplicate testing.",
+                },
+              ].map((f, i) => (
+                <Reveal key={f.title} delay={i * 130} className="h-full">
+                  <Feature {...f} />
+                </Reveal>
+              ))}
             </div>
           </div>
         </section>
 
+        {/* How it works */}
+        <HowItWorks />
+
         {/* Security band */}
         <section className="py-24 bg-primary text-on-primary relative overflow-hidden">
+          {/* Soft glow accents */}
+          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-32 -left-16 w-80 h-80 rounded-full bg-white/10 blur-3xl pointer-events-none" />
           <div className="max-w-container-max mx-auto px-margin-desktop relative z-10">
+            <Reveal>
             <div className="flex flex-col gap-stack-lg max-w-2xl">
               <h2 className="font-headline-lg text-headline-lg">
-                Institutional Grade Security
+                Your Records Stay Where They Belong
               </h2>
               <p className="font-body-lg text-body-lg text-on-primary/80">
-                NUHRS is governed by the Ministry of Health and Population,
-                using end-to-end encryption and a federated data architecture so
-                patient privacy is never compromised.
+                Hospitals and labs keep their own patient files — NUHRS stores
+                none of them. The platform holds only a minimal index used to
+                locate a record, and logs every access: which facility, which
+                staff member, and when. The Ministry of Health governs the
+                network; the data stays at its source.
               </p>
               <div className="grid grid-cols-2 gap-stack-md">
                 <Trust
@@ -541,6 +572,7 @@ export default function Landing() {
                 <Trust icon="analytics" label="Audit Logging" />
               </div>
             </div>
+            </Reveal>
           </div>
         </section>
       </main>
@@ -573,7 +605,7 @@ function ShowcaseBand({ navigate }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-stack-xl items-center">
           {/* Copy on the left */}
           <div className="flex flex-col gap-stack-lg order-2 lg:order-1">
-            <span className="font-label-md text-label-md text-secondary uppercase tracking-[0.2em]">
+            <span className="font-label-md text-label-md text-primary uppercase tracking-[0.2em]">
               One Network, Every Facility
             </span>
             <h2 className="font-headline-lg text-headline-lg text-on-surface max-w-lg">
@@ -652,7 +684,7 @@ function SubmitButton({ busy, label, busyLabel }) {
 
 function Feature({ icon, title, body }) {
   return (
-    <div className="group flex flex-col gap-stack-md p-stack-xl bg-surface-container-low rounded-2xl hover:bg-surface-container-high transition-all duration-300">
+    <div className="group flex flex-col gap-stack-md p-stack-xl bg-surface-container-low rounded-2xl hover:bg-surface-container-high hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
       <div className="w-16 h-16 bg-white rounded-xl shadow-md flex items-center justify-center group-hover:scale-110 transition-transform">
         <span className="material-symbols-outlined text-primary text-[32px]">
           {icon}
@@ -676,19 +708,32 @@ function Trust({ icon, label }) {
 }
 
 function StatsBand() {
+  // Real counters from the platform's public stats endpoint; the count-up
+  // animation runs toward whatever the API reports. If the platform is
+  // unreachable the band simply renders zeros rather than fake figures.
   const [patients, setPatients] = useState(0);
   const [facilities, setFacilities] = useState(0);
 
   useEffect(() => {
     let raf;
-    const start = performance.now();
-    const tick = (now) => {
-      const p = Math.min((now - start) / 1600, 1);
-      setPatients(p * 124);
-      setFacilities(Math.floor(p * 840));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
+    api
+      .publicStats()
+      .then(({ patients: p, facilities: f }) => {
+        const start = performance.now();
+        const tick = (now) => {
+          const t = Math.min((now - start) / 1600, 1);
+          const eased = 1 - Math.pow(1 - t, 3);
+          setPatients(Math.round(p * eased));
+          setFacilities(Math.round(f * eased));
+          if (t < 1) raf = requestAnimationFrame(tick);
+          else {
+            setPatients(p);
+            setFacilities(f);
+          }
+        };
+        raf = requestAnimationFrame(tick);
+      })
+      .catch(() => {});
     return () => cancelAnimationFrame(raf);
   }, []);
 
@@ -696,7 +741,7 @@ function StatsBand() {
     <section className="bg-surface py-stack-xl">
       <div className="max-w-container-max mx-auto px-margin-desktop">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter max-w-4xl mx-auto">
-          <div className="flex items-center gap-stack-lg p-stack-lg bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant">
+          <div className="flex items-center gap-stack-lg p-stack-lg bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
             <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
               <span className="material-symbols-outlined text-[32px]">
                 groups
@@ -704,15 +749,15 @@ function StatsBand() {
             </div>
             <div>
               <div className="font-display-lg text-[32px] text-on-surface tabular-nums">
-                {(patients / 10).toFixed(1)}M
+                {patients.toLocaleString()}
               </div>
               <div className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
                 Verified Patients
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-stack-lg p-stack-lg bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant">
-            <div className="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+          <div className="flex items-center gap-stack-lg p-stack-lg bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
               <span className="material-symbols-outlined text-[32px]">
                 local_hospital
               </span>
@@ -726,6 +771,147 @@ function StatsBand() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Scroll-triggered reveal wrapper. Starts hidden (see `.reveal` in index.css)
+// and slides/fades in the first time it enters the viewport. `delay` staggers
+// siblings so grids cascade left-to-right.
+function Reveal({ children, delay = 0, className = "" }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      style={{ transitionDelay: `${delay}ms` }}
+      className={`reveal ${visible ? "is-visible" : ""} ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+// Seamless auto-scrolling strip of federation members (real orgs from this
+// deployment). The track renders the list twice and CSS slides it by -50%;
+// hovering the band pauses the scroll.
+const PARTNERS = [
+  { name: "Nepal Mediciti Hospital", icon: "local_hospital" },
+  { name: "Norvic International Hospital", icon: "local_hospital" },
+  { name: "Central Diagnostic Laboratory", icon: "science" },
+  { name: "Pathlabs Nepal", icon: "science" },
+  { name: "SwasthyaEHR Hospital", icon: "local_hospital" },
+  { name: "Ministry of Health & Population", icon: "account_balance" },
+];
+
+function PartnerMarquee() {
+  return (
+    <section
+      aria-label="Member facilities"
+      className="marquee-band bg-surface-container-low border-y border-outline-variant py-stack-xl overflow-hidden"
+    >
+      <p className="text-center font-label-md text-label-md uppercase tracking-[0.2em] text-on-surface-variant mb-stack-lg px-margin-desktop">
+        A growing network of care providers
+      </p>
+      <div className="marquee-track gap-y-4">
+        {[0, 1].map((copy) => (
+          <div key={copy} className="flex items-center shrink-0" aria-hidden={copy === 1}>
+            {PARTNERS.map((p) => (
+              <span
+                key={`${copy}-${p.name}`}
+                className="mx-stack-xl inline-flex items-center gap-3 whitespace-nowrap font-title-lg text-title-lg text-on-surface-variant"
+              >
+                <span className="material-symbols-outlined text-primary text-[24px]">
+                  {p.icon}
+                </span>
+                {p.name}
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// Three-step patient journey with a dashed connector between the cards.
+const STEPS = [
+  {
+    n: "1",
+    icon: "how_to_reg",
+    title: "Activate with your NID",
+    body: "Register once using your national ID — your identity is verified against the NID database, no paperwork.",
+  },
+  {
+    n: "2",
+    icon: "local_hospital",
+    title: "Visit any member facility",
+    body: "Check in at any hospital or lab on the network. Doctors pull up your history instantly, with your consent.",
+  },
+  {
+    n: "3",
+    icon: "cloud_sync",
+    title: "Records follow you everywhere",
+    body: "Every visit, test, and prescription is added to one longitudinal record that travels across Nepal with you.",
+  },
+];
+
+function HowItWorks() {
+  return (
+    <section className="py-24 bg-surface-container-low overflow-hidden">
+      <div className="max-w-container-max mx-auto px-margin-desktop">
+        <Reveal>
+          <div className="flex flex-col gap-stack-sm mb-16 text-center max-w-2xl mx-auto">
+            <span className="font-label-md text-label-md text-primary uppercase tracking-[0.2em]">
+              Simple by Design
+            </span>
+            <h2 className="font-headline-lg text-headline-lg text-on-surface">
+              Three Steps to a Portable Health Record
+            </h2>
+          </div>
+        </Reveal>
+        <div className="relative grid grid-cols-1 md:grid-cols-3 gap-stack-xl mt-stack-xl">
+          {/* Dashed connector line behind the cards */}
+          <div className="hidden md:block absolute top-20 left-[18%] right-[18%] border-t-2 border-dashed border-outline-variant" />
+          {STEPS.map((s, i) => (
+            <Reveal key={s.title} delay={i * 140} className="h-full">
+              <div className="relative h-full flex flex-col gap-stack-md p-stack-xl bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                <div className="relative w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-primary text-[36px]">
+                    {s.icon}
+                  </span>
+                  <span className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center shadow-md">
+                    {s.n}
+                  </span>
+                </div>
+                <h3 className="font-title-lg text-title-lg text-on-surface">
+                  {s.title}
+                </h3>
+                <p className="font-body-md text-body-md text-on-surface-variant">
+                  {s.body}
+                </p>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>

@@ -113,18 +113,6 @@ html {
   --color-outline-variant: 192 199 211;
 }
 
-/* Public landing page — keeps the original blue primary (#007DCC) rather than
-   the teal the dashboards adopted in the doctor-dashboard redesign. Scoped to
-   the `.landing-theme` wrapper so no dashboard is affected; `secondary` is
-   already blue in :root, so only the primary family is overridden here. */
-.landing-theme {
-  --color-primary: 0 125 204;
-  --color-primary-container: 0 125 204;
-  --color-on-primary: 255 255 255;
-  --color-surface-tint: 0 125 204;
-  --color-inverse-primary: 156 202 255;
-}
-
 body {
   font-family: "Inter", sans-serif;
   background: #f8f9fa;
@@ -169,10 +157,98 @@ body {
   }
 }
 
-/* Print-to-PDF: the patient's printable record document lives off-canvas until
-   the browser print dialog is opened, then it (and only it) is made visible so
-   "Save as PDF" produces a clean records sheet without the app chrome. */
-.print-doc {
+/* Landing page motion utilities.
+   `animate-fade-up` = one-shot entrance (staggered via inline animationDelay).
+   `.reveal` = scroll-triggered fade/slide, toggled by the <Reveal> component
+   in Landing.jsx via an IntersectionObserver adding `.is-visible`.
+   The marquee is a seamless loop: the track renders its content twice and
+   slides by exactly -50%. All of it collapses under prefers-reduced-motion. */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-float {
+  animation: float-y 5s ease-in-out infinite;
+}
+
+.marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: marquee-scroll 30s linear infinite;
+}
+
+.marquee-band:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-float,
+  .marquee-track {
+    animation: none !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* Print-to-PDF: the patient's printable record lives in a dedicated
+   `#print-root` container appended directly to <body> (see PatientPortal.jsx,
+   which mounts <PrintableRecord> into it via createPortal). On screen the
+   container is parked off-canvas; when printing, every other direct child of
+   <body> is COLLAPSED with `display: none` — not merely hidden — so no empty
+   boxes remain in the layout and the PDF starts on the record itself.
+
+   Do not revert to a visibility-based approach: hiding suppresses painting but
+   keeps the layout box, which is exactly what produced blank leading pages. */
+#print-root {
   position: absolute;
   left: -10000px;
   top: 0;
@@ -182,21 +258,29 @@ body {
 @media print {
   @page {
     margin: 16mm;
+    size: A4;
   }
+  html,
   body {
     background: #ffffff;
+    height: auto !important;
+    overflow: visible !important;
   }
-  body * {
-    visibility: hidden !important;
+  /* Collapse the app shell entirely (layout included), keep only the record. */
+  body > *:not(#print-root) {
+    display: none !important;
   }
-  .print-doc,
-  .print-doc * {
-    visibility: visible !important;
+  #print-root {
+    display: block !important;
+    position: static !important;
+    left: 0 !important;
+    top: auto !important;
+    width: 100% !important;
   }
-  .print-doc {
-    position: static;
-    left: 0;
-    width: 100%;
+  #print-root .print-doc {
+    width: 100% !important;
+    position: static !important;
+    left: 0 !important;
   }
 }
 
