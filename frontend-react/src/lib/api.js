@@ -142,6 +142,8 @@ export const api = {
   listOrgs: (status) =>
     request("GET", `/orgs/${status ? "?status=" + status : ""}`),
   getActiveOrganizations: () => request("GET", "/orgs/active/", null, false),
+  // public aggregate counters for the landing page stats band
+  publicStats: () => request("GET", "/stats/public/", null, false),
   approveOrg: (id) => request("POST", `/orgs/${id}/approve/`),
   rejectOrg: (id) => request("POST", `/orgs/${id}/reject/`),
   suspendOrganization: (id) => request("POST", `/orgs/${id}/suspend/`),
@@ -149,6 +151,11 @@ export const api = {
   // staff
   listStaff: () => request("GET", "/staff/"),
   createStaff: (payload) => request("POST", "/staff/", payload),
+  // org-admin staff management (deactivate/reactivate + profile edit)
+  updateStaff: (id, payload) => request("PATCH", `/staff/${id}/`, payload),
+  // org-admin facility self-service
+  getFacility: () => request("GET", "/facility/"),
+  updateFacility: (payload) => request("PATCH", "/facility/", payload),
   // ministry user management
   getAllUsers: (filters) => {
     const qs = filters ? new URLSearchParams(filters).toString() : "";
@@ -180,6 +187,12 @@ export const api = {
   createAnnouncement: (payload) => request("POST", "/announcements/", payload),
   deleteAnnouncement: (id) => request("DELETE", `/announcements/${id}/`),
   // audit & analytics
-  audit: (nid) => request("GET", `/audit/${nid ? "?nid=" + nid : ""}`),
+  audit: (filters) => {
+    const qs = filters ? new URLSearchParams(filters).toString() : "";
+    return request("GET", `/audit/${qs ? "?" + qs : ""}`);
+  },
+  // the signed-in user's own access history (doctor dashboard feed)
+  myActivity: () => request("GET", "/me/activity/"),
   analytics: () => request("GET", "/analytics/summary/"),
+  facilityAnalytics: () => request("GET", "/analytics/facility/"),
 };

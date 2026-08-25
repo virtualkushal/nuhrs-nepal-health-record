@@ -16,7 +16,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from . import services
-from .permissions import IsExchangeUser, IsMinistryOrSuperAdmin
+from .permissions import IsAuditViewer, IsExchangeUser
 from .jwt_cookies import (
     REFRESH_COOKIE,
     clear_auth_cookies,
@@ -126,25 +126,46 @@ class ChangePasswordView(APIView):
 
 
 class AdminResetPasswordView(APIView):
-    """Super admin resets any user's password, issuing a one-time temp password."""
+    """
+    Issue a one-time temp password for a user account.
+      SUPER_ADMIN      -> any account
+      ORGANIZATION_ADMIN -> only non-admin staff of their OWN facility
+    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request, user_id):
-        if request.user.role != User.Role.SUPER_ADMIN:
-            return Response({"detail": "Only super admin"}, status=status.HTTP_403_FORBIDDEN)
+        user = request.user
+        if user.role not in (User.Role.SUPER_ADMIN, User.Role.ORGANIZATION_ADMIN):
+            return Response({"detail": "Only super admin or org admin"}, status=status.HTTP_403_FORBIDDEN)
         try:
-            user = User.objects.get(id=user_id)
+            target = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        # Org admins are confined to their own facility's clinical staff —
+        # never themselves, never another admin, never another org's user.
+        if user.role == User.Role.ORGANIZATION_ADMIN and (
+            target.organization_id != user.organization_id
+            or target.role
+            not in (User.Role.DOCTOR, User.Role.LAB_TECHNICIAN)
+        ):
+            return Response({"detail": "Not found"}, status=status.HTTP_404_NOT_FOUND)
         temp_password = services.generate_temp_password()
-        user.set_password(temp_password)
-        user.must_change_password = True
-        user.save()
+        target.set_password(temp_password)
+        target.must_change_password = True
+        target.save()
+        AuditLog.objects.create(
+            actor_user=user,
+            actor_org=user.organization,
+            nid="",
+            action=AuditLog.Action.PASSWORD_RESET,
+            target_orgs=target.username,
+            ip_address=client_ip(request),
+        )
         return Response({
             "detail": "Password reset",
             "temporary_password": temp_password,
-            "username": user.username,
-            "login_name": user.login_name or user.username,
+            "username": target.username,
+            "login_name": target.login_name or target.username,
         })
 
 
@@ -196,6 +217,45 @@ class CookieTokenRefreshView(APIView):
             )
         response = Response({"detail": "ok"})
         return set_auth_cookies(response, access=str(refresh.access_token))
+
+
+class MeActivityView(APIView):
+    """
+    The requesting user's OWN access history — the doctor-dashboard feed.
+    Scoped strictly to actor_user == request.user (unlike /audit/ which is
+    privileged). Returns recently accessed patients (de-duplicated by NID,
+    newest first, with patient names resolved from the MPI) plus a distinct
+    patient count.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        qs = (
+            AuditLog.objects.filter(actor_user=request.user)
+            .exclude(nid="")
+            .select_related("actor_user", "actor_org")
+            .order_by("-timestamp")[:200]
+        )
+        names = dict(
+            PatientIdentity.objects.filter(
+                nid__in=[row.nid for row in qs]
+            ).values_list("nid", "full_name")
+        )
+        seen = {}
+        for row in qs:
+            if row.nid not in seen:
+                seen[row.nid] = {
+                    "nid": row.nid,
+                    "name": names.get(row.nid) or row.nid,
+                    "action": row.action,
+                    "timestamp": row.timestamp,
+                }
+        recent = list(seen.values())
+        return Response({
+            "recent_patients": recent[:5],
+            "distinct_patients": len(recent),
+        })
 
 
 # ---------------------------------------------------------------------------
@@ -447,6 +507,25 @@ class ActiveOrganizationsView(APIView):
         return Response(list(orgs))
 
 
+class PublicStatsView(APIView):
+    """Public counters for the landing page stats band.
+
+    Returns only aggregate numbers — no user-identifying fields — so it is
+    safe to expose without authentication:
+      - patients:   registered patient accounts on the platform
+      - facilities: organizations currently ACTIVE in the federation
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response({
+            "patients": User.objects.filter(role=User.Role.PATIENT).count(),
+            "facilities": Organization.objects.filter(
+                status=Organization.Status.ACTIVE
+            ).count(),
+        })
+
+
 # ---------------------------------------------------------------------------
 # Organization admin — staff management
 # ---------------------------------------------------------------------------
@@ -501,6 +580,194 @@ class StaffView(APIView):
             {**StaffSerializer(user).data, "temporary_password": temp_password},
             status=status.HTTP_201_CREATED,
         )
+
+
+class StaffDetailView(APIView):
+    """
+    Org-admin management of one staff account, strictly own-facility:
+      PATCH {"is_active": false|true}  -> deactivate / reactivate (audited)
+      PATCH {"full_name": ..., "email": ...} -> profile edit (audited)
+    Cross-org or admin-role targets return 404 so other facilities' accounts
+    are not even enumerable.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        if request.user.role != User.Role.ORGANIZATION_ADMIN:
+            return Response({"detail": "Only org admin"}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            target = User.objects.get(
+                pk=pk,
+                organization=request.user.organization,
+                role__in=(User.Role.DOCTOR, User.Role.LAB_TECHNICIAN),
+            )
+        except User.DoesNotExist:
+            return Response({"detail": "Not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        data = request.data
+        if "is_active" in data:
+            new_state = bool(data["is_active"])
+            if target.is_active == new_state:
+                return Response(
+                    {"detail": "Account is already " + ("active" if new_state else "inactive")},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            target.is_active = new_state
+            target.save(update_fields=["is_active"])
+            AuditLog.objects.create(
+                actor_user=request.user,
+                actor_org=request.user.organization,
+                nid="",
+                action=(
+                    AuditLog.Action.STAFF_REACTIVATE
+                    if new_state
+                    else AuditLog.Action.STAFF_DEACTIVATE
+                ),
+                target_orgs=target.username,
+                ip_address=client_ip(request),
+            )
+
+        profile_fields = {}
+        if "full_name" in data:
+            full_name = (data.get("full_name") or "").strip()
+            if not full_name:
+                return Response({"detail": "Full name cannot be empty"}, status=status.HTTP_400_BAD_REQUEST)
+            profile_fields["full_name"] = full_name
+        if "email" in data:
+            email = (data.get("email") or "").strip()
+            email_serializer = serializers.EmailField()
+            try:
+                profile_fields["email"] = email_serializer.run_validation(email)
+            except serializers.ValidationError as exc:
+                return Response({"detail": exc.detail[0]}, status=status.HTTP_400_BAD_REQUEST)
+        if profile_fields:
+            for field, value in profile_fields.items():
+                setattr(target, field, value)
+            target.save(update_fields=list(profile_fields.keys()))
+            AuditLog.objects.create(
+                actor_user=request.user,
+                actor_org=request.user.organization,
+                nid="",
+                action=AuditLog.Action.STAFF_UPDATE,
+                target_orgs=target.username,
+                ip_address=client_ip(request),
+            )
+
+        if "is_active" not in data and not profile_fields:
+            return Response(
+                {"detail": "Nothing to update (send is_active, full_name or email)"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return Response(StaffSerializer(target).data)
+
+
+class FacilityView(APIView):
+    """
+    The org admin's own facility record. GET returns it; PATCH updates ONLY the
+    contact fields (never status, license_number, api_key or org code).
+    """
+
+    permission_classes = [IsAuthenticated]
+    EDITABLE_FIELDS = ("contact_email", "contact_phone")
+
+    def get(self, request):
+        if request.user.role != User.Role.ORGANIZATION_ADMIN:
+            return Response({"detail": "Only org admin"}, status=status.HTTP_403_FORBIDDEN)
+        if not request.user.organization:
+            return Response({"detail": "No organization"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(OrganizationSerializer(request.user.organization).data)
+
+    def patch(self, request):
+        if request.user.role != User.Role.ORGANIZATION_ADMIN:
+            return Response({"detail": "Only org admin"}, status=status.HTTP_403_FORBIDDEN)
+        org = request.user.organization
+        if not org:
+            return Response({"detail": "No organization"}, status=status.HTTP_404_NOT_FOUND)
+
+        updates = {}
+        if "contact_email" in request.data:
+            email_serializer = serializers.EmailField()
+            try:
+                updates["contact_email"] = email_serializer.run_validation(request.data["contact_email"])
+            except serializers.ValidationError as exc:
+                return Response({"detail": exc.detail[0]}, status=status.HTTP_400_BAD_REQUEST)
+        if "contact_phone" in request.data:
+            try:
+                updates["contact_phone"] = validate_phone(request.data["contact_phone"])
+            except serializers.ValidationError as exc:
+                return Response({"detail": exc.detail[0]}, status=status.HTTP_400_BAD_REQUEST)
+        ignored = [f for f in request.data if f not in self.EDITABLE_FIELDS]
+        if ignored:
+            return Response(
+                {"detail": f"These fields cannot be changed here: {', '.join(sorted(ignored))}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not updates:
+            return Response(
+                {"detail": "Nothing to update (send contact_email and/or contact_phone)"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        for field, value in updates.items():
+            setattr(org, field, value)
+        org.save(update_fields=list(updates.keys()))
+        AuditLog.objects.create(
+            actor_user=request.user,
+            actor_org=org,
+            nid="",
+            action=AuditLog.Action.ORG_UPDATE,
+            target_orgs=org.organization_code or org.organization_name,
+            ip_address=client_ip(request),
+        )
+        return Response(OrganizationSerializer(org).data)
+
+
+class FacilityAnalyticsView(APIView):
+    """
+    Facility-scoped analytics for the org admin: this org's indexed records,
+    its exchange activity, and staff headcount. National aggregates remain on
+    analytics/summary/ (super admin + ministry only).
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != User.Role.ORGANIZATION_ADMIN:
+            return Response({"detail": "Only org admin"}, status=status.HTTP_403_FORBIDDEN)
+        org = request.user.organization
+        if not org:
+            return Response({"detail": "No organization"}, status=status.HTTP_404_NOT_FOUND)
+
+        from django.db.models import Count
+
+        by_resource_type = list(
+            RecordIndex.objects.filter(organization=org)
+            .values("resource_type")
+            .annotate(count=Count("id"))
+            .order_by("-count")
+        )
+        fetches_by_my_staff = AuditLog.objects.filter(
+            actor_org=org,
+            action__in=[AuditLog.Action.FETCH_ALL, AuditLog.Action.FETCH_ONE],
+        ).count()
+        fetches_of_my_records = AuditLog.objects.filter(
+            record_index__organization=org,
+            action__in=[AuditLog.Action.FETCH_ALL, AuditLog.Action.FETCH_ONE],
+        ).count()
+        staff_by_role = list(
+            User.objects.filter(organization=org)
+            .values("role")
+            .annotate(count=Count("id"))
+            .order_by("role")
+        )
+        return Response({
+            "organization_code": org.organization_code,
+            "organization_name": org.organization_name,
+            "records_indexed": RecordIndex.objects.filter(organization=org).count(),
+            "by_resource_type": by_resource_type,
+            "fetches_by_my_staff": fetches_by_my_staff,
+            "fetches_of_my_records": fetches_of_my_records,
+            "staff_by_role": staff_by_role,
+        })
 
 
 class AllUsersView(APIView):
@@ -873,10 +1140,29 @@ class IndexIngestView(APIView):
 # Audit & analytics
 # ---------------------------------------------------------------------------
 class AuditLogView(APIView):
-    permission_classes = [IsAuthenticated, IsMinistryOrSuperAdmin]
+    """
+    Accountability trail, scoped by role:
+      SUPER_ADMIN / MINISTRY  -> the full national log
+      ORGANIZATION_ADMIN      -> only rows authored by their own facility
+      everyone else           -> 403 (patients must never browse access history)
+    """
+
+    permission_classes = [IsAuthenticated, IsAuditViewer]
 
     def get(self, request):
+        user = request.user
+        if user.role not in (
+            User.Role.SUPER_ADMIN,
+            User.Role.MINISTRY,
+            User.Role.ORGANIZATION_ADMIN,
+        ):
+            return Response(
+                {"detail": "Only super admin, ministry or org admin"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         qs = AuditLog.objects.all().select_related("actor_user", "actor_org")
+        if user.role == User.Role.ORGANIZATION_ADMIN:
+            qs = qs.filter(actor_org=user.organization)
         if request.query_params.get("nid"):
             qs = qs.filter(nid=request.query_params["nid"])
         if request.query_params.get("action"):

@@ -24,6 +24,18 @@ DEMOGRAPHICS = {
     # Cross-facility demo patients — match Mediciti / Norvic / Pathlabs seeds.
     "2345678909": {"name": "Laxmi Maya Tamang", "dob": "1993-04-14", "gender": "FEMALE", "phone": "9842000001"},
     "2345678910": {"name": "Kiran Bahadur Limbu", "dob": "1985-09-19", "gender": "MALE", "phone": "9842000002"},
+    # Expanded federation cohort — MUST match Mediciti / Norvic / Pathlabs / Swastha.
+    "2345678911": {"name": "Bishnu Prasad Ghimire", "dob": "1968-03-22", "gender": "MALE", "phone": "9841000011"},
+    "2345678912": {"name": "Kamala Devi Bhattarai", "dob": "1974-08-15", "gender": "FEMALE", "phone": "9841000012"},
+    "2345678913": {"name": "Suresh Maharjan", "dob": "1982-06-30", "gender": "MALE", "phone": "9841000013"},
+    "2345678915": {"name": "Prakash Bahadur Magar", "dob": "1963-11-27", "gender": "MALE", "phone": "9841000015"},
+    "2345678918": {"name": "Mina Kumari Adhikari", "dob": "1986-12-12", "gender": "FEMALE", "phone": "9841000018"},
+    "2345678919": {"name": "Dipendra Bhandari", "dob": "1971-07-08", "gender": "MALE", "phone": "9841000019"},
+    "2345678922": {"name": "Sabina Karki", "dob": "1992-10-03", "gender": "FEMALE", "phone": "9841000022"},
+    "2345678924": {"name": "Puja Sharma Poudel", "dob": "1993-06-14", "gender": "FEMALE", "phone": "9841000024"},
+    "2345678925": {"name": "Manoj Kumar Tamang", "dob": "1976-03-11", "gender": "MALE", "phone": "9841000025"},
+    "2345678927": {"name": "Krishna Bahadur Khadka", "dob": "1966-12-01", "gender": "MALE", "phone": "9841000027"},
+    "2345678930": {"name": "Bimala Thapa Chhetri", "dob": "1997-03-28", "gender": "FEMALE", "phone": "9841000030"},
 }
 
 # Central Diagnostic (LAB001) comprehensive test menu: distribute panels across
@@ -179,6 +191,269 @@ REPORTS_LAB001 = [
         "visits": [
             ("2024-05-12", "Mildly elevated creatinine", {
                 "Urea": "48", "Blood Urea Nitrogen": "22", "Creatinine": "1.4", "Uric Acid": "7.8"}),
+        ],
+    },
+
+    # ---------------- Expanded federation cohort (NIDs ...11 .. ...30) ----------------
+    # Bishnu (NID 11) — diabetic control + renal decline mirroring Mediciti's trend
+    {
+        "nid": "2345678911", "panel": "Diabetic Profile", "doctor": "Dr. Sharma",
+        "visits": [
+            ("2022-09-14", "Uncontrolled diabetes", {
+                "Fasting Blood Sugar": "196", "Postprandial Blood Sugar": "268", "HbA1c": "8.9"}),
+            ("2023-04-20", "Improving on metformin", {
+                "Fasting Blood Sugar": "174", "Postprandial Blood Sugar": "232", "HbA1c": "8.1"}),
+            ("2024-04-24", "Approaching target", {
+                "Fasting Blood Sugar": "152", "Postprandial Blood Sugar": "198", "HbA1c": "7.4"}),
+        ],
+    },
+    {
+        "nid": "2345678911", "panel": "Renal Function Test", "doctor": "Dr. Adhikari",
+        "visits": [
+            ("2023-10-16", "Early diabetic nephropathy", {
+                "Urea": "44", "Blood Urea Nitrogen": "21", "Creatinine": "1.3", "Uric Acid": "7.4"}),
+            ("2024-06-22", "Progressive nephropathy", {
+                "Urea": "56", "Blood Urea Nitrogen": "26", "Creatinine": "1.7", "Uric Acid": "7.9"}),
+        ],
+    },
+    # Kamala (NID 12) — thyroid + anemia recovery series
+    {
+        "nid": "2345678912", "panel": "Thyroid Function Test", "doctor": "Dr. Rai",
+        "visits": [
+            ("2022-11-10", "Overt hypothyroidism", {
+                "TSH": "11.4", "Free T3": "2.0", "Free T4": "0.6"}),
+            ("2023-06-17", "Improving on levothyroxine", {
+                "TSH": "6.2", "Free T3": "2.5", "Free T4": "0.9"}),
+            ("2024-05-11", "Euthyroid on treatment", {
+                "TSH": "3.1", "Free T3": "3.0", "Free T4": "1.2"}),
+        ],
+    },
+    {
+        "nid": "2345678912", "panel": "Complete Blood Count", "doctor": "Dr. Gurung",
+        "visits": [
+            ("2022-11-10", "Microcytic anemia", {
+                "Hemoglobin": "9.6", "Total RBC Count": "3.9", "Total WBC Count": "6800", "Platelet Count": "302",
+                "Hematocrit": "30", "MCV": "74", "MCH": "24", "MCHC": "30"}),
+            ("2024-05-11", "Anemia resolving", {
+                "Hemoglobin": "11.9", "Total RBC Count": "4.4", "Total WBC Count": "7100", "Platelet Count": "288",
+                "Hematocrit": "36", "MCV": "82", "MCH": "27", "MCHC": "32"}),
+        ],
+    },
+    {
+        "nid": "2345678912", "panel": "Iron Studies", "doctor": "Dr. Gurung",
+        "visits": [
+            ("2022-11-10", "Iron deficiency", {
+                "Serum Iron": "34", "Ferritin": "9", "TIBC": "438"}),
+            ("2024-05-11", "Iron stores replete", {
+                "Serum Iron": "72", "Ferritin": "34", "TIBC": "362"}),
+        ],
+    },
+    # Suresh (NID 13) — lipid + LFT improvement on statin and weight loss
+    {
+        "nid": "2345678913", "panel": "Lipid Profile", "doctor": "Dr. Sharma",
+        "visits": [
+            ("2023-02-22", "Mixed dyslipidemia", {
+                "Total Cholesterol": "262", "LDL Cholesterol": "178", "HDL Cholesterol": "34", "Triglycerides": "286"}),
+            ("2023-09-27", "Partial response", {
+                "Total Cholesterol": "228", "LDL Cholesterol": "148", "HDL Cholesterol": "38", "Triglycerides": "218"}),
+            ("2024-08-14", "Good response to statin", {
+                "Total Cholesterol": "192", "LDL Cholesterol": "112", "HDL Cholesterol": "44", "Triglycerides": "158"}),
+        ],
+    },
+    {
+        "nid": "2345678913", "panel": "Liver Function Test", "doctor": "Dr. Adhikari",
+        "visits": [
+            ("2023-09-27", "Transaminitis consistent with NAFLD", {
+                "Total Bilirubin": "1.0", "Direct Bilirubin": "0.3", "SGPT / ALT": "86", "SGOT / AST": "64",
+                "Alkaline Phosphatase": "132", "Total Protein": "7.4", "Albumin": "4.3"}),
+            ("2024-08-14", "Transaminases normalized", {
+                "Total Bilirubin": "0.9", "Direct Bilirubin": "0.2", "SGPT / ALT": "52", "SGOT / AST": "38",
+                "Alkaline Phosphatase": "112", "Total Protein": "7.2", "Albumin": "4.4"}),
+        ],
+    },
+    # Prakash (NID 15) — post-MI lipid control + cardiac markers
+    {
+        "nid": "2345678915", "panel": "Lipid Profile", "doctor": "Dr. Sharma",
+        "visits": [
+            ("2023-03-16", "Dyslipidemia in established CAD", {
+                "Total Cholesterol": "236", "LDL Cholesterol": "158", "HDL Cholesterol": "35", "Triglycerides": "204"}),
+            ("2024-07-21", "At target on high-dose statin", {
+                "Total Cholesterol": "168", "LDL Cholesterol": "84", "HDL Cholesterol": "42", "Triglycerides": "148"}),
+        ],
+    },
+    {
+        "nid": "2345678915", "panel": "Cardiac Markers", "doctor": "Dr. Rai",
+        "visits": [
+            ("2024-07-21", "No acute myocardial injury; raised D-Dimer", {
+                "Troponin I": "0.03", "CK-MB": "3.4", "D-Dimer": "680"}),
+        ],
+    },
+    # Mina (NID 18) — thyroid normalization + healthy renal baseline
+    {
+        "nid": "2345678918", "panel": "Thyroid Function Test", "doctor": "Dr. Rai",
+        "visits": [
+            ("2023-02-01", "Hypothyroidism", {
+                "TSH": "9.8", "Free T3": "2.2", "Free T4": "0.7"}),
+            ("2024-02-14", "Euthyroid on levothyroxine", {
+                "TSH": "3.6", "Free T3": "3.1", "Free T4": "1.1"}),
+        ],
+    },
+    {
+        "nid": "2345678918", "panel": "Renal Function Test", "doctor": "Dr. Adhikari",
+        "visits": [
+            ("2024-02-14", "Normal renal function", {
+                "Urea": "30", "Blood Urea Nitrogen": "14", "Creatinine": "0.9", "Uric Acid": "5.1"}),
+        ],
+    },
+    # Dipendra (NID 19) — CKD progression with worsening anemia
+    {
+        "nid": "2345678919", "panel": "Renal Function Test", "doctor": "Dr. Adhikari",
+        "visits": [
+            ("2022-08-19", "CKD stage 3 with hyperuricemia", {
+                "Urea": "58", "Blood Urea Nitrogen": "27", "Creatinine": "1.8", "Uric Acid": "8.9"}),
+            ("2023-03-24", "Declining function", {
+                "Urea": "70", "Blood Urea Nitrogen": "33", "Creatinine": "2.2", "Uric Acid": "9.4"}),
+            ("2024-09-06", "Further decline", {
+                "Urea": "84", "Blood Urea Nitrogen": "39", "Creatinine": "2.7", "Uric Acid": "8.6"}),
+        ],
+    },
+    {
+        "nid": "2345678919", "panel": "Complete Blood Count", "doctor": "Dr. Gurung",
+        "visits": [
+            ("2023-03-24", "Anemia of chronic kidney disease", {
+                "Hemoglobin": "10.2", "Total RBC Count": "3.7", "Total WBC Count": "7400", "Platelet Count": "244",
+                "Hematocrit": "31", "MCV": "86", "MCH": "28", "MCHC": "32"}),
+            ("2024-09-06", "Worsening renal anemia", {
+                "Hemoglobin": "9.3", "Total RBC Count": "3.4", "Total WBC Count": "7100", "Platelet Count": "236",
+                "Hematocrit": "28", "MCV": "85", "MCH": "28", "MCHC": "32"}),
+        ],
+    },
+    {
+        "nid": "2345678919", "panel": "Electrolyte Panel", "doctor": "Dr. Paudel",
+        "visits": [
+            ("2024-09-06", "Hyperkalemia in CKD", {
+                "Sodium": "137", "Potassium": "5.4", "Chloride": "105", "Calcium": "8.4"}),
+        ],
+    },
+    # Sabina (NID 22) — PCOS metabolic screen + vitamin deficiency
+    {
+        "nid": "2345678922", "panel": "Diabetic Profile", "doctor": "Dr. Sharma",
+        "visits": [
+            ("2023-07-13", "Insulin resistance / pre-diabetes", {
+                "Fasting Blood Sugar": "104", "Postprandial Blood Sugar": "148", "HbA1c": "5.8"}),
+            ("2024-06-20", "Normoglycemic on metformin", {
+                "Fasting Blood Sugar": "94", "Postprandial Blood Sugar": "126", "HbA1c": "5.4"}),
+        ],
+    },
+    {
+        "nid": "2345678922", "panel": "Thyroid Function Test", "doctor": "Dr. Rai",
+        "visits": [
+            ("2023-07-13", "Subclinical hypothyroidism", {
+                "TSH": "5.8", "Free T3": "2.8", "Free T4": "1.0"}),
+            ("2024-06-20", "Normalized TSH", {
+                "TSH": "3.9", "Free T3": "3.0", "Free T4": "1.1"}),
+        ],
+    },
+    {
+        "nid": "2345678922", "panel": "Vitamin Assay", "doctor": "Dr. Thapa",
+        "visits": [
+            ("2023-07-13", "Vitamin D deficiency", {
+                "Vitamin D (25-OH)": "14", "Vitamin B12": "310"}),
+            ("2024-06-20", "Vitamin D repleted", {
+                "Vitamin D (25-OH)": "36", "Vitamin B12": "420"}),
+        ],
+    },
+    # Puja (NID 24) — postpartum anemia work-up (Norvic patient, labs here)
+    {
+        "nid": "2345678924", "panel": "Complete Blood Count", "doctor": "Dr. Gurung",
+        "visits": [
+            ("2024-02-21", "Moderate microcytic anemia", {
+                "Hemoglobin": "9.4", "Total RBC Count": "3.8", "Total WBC Count": "8200", "Platelet Count": "298",
+                "Hematocrit": "30", "MCV": "76", "MCH": "25", "MCHC": "31"}),
+            ("2024-09-12", "Anemia corrected", {
+                "Hemoglobin": "11.8", "Total RBC Count": "4.5", "Total WBC Count": "7600", "Platelet Count": "264",
+                "Hematocrit": "36", "MCV": "84", "MCH": "28", "MCHC": "33"}),
+        ],
+    },
+    {
+        "nid": "2345678924", "panel": "Iron Studies", "doctor": "Dr. Gurung",
+        "visits": [
+            ("2024-02-21", "Depleted iron stores", {
+                "Serum Iron": "31", "Ferritin": "7", "TIBC": "462"}),
+            ("2024-09-12", "Iron replete", {
+                "Serum Iron": "84", "Ferritin": "42", "TIBC": "348"}),
+        ],
+    },
+    # Manoj (NID 25) — scrub typhus AKI recovery (LFT + renal at Central)
+    {
+        "nid": "2345678925", "panel": "Liver Function Test", "doctor": "Dr. Adhikari",
+        "visits": [
+            ("2024-09-18", "Rickettsial hepatitis", {
+                "Total Bilirubin": "1.6", "Direct Bilirubin": "0.6", "SGPT / ALT": "108", "SGOT / AST": "126",
+                "Alkaline Phosphatase": "164", "Total Protein": "6.6", "Albumin": "3.1"}),
+            ("2024-09-24", "Recovering", {
+                "Total Bilirubin": "1.0", "Direct Bilirubin": "0.3", "SGPT / ALT": "64", "SGOT / AST": "58",
+                "Alkaline Phosphatase": "128", "Total Protein": "6.9", "Albumin": "3.6"}),
+        ],
+    },
+    {
+        "nid": "2345678925", "panel": "Renal Function Test", "doctor": "Dr. Adhikari",
+        "visits": [
+            ("2024-09-18", "Acute kidney injury", {
+                "Urea": "78", "Blood Urea Nitrogen": "36", "Creatinine": "2.4", "Uric Acid": "8.2"}),
+            ("2024-09-24", "AKI resolving with hydration", {
+                "Urea": "40", "Blood Urea Nitrogen": "19", "Creatinine": "1.3", "Uric Acid": "6.4"}),
+        ],
+    },
+    # Krishna (NID 27) — 4-source star: long diabetic + lipid series at Central
+    {
+        "nid": "2345678927", "panel": "Diabetic Profile", "doctor": "Dr. Sharma",
+        "visits": [
+            ("2021-05-21", "Poorly controlled diabetes", {
+                "Fasting Blood Sugar": "212", "Postprandial Blood Sugar": "298", "HbA1c": "9.6"}),
+            ("2022-06-24", "Improving", {
+                "Fasting Blood Sugar": "188", "Postprandial Blood Sugar": "262", "HbA1c": "8.8"}),
+            ("2023-07-15", "Continued improvement", {
+                "Fasting Blood Sugar": "164", "Postprandial Blood Sugar": "224", "HbA1c": "8.0"}),
+            ("2024-07-28", "Near target", {
+                "Fasting Blood Sugar": "142", "Postprandial Blood Sugar": "192", "HbA1c": "7.2"}),
+        ],
+    },
+    {
+        "nid": "2345678927", "panel": "Lipid Profile", "doctor": "Dr. Sharma",
+        "visits": [
+            ("2021-05-21", "Severe mixed dyslipidemia", {
+                "Total Cholesterol": "268", "LDL Cholesterol": "184", "HDL Cholesterol": "32", "Triglycerides": "264"}),
+            ("2024-07-28", "Controlled on statin", {
+                "Total Cholesterol": "196", "LDL Cholesterol": "116", "HDL Cholesterol": "41", "Triglycerides": "162"}),
+        ],
+    },
+    # Bimala (NID 30) — young-adult anemia + vitamin deficiency screen
+    {
+        "nid": "2345678930", "panel": "Complete Blood Count", "doctor": "Dr. Gurung",
+        "visits": [
+            ("2024-01-20", "Microcytic hypochromic anemia", {
+                "Hemoglobin": "10.4", "Total RBC Count": "4.1", "Total WBC Count": "6900", "Platelet Count": "312",
+                "Hematocrit": "33", "MCV": "77", "MCH": "25", "MCHC": "31"}),
+            ("2024-08-08", "Improved on oral iron", {
+                "Hemoglobin": "12.2", "Total RBC Count": "4.5", "Total WBC Count": "7200", "Platelet Count": "286",
+                "Hematocrit": "37", "MCV": "83", "MCH": "28", "MCHC": "33"}),
+        ],
+    },
+    {
+        "nid": "2345678930", "panel": "Vitamin Assay", "doctor": "Dr. Thapa",
+        "visits": [
+            ("2024-01-20", "Severe vitamin D deficiency", {
+                "Vitamin D (25-OH)": "11", "Vitamin B12": "268"}),
+            ("2024-08-08", "Vitamin D corrected", {
+                "Vitamin D (25-OH)": "34", "Vitamin B12": "412"}),
+        ],
+    },
+    {
+        "nid": "2345678930", "panel": "Thyroid Function Test", "doctor": "Dr. Rai",
+        "visits": [
+            ("2024-01-20", "Subclinical hypothyroidism", {
+                "TSH": "5.4", "Free T3": "2.9", "Free T4": "1.0"}),
         ],
     },
 ]

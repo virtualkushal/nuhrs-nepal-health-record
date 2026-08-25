@@ -10,6 +10,7 @@ urlpatterns = [
     path("auth/csrf/", views.CsrfView.as_view()),
     path("auth/change-password/", views.ChangePasswordView.as_view()),
     path("auth/me/", views.me),
+    path("me/activity/", views.MeActivityView.as_view()),
 
     # single sign-on (seamless doctor handoff from a trusted facility)
     path("auth/sso-exchange/", views.SSOExchangeView.as_view()),
@@ -19,6 +20,7 @@ urlpatterns = [
     # organizations
     path("orgs/", views.OrganizationListView.as_view()),
     path("orgs/active/", views.ActiveOrganizationsView.as_view()),
+    path("stats/public/", views.PublicStatsView.as_view()),
     path("orgs/register/", views.OrganizationRegisterView.as_view()),
     path("orgs/<int:pk>/approve/", views.OrganizationApproveView.as_view()),
     path("orgs/<int:pk>/reject/", views.OrganizationRejectView.as_view()),
@@ -27,6 +29,10 @@ urlpatterns = [
 
     # staff
     path("staff/", views.StaffView.as_view()),
+    path("staff/<int:pk>/", views.StaffDetailView.as_view()),
+
+    # org admin facility self-service
+    path("facility/", views.FacilityView.as_view()),
 
     # ministry user management
     path("users/", views.AllUsersView.as_view()),
@@ -57,4 +63,5 @@ urlpatterns = [
     # audit & analytics
     path("audit/", views.AuditLogView.as_view()),
     path("analytics/summary/", views.AnalyticsSummaryView.as_view()),
+    path("analytics/facility/", views.FacilityAnalyticsView.as_view()),
 ]

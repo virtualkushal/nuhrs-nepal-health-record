@@ -24,6 +24,30 @@ class IsMinistryOrSuperAdmin(BasePermission):
         )
 
 
+class IsAuditViewer(BasePermission):
+    """Audit trail access.
+
+    Ministry + Super Admin read the full national log; an Organization Admin
+    reads only rows authored by their own facility (the per-facility scoping is
+    applied inside the view). Doctors, lab technicians and patients are refused
+    outright — they must never browse access history.
+    """
+
+    message = "You do not have permission to view the audit trail."
+
+    def has_permission(self, request, view):
+        user = getattr(request, "user", None)
+        return bool(
+            user
+            and user.is_authenticated
+            and user.role in (
+                User.Role.SUPER_ADMIN,
+                User.Role.MINISTRY,
+                User.Role.ORGANIZATION_ADMIN,
+            )
+        )
+
+
 class IsExchangeUser(BasePermission):
     """Federated exchange (patient lookup / index / fetch by NID).
 
