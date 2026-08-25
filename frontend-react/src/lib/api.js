@@ -75,6 +75,8 @@ export const api = {
   listOrgs: (status) =>
     request("GET", `/orgs/${status ? "?status=" + status : ""}`),
   getActiveOrganizations: () => request("GET", "/orgs/active/", null, false),
+  // public aggregate counters for the landing page stats band
+  publicStats: () => request("GET", "/stats/public/", null, false),
   approveOrg: (id) => request("POST", `/orgs/${id}/approve/`),
   rejectOrg: (id) => request("POST", `/orgs/${id}/reject/`),
   suspendOrganization: (id) => request("POST", `/orgs/${id}/suspend/`),

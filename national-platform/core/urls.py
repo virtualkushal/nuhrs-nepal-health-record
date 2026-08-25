@@ -19,6 +19,7 @@ urlpatterns = [
     # organizations
     path("orgs/", views.OrganizationListView.as_view()),
     path("orgs/active/", views.ActiveOrganizationsView.as_view()),
+    path("stats/public/", views.PublicStatsView.as_view()),
     path("orgs/register/", views.OrganizationRegisterView.as_view()),
     path("orgs/<int:pk>/approve/", views.OrganizationApproveView.as_view()),
     path("orgs/<int:pk>/reject/", views.OrganizationRejectView.as_view()),

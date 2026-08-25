@@ -449,6 +449,25 @@ class ActiveOrganizationsView(APIView):
         return Response(list(orgs))
 
 
+class PublicStatsView(APIView):
+    """Public counters for the landing page stats band.
+
+    Returns only aggregate numbers — no user-identifying fields — so it is
+    safe to expose without authentication:
+      - patients:   registered patient accounts on the platform
+      - facilities: organizations currently ACTIVE in the federation
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response({
+            "patients": User.objects.filter(role=User.Role.PATIENT).count(),
+            "facilities": Organization.objects.filter(
+                status=Organization.Status.ACTIVE
+            ).count(),
+        })
+
+
 # ---------------------------------------------------------------------------
 # Organization admin — staff management
 # ---------------------------------------------------------------------------
