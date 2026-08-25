@@ -210,7 +210,7 @@ function TrendChart({ group, sourceColor }) {
         </text>
 
         {/* The trend line */}
-        <path d={linePath} fill="none" stroke="#007DCC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={linePath} fill="none" stroke="rgb(var(--color-primary))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 
         {/* Data points coloured by source */}
         {points.map((p, i) => (

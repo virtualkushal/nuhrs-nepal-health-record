@@ -12,35 +12,26 @@ export default function DoctorHome({ onSearch }) {
   const [invalid, setInvalid] = useState(false);
   const [facilities, setFacilities] = useState([]);
   const [recents, setRecents] = useState([]);
+  const [reviewed, setReviewed] = useState(0);
 
   const doctorName = user?.full_name || user?.username || "Doctor";
   const orgName = user?.organization_name || "Your Facility";
 
-  // Pull live network facilities + recent audit activity where available.
+  // Pull live network facilities + this doctor's own recent access activity.
   useEffect(() => {
     (async () => {
       try {
-        const orgs = await api.listOrgs("APPROVED");
+        // Valid registry statuses are ACTIVE / PENDING / SUSPENDED / REJECTED.
+        const orgs = await api.listOrgs("ACTIVE");
         setFacilities(Array.isArray(orgs) ? orgs.slice(0, 5) : []);
       } catch {
         setFacilities([]);
       }
       try {
-        const events = await api.audit();
-        // De-dupe recently accessed patients by NID from the audit trail.
-        const seen = new Map();
-        for (const e of Array.isArray(events) ? events : []) {
-          const key = e.patient_nid || e.nid;
-          if (key && !seen.has(key)) {
-            seen.set(key, {
-              nid: key,
-              name: e.patient_name || e.patient || key,
-              when: e.created_at || e.timestamp || "",
-              action: e.action || "Accessed",
-            });
-          }
-        }
-        setRecents([...seen.values()].slice(0, 5));
+        // Own-activity feed, scoped server-side to the signed-in doctor.
+        const activity = await api.myActivity();
+        setRecents(activity?.recent_patients || []);
+        setReviewed(activity?.distinct_patients ?? 0);
       } catch {
         setRecents([]);
       }
@@ -125,7 +116,11 @@ export default function DoctorHome({ onSearch }) {
             label="Connected Facilities"
             tone="secondary"
           />
-          <StatTile icon="clinical_notes" value="—" label="Open Reviews" />
+          <StatTile
+            icon="clinical_notes"
+            value={reviewed}
+            label="Patients Accessed"
+          />
           <StatTile
             icon="verified_user"
             value="Secure"
@@ -245,7 +240,9 @@ export default function DoctorHome({ onSearch }) {
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
                           <span className="font-label-md text-label-md text-on-surface">
-                            {p.when ? new Date(p.when).toLocaleDateString() : "—"}
+                            {p.timestamp
+                              ? new Date(p.timestamp).toLocaleDateString()
+                              : "—"}
                           </span>
                           <span className="font-label-sm text-label-sm text-on-surface-variant">
                             {p.action}
@@ -294,7 +291,7 @@ export default function DoctorHome({ onSearch }) {
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 rounded-full bg-ok" />
                       <span className="font-label-md text-label-md text-on-surface">
-                        {f.name}
+                        {f.organization_name || f.name}
                       </span>
                     </div>
                     <span className="font-label-sm text-label-sm text-on-surface-variant">
