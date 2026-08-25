@@ -27,7 +27,10 @@ export function Field({
   title,
   maxLength,
   inputMode,
+  autoComplete,
+  error,
 }) {
+  const errorId = error ? `${id}-error` : undefined;
   return (
     <div>
       <label className="label" htmlFor={id}>
@@ -36,15 +39,50 @@ export function Field({
       <input
         id={id}
         type={type}
-        className="field"
+        className={`field ${error ? "field-error" : ""}`}
         value={value}
         placeholder={placeholder}
         pattern={pattern}
         title={title}
         maxLength={maxLength}
         inputMode={inputMode}
+        autoComplete={autoComplete}
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={errorId}
         onChange={(e) => onChange(e.target.value)}
       />
+      <FieldError id={errorId}>{error}</FieldError>
+    </div>
+  );
+}
+
+// Inline error message shown beneath a single input. Rendered by <Field>, but
+// also exported for raw inputs/selects that don't go through <Field> (e.g. the
+// organization-type <select> on RegisterOrg). Renders nothing when empty.
+export function FieldError({ id, children }) {
+  if (!children) return null;
+  return (
+    <p id={id} role="alert" className="mt-1.5 text-label-sm text-error">
+      {children}
+    </p>
+  );
+}
+
+// Persistent, top-of-form summary for general / non-field errors (auth failures,
+// permission denials, cross-field validation). Unlike the transient toast, it
+// stays until the next submit so the user can read and act on it. Renders
+// nothing when there's no message.
+export function FormBanner({ message }) {
+  if (!message) return null;
+  return (
+    <div
+      role="alert"
+      className="flex items-start gap-2 rounded-lg border border-error/20 bg-error/10 px-4 py-3 text-body-sm text-error"
+    >
+      <span className="material-symbols-outlined text-[18px] leading-5">
+        error
+      </span>
+      <span className="flex-1">{message}</span>
     </div>
   );
 }
