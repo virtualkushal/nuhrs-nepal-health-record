@@ -1,7 +1,26 @@
+import re
+
 from rest_framework import serializers
 
 from .models import Announcement, AuditLog, Organization, PatientIdentity, RecordIndex, User
 from .validators import validate_nid, validate_phone
+
+# Accepts http(s) URLs whose host may be a Docker service name (dot-less),
+# localhost, an IP, or a normal domain - e.g. http://new-hospital:8005/fhir.
+# Django's built-in URLField validation rejects dot-less hostnames, which is
+# exactly what every compose-network base URL looks like.
+SERVICE_URL_RE = re.compile(
+    r"^https?://[A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?(?::\d{1,5})?(?:/\S*)?$"
+)
+
+
+def validate_service_url(value):
+    value = (value or "").strip()
+    if not SERVICE_URL_RE.match(value):
+        raise serializers.ValidationError(
+            "Enter a valid URL (e.g. http://mediciti-hospital:8003/fhir)."
+        )
+    return value
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
@@ -17,6 +36,10 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 class OrganizationRegisterSerializer(serializers.ModelSerializer):
     """Public registration submission — no code/api_key/status set by client."""
+
+    # CharField + custom validator instead of the model's URLField, so
+    # Docker-network hostnames (http://new-hospital:8005/fhir) pass.
+    api_base_url = serializers.CharField(validators=[validate_service_url])
 
     class Meta:
         model = Organization

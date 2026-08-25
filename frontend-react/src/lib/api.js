@@ -42,7 +42,16 @@ async function request(method, path, body, auth = true) {
   const text = await res.text();
   const data = text ? JSON.parse(text) : {};
   if (!res.ok) {
-    const err = new Error(data.detail || `Request failed (${res.status})`);
+    // DRF validation errors arrive as {field: [messages]} rather than {detail};
+    // flatten them so the toast shows the actual reason instead of a bare 400.
+    const detail =
+      data.detail ||
+      (data && typeof data === "object" && !Array.isArray(data)
+        ? Object.entries(data)
+            .map(([field, msg]) => `${field}: ${Array.isArray(msg) ? msg.join(", ") : msg}`)
+            .join(" | ")
+        : null);
+    const err = new Error(detail || `Request failed (${res.status})`);
     err.status = res.status;
     err.data = data;
     throw err;
