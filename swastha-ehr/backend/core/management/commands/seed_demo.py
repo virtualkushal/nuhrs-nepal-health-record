@@ -69,12 +69,29 @@ DEMO_PATIENTS = [
      ["Aspirin"], RegisteredBy.RECEPTIONIST, None, Department.INFECTIOUS_DISEASES),
     ("Gita", "Devi", "9803000004", date(2001, 7, 19), Gender.FEMALE, "AB+",
      [], RegisteredBy.SELF, "gita@demo.np", Department.NEPHROLOGY),
+    # --- Expanded federation cohort (NIDs ...12/...18/...22/...28/...30).
+    # Names / phones / DOBs are CANONICAL and MUST match the Mediciti, Norvic and
+    # lab seeds. No portal account: these demo the self-activation flow. ---
+    ("Kamala Devi", "Bhattarai", "9841000012", date(1974, 8, 15), Gender.FEMALE, "O+",
+     [], RegisteredBy.RECEPTIONIST, None, Department.ENDOCRINOLOGY),
+    ("Mina Kumari", "Adhikari", "9841000018", date(1986, 12, 12), Gender.FEMALE, "A-",
+     [], RegisteredBy.RECEPTIONIST, None, Department.ENDOCRINOLOGY),
+    ("Sabina", "Karki", "9841000022", date(1992, 10, 3), Gender.FEMALE, "O+",
+     [], RegisteredBy.SELF, None, Department.ENDOCRINOLOGY),
+    ("Rekha Devi", "Mishra", "9841000028", date(1972, 5, 7), Gender.FEMALE, "AB-",
+     [], RegisteredBy.RECEPTIONIST, None, Department.NEPHROLOGY),
+    ("Bimala", "Thapa Chhetri", "9841000030", date(1997, 3, 28), Gender.FEMALE, "O+",
+     [], RegisteredBy.SELF, None, Department.HEMATOLOGY),
 ]
 
 # National IDs (10-digit Nepal NIN) assigned in order to the demo patients.
 # The first three match the NUHRS hospital/lab seed NIDs so the same patient is
 # recognisable across SwasthyaEHR and the national exchange demo.
-DEMO_NIDS = ["2345678901", "2345678902", "2345678903", "2345678904"]
+DEMO_NIDS = [
+    "2345678901", "2345678902", "2345678903", "2345678904",
+    # Expanded cohort — same order as the DEMO_PATIENTS rows above.
+    "2345678912", "2345678918", "2345678922", "2345678928", "2345678930",
+]
 
 
 
