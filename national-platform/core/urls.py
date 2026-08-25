@@ -9,6 +9,7 @@ urlpatterns = [
     path("auth/refresh/", TokenRefreshView.as_view()),
     path("auth/change-password/", views.ChangePasswordView.as_view()),
     path("auth/me/", views.me),
+    path("me/activity/", views.MeActivityView.as_view()),
 
     # single sign-on (seamless doctor handoff from a trusted facility)
     path("auth/sso-exchange/", views.SSOExchangeView.as_view()),

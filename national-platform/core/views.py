@@ -163,6 +163,45 @@ def me(request):
     return Response(UserProfileSerializer(request.user).data)
 
 
+class MeActivityView(APIView):
+    """
+    The requesting user's OWN access history — the doctor-dashboard feed.
+    Scoped strictly to actor_user == request.user (unlike /audit/ which is
+    privileged). Returns recently accessed patients (de-duplicated by NID,
+    newest first, with patient names resolved from the MPI) plus a distinct
+    patient count.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        qs = (
+            AuditLog.objects.filter(actor_user=request.user)
+            .exclude(nid="")
+            .select_related("actor_user", "actor_org")
+            .order_by("-timestamp")[:200]
+        )
+        names = dict(
+            PatientIdentity.objects.filter(
+                nid__in=[row.nid for row in qs]
+            ).values_list("nid", "full_name")
+        )
+        seen = {}
+        for row in qs:
+            if row.nid not in seen:
+                seen[row.nid] = {
+                    "nid": row.nid,
+                    "name": names.get(row.nid) or row.nid,
+                    "action": row.action,
+                    "timestamp": row.timestamp,
+                }
+        recent = list(seen.values())
+        return Response({
+            "recent_patients": recent[:5],
+            "distinct_patients": len(recent),
+        })
+
+
 # ---------------------------------------------------------------------------
 # Single Sign-On (seamless doctor handoff from a trusted facility)
 # ---------------------------------------------------------------------------

@@ -122,6 +122,8 @@ export const api = {
     const qs = filters ? new URLSearchParams(filters).toString() : "";
     return request("GET", `/audit/${qs ? "?" + qs : ""}`);
   },
+  // the signed-in user's own access history (doctor dashboard feed)
+  myActivity: () => request("GET", "/me/activity/"),
   analytics: () => request("GET", "/analytics/summary/"),
   facilityAnalytics: () => request("GET", "/analytics/facility/"),
 };

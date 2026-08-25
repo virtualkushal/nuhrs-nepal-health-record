@@ -390,6 +390,43 @@ class OrgAdminPrivilegeTests(APITestCase):
         self.client.force_authenticate(self.doc_a)
         self.assertEqual(self.client.get("/api/analytics/facility/").status_code, 403)
 
+    # -- 6. own-activity feed (doctor dashboard) ---------------------------------
+    def test_me_activity_scoped_and_deduped(self):
+        PatientIdentity.objects.create(
+            nid="2345678901", full_name="Ram Bahadur Thapa", date_of_birth="1970-05-12",
+        )
+        AuditLog.objects.create(
+            actor_user=self.doc_a, actor_org=self.org_a, nid="2345678901",
+            action=AuditLog.Action.FETCH_ALL,
+        )
+        AuditLog.objects.create(
+            actor_user=self.doc_a, actor_org=self.org_a, nid="2345678901",
+            action=AuditLog.Action.SEARCH,
+        )
+        self._audit_row(self.org_a)  # another doctor's fetch must not appear
+
+        self.client.force_authenticate(self.doc_a)
+        res = self.client.get("/api/me/activity/")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.data["distinct_patients"], 1)
+        recent = res.data["recent_patients"]
+        self.assertEqual(len(recent), 1)
+        self.assertEqual(recent[0]["nid"], "2345678901")
+        self.assertEqual(recent[0]["name"], "Ram Bahadur Thapa")
+
+    def test_me_activity_empty_for_new_user(self):
+        self.client.force_authenticate(self.doc_b)
+        res = self.client.get("/api/me/activity/")
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.data["recent_patients"], [])
+        self.assertEqual(res.data["distinct_patients"], 0)
+
+    def test_anonymous_blocked_from_me_activity(self):
+        # Unauthenticated callers are rejected (401 by DRF convention).
+        self.assertIn(
+            self.client.get("/api/me/activity/").status_code, (401, 403)
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
