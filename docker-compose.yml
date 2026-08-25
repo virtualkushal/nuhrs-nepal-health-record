@@ -124,6 +124,12 @@ services:
 
     environment:
       DEBUG: "True"
+      # Demo-only secret. Real deployments MUST override this (and with DEBUG
+      # off the app refuses to start without it). NOT a production key.
+      SECRET_KEY: "demo-national-platform-secret-not-for-production-0001"
+      ALLOWED_HOSTS: "localhost,127.0.0.1,national-platform"
+      CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000"
+      CSRF_TRUSTED_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000"
       DB_HOST: db-national
       DB_NAME: national_db
       DB_USER: nuhrs
@@ -263,6 +269,9 @@ services:
     build: ./swastha-ehr/backend
     environment:
       DJANGO_DEBUG: "True"
+      # Demo-only secret; real deployments MUST override (app refuses to start
+      # with DEBUG off and no key). NOT a production key.
+      DJANGO_SECRET_KEY: "demo-swastha-secret-not-for-production-0005"
       ORG_NAME: "SwasthyaEHR Hospital"
       DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,swastha-backend"
       DB_HOST: db-swastha
@@ -291,11 +300,10 @@ services:
 
   # --------------------------------------------------------------- frontend
   # React + Vite SPA (modular). The legacy vanilla app remains in ./frontend.
+  # Talks to the national backend same-origin via the nginx "/api" proxy baked
+  # into its image (frontend-react/nginx.conf), so no API URL build arg.
   frontend:
-    build:
-      context: ./frontend-react
-      args:
-        VITE_PLATFORM_API: "http://localhost:8000"
+    build: ./frontend-react
     ports: ["3000:80"]
     depends_on:
       national-platform:
