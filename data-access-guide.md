@@ -80,7 +80,48 @@ The best merge demos: **…27** and **…01** (4 sources each), then **…09** /
 | `2345678926` | Sunita Lama | 1989-08-29 | Mediciti + Pathlabs — UTI + anemia |
 | `2345678929` | Ashok Gurung | 1981-10-19 | Mediciti + Pathlabs — Hep C, cured on DAA |
 
-### 2.3 Clinical highlights per patient
+### 2.3 Patient portal activation cheat-sheet
+
+Values to type at **Portal → Patient → Activate your account**
+(`/activate`). NID + DOB are always verified; phone is only checked if you
+type one, so you can leave it blank. Password must satisfy the policy:
+8+ chars with upper, lower, digit and special (e.g. `Str0ng#Pass`).
+
+| NIN | DOB | Phone (optional) | Name |
+|---|---|---|---|
+| `2345678901` | 1970-05-12 | `9841000001` | Ram Bahadur Thapa |
+| `2345678902` | 1988-11-23 | `9803000002` | Sita Kumari Sharma |
+| `2345678903` | 1979-02-03 | `9841000003` | Hari Prasad Koirala |
+| `2345678904` | 1996-07-19 | `9812000004` | Gita Devi Rai |
+| `2345678905` | 1962-01-30 | `9856000005` | Bikash Shrestha |
+| `2345678906` | 1975-10-08 | `9846000006` | Maya Gurung |
+| `2345678909` | 1993-04-14 | `9842000001` | Laxmi Maya Tamang |
+| `2345678910` | 1985-09-19 | `9842000002` | Kiran Bahadur Limbu |
+| `2345678911` | 1968-03-22 | `9841000011` | Bishnu Prasad Ghimire |
+| `2345678912` | 1974-08-15 | `9841000012` | Kamala Devi Bhattarai |
+| `2345678913` | 1982-06-30 | `9841000013` | Suresh Maharjan |
+| `2345678914` | 1990-01-09 | `9841000014` | Radha Kumari Yadav |
+| `2345678915` | 1963-11-27 | `9841000015` | Prakash Bahadur Magar |
+| `2345678916` | 1995-05-18 | `9841000016` | Sarita Chaudhary |
+| `2345678917` | 1978-09-05 | `9841000017` | Nabin Kumar Shah |
+| `2345678918` | 1986-12-12 | `9841000018` | Mina Kumari Adhikari |
+| `2345678919` | 1971-07-08 | `9841000019` | Dipendra Bhandari |
+| `2345678920` | 1998-02-25 | `9841000020` | Anita Rai Subba |
+| `2345678921` | 1960-04-16 | `9841000021` | Gopal Krishna Neupane |
+| `2345678922` | 1992-10-03 | `9841000022` | Sabina Karki |
+| `2345678923` | 1985-01-21 | `9841000023` | Rajesh Basnet |
+| `2345678924` | 1993-06-14 | `9841000024` | Puja Sharma Poudel |
+| `2345678925` | 1976-03-11 | `9841000025` | Manoj Kumar Tamang |
+| `2345678926` | 1989-08-29 | `9841000026` | Sunita Lama |
+| `2345678927` | 1966-12-01 | `9841000027` | Krishna Bahadur Khadka |
+| `2345678928` | 1972-05-07 | `9841000028` | Rekha Devi Mishra |
+| `2345678929` | 1981-10-19 | `9841000029` | Ashok Gurung |
+| `2345678930` | 1997-03-28 | `9841000030` | Bimala Thapa Chhetri |
+
+> Pre-activated logins already exist for `...01 / ...02 / ...03`
+> (username = NIN, password `patient123`) — activation is only needed for the rest.
+
+### 2.4 Clinical highlights per patient
 
 **Ram (…01)** — Type 2 diabetes → diabetic nephropathy → anemia (4-date HbA1c
 trend at Mediciti; creatinine series 1.2→1.9); cardiac work-up at Norvic (CAD);
@@ -120,7 +161,7 @@ PCV13 + flu immunizations.
 **Anjali (…08)** — travel clinic: Hep A + Typhoid + COVID immunizations,
 sebaceous cyst excision.
 
-### 2.4 Expanded cohort highlights (…11 – …30)
+### 2.5 Expanded cohort highlights (…11 – …30)
 
 **Krishna (…27)** — the richest merge: T2DM since 2014 with a 4-date HbA1c
 series 9.6→7.2 and lipids 268→196 at Mediciti/Central, CAD work-up + flu vaccine

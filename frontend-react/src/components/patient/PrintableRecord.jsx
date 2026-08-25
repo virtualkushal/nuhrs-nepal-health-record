@@ -7,9 +7,10 @@ import {
 } from "../../lib/fhirUtils.js";
 import { fmtDate } from "./util.js";
 
-// The clean, chrome-free document used for "Save as PDF". It lives off-canvas
-// (see `.print-doc` in index.css) and is revealed only in the browser's print
-// dialog, so the exported PDF is just the record — no app shell. Deliberately
+// The clean, chrome-free document used for "Save as PDF". PatientPortal portals
+// it into `#print-root` (a direct child of <body>); that container is parked
+// off-canvas on screen and is the only thing left visible in the print
+// stylesheet, so the exported PDF is just the record — no app shell. Deliberately
 // uses plain black-on-white styling (not theme colors) so it prints crisply
 // even when browsers drop background colours.
 

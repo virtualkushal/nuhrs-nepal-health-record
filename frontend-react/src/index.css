@@ -169,10 +169,16 @@ body {
   }
 }
 
-/* Print-to-PDF: the patient's printable record document lives off-canvas until
-   the browser print dialog is opened, then it (and only it) is made visible so
-   "Save as PDF" produces a clean records sheet without the app chrome. */
-.print-doc {
+/* Print-to-PDF: the patient's printable record lives in a dedicated
+   `#print-root` container appended directly to <body> (see PatientPortal.jsx,
+   which mounts <PrintableRecord> into it via createPortal). On screen the
+   container is parked off-canvas; when printing, every other direct child of
+   <body> is COLLAPSED with `display: none` — not merely hidden — so no empty
+   boxes remain in the layout and the PDF starts on the record itself.
+
+   Do not revert to a visibility-based approach: hiding suppresses painting but
+   keeps the layout box, which is exactly what produced blank leading pages. */
+#print-root {
   position: absolute;
   left: -10000px;
   top: 0;
@@ -182,21 +188,29 @@ body {
 @media print {
   @page {
     margin: 16mm;
+    size: A4;
   }
+  html,
   body {
     background: #ffffff;
+    height: auto !important;
+    overflow: visible !important;
   }
-  body * {
-    visibility: hidden !important;
+  /* Collapse the app shell entirely (layout included), keep only the record. */
+  body > *:not(#print-root) {
+    display: none !important;
   }
-  .print-doc,
-  .print-doc * {
-    visibility: visible !important;
+  #print-root {
+    display: block !important;
+    position: static !important;
+    left: 0 !important;
+    top: auto !important;
+    width: 100% !important;
   }
-  .print-doc {
-    position: static;
-    left: 0;
-    width: 100%;
+  #print-root .print-doc {
+    width: 100% !important;
+    position: static !important;
+    left: 0 !important;
   }
 }
 

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { api } from "../../lib/api.js";
 import { useToast } from "../../context/ToastContext.jsx";
 import { Card } from "../../components/ui.jsx";
@@ -54,11 +55,37 @@ function Panel({ icon, title, action, className = "", children }) {
   );
 }
 
+// Lazily create (once) the `#print-root` container as a DIRECT child of <body>.
+// Mounting the printable record here — rather than deep inside #root — is what
+// lets the print stylesheet collapse the whole app shell with
+// `body > *:not(#print-root) { display: none }`. Collapsing instead of hiding
+// removes the empty leading pages that `visibility: hidden` used to leave behind
+// (hidden elements keep their layout box and still paginate).
+function usePrintRoot() {
+  const [node, setNode] = useState(null);
+
+  useEffect(() => {
+    let el = document.getElementById("print-root");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "print-root";
+      document.body.appendChild(el);
+    }
+    setNode(el);
+    // Intentionally left in the DOM on unmount: it is a shared, empty, inert
+    // container (styles keep it off-canvas), so repeated mounts stay cheap and
+    // we never race a pending print dialog.
+  }, []);
+
+  return node;
+}
+
 export default function PatientPortal() {
   const { show } = useToast();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("overview");
+  const printRoot = usePrintRoot();
 
   useEffect(() => {
     api
@@ -77,8 +104,8 @@ export default function PatientPortal() {
     [bundle]
   );
 
-  // Print-to-PDF: the browser's own "Save as PDF" acting on the off-canvas
-  // PrintableRecord document (no extra dependency).
+  // Print-to-PDF: the browser's own "Save as PDF" acting on the PrintableRecord
+  // document portalled into #print-root (no extra dependency).
   function savePdf() {
     if (bundle) window.print();
   }
@@ -174,8 +201,14 @@ export default function PatientPortal() {
         </Panel>
       )}
 
-      {/* Off-canvas printable document powering "Save as PDF". */}
-      <PrintableRecord patient={patient} bloodGroup={bloodGroup} bundle={bundle} />
+      {/* Printable document powering "Save as PDF". Portalled into #print-root
+          (a direct child of <body>) so the print stylesheet can collapse the
+          rest of the app instead of merely hiding it. */}
+      {printRoot &&
+        createPortal(
+          <PrintableRecord patient={patient} bloodGroup={bloodGroup} bundle={bundle} />,
+          printRoot
+        )}
     </div>
   );
 }
