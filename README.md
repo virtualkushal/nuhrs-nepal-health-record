@@ -1,4 +1,4 @@
-# NUHRS — National Unified Health Record System
+# NUHRS — Nepal Unified Health Record System
 
 A prototype **Federated Health Information Exchange (HIE)** for Nepal, built with **HL7 FHIR R4**.
 
