@@ -9,6 +9,7 @@ React dev server.
 from datetime import timedelta
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 import os
 
@@ -27,9 +28,22 @@ def env_list(name, default=""):
     return [item.strip() for item in raw.split(",") if item.strip()]
 
 
-# Core security settings
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-dev-only-change-me")
-DEBUG = env_bool("DJANGO_DEBUG", True)
+# Core security settings.
+# DEBUG is safe-by-default (off); the Docker demo explicitly sets DJANGO_DEBUG=True.
+DEBUG = env_bool("DJANGO_DEBUG", False)
+
+# SECRET_KEY must come from the environment in any real deployment. Fall back to
+# a throwaway key ONLY when DEBUG is on; with DEBUG off a missing key hard-fails
+# rather than silently signing JWTs with a repo-committed value.
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = "django-insecure-dev-only-change-me"
+    else:
+        raise ImproperlyConfigured(
+            "DJANGO_SECRET_KEY environment variable is required when DJANGO_DEBUG is off."
+        )
+
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 
 
@@ -130,7 +144,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Django REST Framework + JWT
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "core.jwt_cookies.CookieJWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
@@ -143,8 +157,21 @@ SIMPLE_JWT = {
 }
 
 
-# CORS (React dev server)
-CORS_ALLOWED_ORIGINS = env_list("CORS_ALLOWED_ORIGINS", "http://localhost:3000")
+# CORS / CSRF (React dev server + prod nginx). The SPA is served same-origin
+# with the API via an /api proxy, so credentials (the httpOnly JWT cookie) must
+# be allowed. A wildcard origin is not permitted together with credentials.
+CORS_ALLOWED_ORIGINS = env_list("CORS_ALLOWED_ORIGINS", "http://localhost:3090,http://127.0.0.1:3090")
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", "http://localhost:3090,http://127.0.0.1:3090")
+
+# httpOnly JWT cookies (see core.jwt_cookies): keep the csrftoken cookie
+# readable by JS for the X-CSRFToken double-submit header; SameSite=Lax + the
+# same-origin proxy block cross-site use; Secure is forced on when DEBUG is off.
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
 
 # Email configuration (development - prints to console)
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

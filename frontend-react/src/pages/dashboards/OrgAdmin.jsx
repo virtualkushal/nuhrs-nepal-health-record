@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { api, currentUser } from "../../lib/api.js";
 import { useToast } from "../../context/ToastContext.jsx";
-import { Card, Table, Field } from "../../components/ui.jsx";
+import { Card, Table, Field, FieldError, FormBanner } from "../../components/ui.jsx";
+import { parseApiError } from "../../lib/formErrors.js";
 import UserChangePassword from "../../components/UserChangePassword.jsx";
 
 const STAFF_TABS = [
@@ -58,6 +59,8 @@ function Staff({ orgName }) {
   const [editingId, setEditingId] = useState(null);
   const [draft, setDraft] = useState({ full_name: "", email: "" });
   const [f, setF] = useState({ full_name: "", email: "", role: "DOCTOR" });
+  const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState("");
   const set = (k) => (v) => setF((s) => ({ ...s, [k]: v }));
 
   const load = async () => {
@@ -73,13 +76,17 @@ function Staff({ orgName }) {
 
   async function addStaff(e) {
     e.preventDefault();
+    setErrors({});
+    setFormError("");
     try {
       const res = await api.createStaff(f);
       setCreds(res);
       setF({ full_name: "", email: "", role: "DOCTOR" });
       load();
     } catch (err) {
-      show(err.message, "err");
+      const { fieldErrors, formError } = parseApiError(err);
+      setErrors(fieldErrors);
+      setFormError(formError);
     }
   }
 
@@ -124,17 +131,28 @@ function Staff({ orgName }) {
       title={(orgName || "Organization") + " — Staff"}
       subtitle="Create logins for doctors and lab technicians, deactivate leavers, reset passwords."
     >
-      <form onSubmit={addStaff} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-        <Field label="Full name" id="sfName" value={f.full_name} onChange={set("full_name")} />
-        <Field label="Email" id="sfEmail" value={f.email} onChange={set("email")} />
-        <div>
-          <label className="label">Role</label>
-          <select className="field" value={f.role} onChange={(e) => set("role")(e.target.value)}>
-            <option value="DOCTOR">Doctor</option>
-            <option value="LAB_TECHNICIAN">Lab Technician</option>
-          </select>
+      <form onSubmit={addStaff} className="space-y-4">
+        <FormBanner message={formError} />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
+          <Field label="Full name" id="sfName" value={f.full_name} onChange={set("full_name")} error={errors.full_name} />
+          <Field label="Email" id="sfEmail" value={f.email} onChange={set("email")} error={errors.email} />
+          <div>
+            <label className="label" htmlFor="sfRole">Role</label>
+            <select
+              id="sfRole"
+              className={`field ${errors.role ? "field-error" : ""}`}
+              value={f.role}
+              onChange={(e) => set("role")(e.target.value)}
+              aria-invalid={errors.role ? "true" : undefined}
+              aria-describedby={errors.role ? "sfRole-error" : undefined}
+            >
+              <option value="DOCTOR">Doctor</option>
+              <option value="LAB_TECHNICIAN">Lab Technician</option>
+            </select>
+            <FieldError id="sfRole-error">{errors.role}</FieldError>
+          </div>
+          <button type="submit" className="btn-primary md:mt-6">Add staff</button>
         </div>
-        <button type="submit" className="btn-primary">Add staff</button>
       </form>
 
       {creds && (

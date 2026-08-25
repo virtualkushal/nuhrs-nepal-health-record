@@ -35,6 +35,17 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
+
+from .jwt_cookies import (
+    REFRESH_COOKIE,
+    clear_auth_cookies,
+    enforce_csrf,
+    set_auth_cookies,
+)
 
 from .constants import (
     AccessRequestStatus,
@@ -161,6 +172,17 @@ class LoginView(TokenObtainPairView):
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
 
+    @method_decorator(ensure_csrf_cookie)
+    def post(self, request, *args, **kwargs):
+        # LoginSerializer returns {access, refresh, user}. Move the JWTs into
+        # httpOnly cookies and return only the (non-sensitive) user object.
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200:
+            access = response.data.pop("access", None)
+            refresh = response.data.pop("refresh", None)
+            set_auth_cookies(response, access, refresh)
+        return response
+
 
 class MeView(APIView):
     permission_classes = [IsAuthenticated]
@@ -194,6 +216,48 @@ class ChangePasswordView(APIView):
         user.must_change_password = False
         user.save(update_fields=["password", "must_change_password", "updated_at"])
         return Response({"detail": "Password changed successfully."})
+
+
+class CsrfView(APIView):
+    """Prime the readable csrftoken cookie so the SPA can send X-CSRFToken."""
+
+    permission_classes = [AllowAny]
+
+    @method_decorator(ensure_csrf_cookie)
+    def get(self, request):
+        return Response({"detail": "ok"})
+
+
+class LogoutView(APIView):
+    """Clear the JWT cookies. CSRF-protected like any other state change."""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        enforce_csrf(request)
+        response = Response({"detail": "Logged out."})
+        return clear_auth_cookies(response)
+
+
+class CookieTokenRefreshView(APIView):
+    """Mint a fresh access cookie from the httpOnly refresh cookie."""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        enforce_csrf(request)
+        raw = request.COOKIES.get(REFRESH_COOKIE)
+        if not raw:
+            return Response({"detail": "Not authenticated."}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            refresh = RefreshToken(raw)
+        except TokenError:
+            return Response(
+                {"detail": "Session expired. Please sign in again."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        response = Response({"detail": "ok"})
+        return set_auth_cookies(response, access=str(refresh.access_token))
 
 
 class NuhrsLaunchView(APIView):

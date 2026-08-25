@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api.js";
 import { useToast } from "../../context/ToastContext.jsx";
-import { Card, Table, Badge, Field } from "../../components/ui.jsx";
+import { Card, Table, Badge, Field, FormBanner } from "../../components/ui.jsx";
+import { parseApiError } from "../../lib/formErrors.js";
 import AnnouncementsPanel from "../../components/admin/AnnouncementsPanel.jsx";
 import AnalyticsPanel from "../../components/admin/AnalyticsPanel.jsx";
 
@@ -270,6 +271,8 @@ function MinistryAccounts() {
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [creds, setCreds] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState("");
 
   const load = async () => {
     try {
@@ -284,8 +287,10 @@ function MinistryAccounts() {
 
   async function create(e) {
     e.preventDefault();
+    setErrors({});
+    setFormError("");
     if (!username.trim()) {
-      show("Username is required", "err");
+      setErrors({ username: "Username is required." });
       return;
     }
     setBusy(true);
@@ -303,8 +308,10 @@ function MinistryAccounts() {
       setEmail("");
       setPhone("");
       load();
-    } catch (e) {
-      show(e.message, "err");
+    } catch (err) {
+      const { fieldErrors, formError } = parseApiError(err);
+      setErrors(fieldErrors);
+      setFormError(formError);
     } finally {
       setBusy(false);
     }
@@ -332,10 +339,11 @@ function MinistryAccounts() {
           </div>
         )}
         <form onSubmit={create} className="space-y-4 max-w-2xl">
-          <Field label="Username" id="min-username" value={username} onChange={setUsername} placeholder="e.g. moh.official" />
-          <Field label="Full name" id="min-fullname" value={fullName} onChange={setFullName} placeholder="e.g. Ministry of Health & Population" />
-          <Field label="Email" id="min-email" type="email" value={email} onChange={setEmail} placeholder="official@mohp.gov.np" />
-          <Field label="Phone" id="min-phone" value={phone} onChange={setPhone} placeholder="01-5550000" />
+          <FormBanner message={formError} />
+          <Field label="Username" id="min-username" value={username} onChange={setUsername} placeholder="e.g. moh.official" error={errors.username} />
+          <Field label="Full name" id="min-fullname" value={fullName} onChange={setFullName} placeholder="e.g. Ministry of Health & Population" error={errors.full_name} />
+          <Field label="Email" id="min-email" type="email" value={email} onChange={setEmail} placeholder="official@mohp.gov.np" error={errors.email} />
+          <Field label="Phone" id="min-phone" value={phone} onChange={setPhone} placeholder="01-5550000" error={errors.phone} />
           <button
             type="submit"
             disabled={busy}

@@ -1,53 +1,115 @@
-// Thin fetch wrapper around the National Platform API with JWT handling.
-// Modular ES-module version of the original api.js.
+// Thin fetch wrapper around the National Platform API.
+//
+// Auth is carried by httpOnly cookies (access_token / refresh_token) set by the
+// backend on login — never by JavaScript-readable tokens — so an XSS payload
+// cannot exfiltrate a session. The SPA is served same-origin with the API via
+// an /api proxy (Vite in dev, nginx in prod), which is why first-party cookies
+// and a SameSite=Lax CSRF token work over plain http on localhost.
+//
+// Every request sends credentials; unsafe methods echo the csrftoken cookie in
+// an X-CSRFToken header (double-submit). A 401 triggers one silent refresh +
+// retry. Only the non-sensitive `user` object is mirrored into localStorage,
+// purely so a hard refresh can render the right dashboard before the first API
+// call returns.
+const API_BASE = "/api";
+const USER_KEY = "nuhrs_user";
 
-const API_BASE =
-  (window.localStorage.getItem("nuhrs_api") ||
-    import.meta.env.VITE_PLATFORM_API ||
-    "http://localhost:8000") + "/api";
+const UNSAFE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+// Auth endpoints must never trigger the refresh-on-401 retry (they either issue
+// or depend on the very cookies a refresh would rotate — retrying loops).
+const NO_REFRESH = new Set([
+  "/auth/login/",
+  "/auth/refresh/",
+  "/auth/logout/",
+  "/auth/csrf/",
+  "/auth/sso-verify/",
+]);
 
-export function token() {
-  return window.localStorage.getItem("nuhrs_access");
-}
-
-export function setSession(data) {
-  window.localStorage.setItem("nuhrs_access", data.access);
-  window.localStorage.setItem("nuhrs_refresh", data.refresh);
-  window.localStorage.setItem("nuhrs_user", JSON.stringify(data.user));
-}
-
-export function currentUser() {
-  const raw = window.localStorage.getItem("nuhrs_user");
-  return raw ? JSON.parse(raw) : null;
-}
-
-export function saveUser(user) {
-  window.localStorage.setItem("nuhrs_user", JSON.stringify(user));
-}
-
-export function clearSession() {
-  ["nuhrs_access", "nuhrs_refresh", "nuhrs_user"].forEach((k) =>
-    window.localStorage.removeItem(k),
+function getCookie(name) {
+  const match = document.cookie.match(
+    "(?:^|; )" + name.replace(/([.$?*|{}()[\]\\/+^])/g, "\\$1") + "=([^;]*)",
   );
+  return match ? decodeURIComponent(match[1]) : null;
 }
 
+// Ensure a csrftoken cookie exists before the first state-changing request (and
+// before a cold-start refresh). Cached after the first successful prime.
+let csrfPrimed = false;
+async function ensureCsrf() {
+  if (csrfPrimed || getCookie("csrftoken")) {
+    csrfPrimed = true;
+    return;
+  }
+  try {
+    await fetch(API_BASE + "/auth/csrf/", { credentials: "include" });
+  } catch {
+    /* offline / network error — the request itself will surface it */
+  }
+  csrfPrimed = true;
+}
+
+async function tryRefresh() {
+  await ensureCsrf();
+  const csrf = getCookie("csrftoken");
+  try {
+    const res = await fetch(API_BASE + "/auth/refresh/", {
+      method: "POST",
+      headers: csrf ? { "X-CSRFToken": csrf } : {},
+      credentials: "include",
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+// The `auth` flag no longer gates a token header (cookies are always sent); it
+// only marks whether a 401 on this call should attempt a silent refresh.
 async function request(method, path, body, auth = true) {
-  const headers = { "Content-Type": "application/json" };
-  if (auth && token()) headers["Authorization"] = `Bearer ${token()}`;
-  const res = await fetch(API_BASE + path, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  const send = async () => {
+    const headers = { "Content-Type": "application/json" };
+    if (UNSAFE_METHODS.has(method)) {
+      await ensureCsrf();
+      const csrf = getCookie("csrftoken");
+      if (csrf) headers["X-CSRFToken"] = csrf;
+    }
+    return fetch(API_BASE + path, {
+      method,
+      headers,
+      credentials: "include",
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  };
+
+  let res = await send();
+  if (res.status === 401 && auth && !NO_REFRESH.has(path)) {
+    if (await tryRefresh()) res = await send();
+  }
+
   const text = await res.text();
   const data = text ? JSON.parse(text) : {};
   if (!res.ok) {
     const err = new Error(data.detail || `Request failed (${res.status})`);
     err.status = res.status;
+    // Full DRF error object (field errors, non_field_errors, …) for the form
+    // error parser — see lib/formErrors.js.
     err.data = data;
     throw err;
   }
   return data;
+}
+
+export function currentUser() {
+  const raw = window.localStorage.getItem(USER_KEY);
+  return raw ? JSON.parse(raw) : null;
+}
+
+export function saveUser(user) {
+  window.localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+
+export function clearSession() {
+  window.localStorage.removeItem(USER_KEY);
 }
 
 export const api = {
@@ -57,9 +119,14 @@ export const api = {
   //   Patient:  { scope: "PATIENT",  username, password }   (username = NID)
   //   Official: { scope: "OFFICIAL", username, password }   (Super Admin or Ministry)
   // A bare { username, password } (no scope) still works (legacy path).
+  // On success the server sets the httpOnly JWT cookies and returns { user }.
   login: (credentials) => request("POST", "/auth/login/", credentials, false),
+  // Clear the session cookies server-side.
+  logout: () => request("POST", "/auth/logout/", null, false),
+  // Validate/refresh the current session and return the live user profile.
+  me: () => request("GET", "/auth/me/"),
   // Redeem a single-use SSO ticket issued to a trusted facility (e.g. a doctor
-  // arriving from SwasthyaEHR) for standard JWT tokens.
+  // arriving from SwasthyaEHR); the server sets the JWT cookies and returns { user }.
   ssoVerify: (ticket) =>
     request("POST", "/auth/sso-verify/", { ticket }, false),
 

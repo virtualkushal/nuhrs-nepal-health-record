@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
 import { api } from "../lib/api.js";
+import { parseApiError } from "../lib/formErrors.js";
+import { FormBanner } from "../components/ui.jsx";
 import { dashboardPathFor } from "../lib/roles.js";
 import Brand from "../components/Brand.jsx";
 import background from "../assects/background.jpg";
@@ -28,6 +30,12 @@ export default function Landing() {
   // shared
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  // Persistent form errors (a PENDING-account "awaiting approval" message, bad
+  // credentials, etc.) — shown in a banner instead of a transient toast that
+  // vanishes before the user can read it. Login and register track separately
+  // so switching tabs never shows a stale message.
+  const [loginError, setLoginError] = useState("");
+  const [registerError, setRegisterError] = useState("");
 
   // Patient registration fields
   const [regNid, setRegNid] = useState("");
@@ -51,6 +59,7 @@ export default function Landing() {
   async function doLogin(e) {
     e?.preventDefault();
     setBusy(true);
+    setLoginError("");
     try {
       let credentials;
       if (tab === "DOCTOR") {
@@ -80,7 +89,7 @@ export default function Landing() {
       const from = location.state?.from?.pathname;
       navigate(from || dashboardPathFor(signedIn), { replace: true });
     } catch (err) {
-      show(err.message, "err");
+      setLoginError(parseApiError(err).formError);
     } finally {
       setBusy(false);
     }
@@ -89,6 +98,7 @@ export default function Landing() {
   async function doRegister(e) {
     e?.preventDefault();
     setBusy(true);
+    setRegisterError("");
     try {
       await api.registerPatient({
         nid: regNid.trim(),
@@ -105,7 +115,7 @@ export default function Landing() {
       setPassword("");
       setPatientMode("SIGNIN");
     } catch (err) {
-      show(err.message, "err");
+      setRegisterError(parseApiError(err).formError);
     } finally {
       setBusy(false);
     }
@@ -241,7 +251,11 @@ export default function Landing() {
                     <button
                       key={opt.key}
                       type="button"
-                      onClick={() => setTab(opt.key)}
+                      onClick={() => {
+                        setTab(opt.key);
+                        setLoginError("");
+                        setRegisterError("");
+                      }}
                       className={`py-2 rounded-lg font-label-md text-label-md transition-colors ${
                         tab === opt.key
                           ? "bg-primary text-on-primary shadow"
@@ -265,7 +279,11 @@ export default function Landing() {
                         <button
                           key={opt.key}
                           type="button"
-                          onClick={() => setPatientMode(opt.key)}
+                          onClick={() => {
+                            setPatientMode(opt.key);
+                            setLoginError("");
+                            setRegisterError("");
+                          }}
                           className={`flex-1 py-2 rounded-lg font-label-md text-label-md transition-colors ${
                             patientMode === opt.key
                               ? "bg-primary text-on-primary shadow"
@@ -279,6 +297,7 @@ export default function Landing() {
 
                     {patientMode === "SIGNIN" && (
                       <form className="space-y-6" onSubmit={doLogin}>
+                        <FormBanner message={loginError} />
                         <div>
                           <label className="label">National ID (NID)</label>
                           <div className="relative">
@@ -317,6 +336,7 @@ export default function Landing() {
 
                     {patientMode === "REGISTER" && (
                       <form className="space-y-4" onSubmit={doRegister}>
+                        <FormBanner message={registerError} />
                         <div>
                           <label className="label">National ID (NID)</label>
                           <input
@@ -401,6 +421,7 @@ export default function Landing() {
                 {/* ---------------------------------------------------- DOCTOR */}
                 {tab === "DOCTOR" && (
                   <form className="space-y-6" onSubmit={doLogin}>
+                    <FormBanner message={loginError} />
                     <div>
                       <label className="label">Hospital</label>
                       <div className="relative">
@@ -453,6 +474,7 @@ export default function Landing() {
                     returned role decides which dashboard they land on. */}
                 {tab === "OFFICIAL" && (
                   <form className="space-y-6" onSubmit={doLogin}>
+                    <FormBanner message={loginError} />
                     <div>
                       <label className="label">Username</label>
                       <div className="relative">
