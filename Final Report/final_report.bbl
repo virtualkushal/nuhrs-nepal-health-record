@@ -1,0 +1,113 @@
+\begin{thebibliography}{10}
+
+\bibitem{who}
+{World Health Organization}.
+\newblock ``Global Strategy on Digital Health 2020--2025''.
+\newblock World Health Organization, Geneva, 2021.
+
+\bibitem{mohp}
+{Ministry of Health and Population, Government of Nepal}.
+\newblock Nepal health sector strategy 2015--2020.
+\newblock Technical report, Ministry of Health and Population, Kathmandu,
+  Nepal, 2015.
+
+\bibitem{bates1}
+D.~W. Bates, M.~Cohen, L.~L. Leape, J.~M. Overhage, M.~M. Shabot, and
+  T.~Sheridan.
+\newblock ``Reducing the frequency of errors in medicine using information
+  technology''.
+\newblock {\\em Journal of the American Medical Informatics Association},
+  8(4):299--308, 2001.
+
+\bibitem{bates2}
+D.~W. Bates, L.~L. Leape, D.~J. Cullen, E.~Laird, L.~A. Petersen, S.~D. Teich,
+  E.~Burdick, M.~Hickey, S.~Kleefield, B.~Shea, M.~Vander~Vliet, and D.~L.
+  Seger.
+\newblock ``Effect of computerized physician order entry and a team
+  intervention on prevention of serious medication errors''.
+\newblock {\\em Journal of the American Medical Association},
+  280(15):1311--1316, 1998.
+
+\bibitem{nidact}
+{Department of National ID and Civil Registration, Government of Nepal}.
+\newblock National identity card and registration act, 2076.
+\newblock \url{https://donidcr.gov.np/}, 2020.
+\newblock Accessed: 2026-08-01.
+
+\bibitem{hl7spec}
+{HL7 International}.
+\newblock Hl7 fhir release 4 (r4) specification.
+\newblock \url{https://hl7.org/fhir/R4/}.
+\newblock Accessed: 2026-03-10.
+
+\bibitem{bender}
+D.~Bender and K.~Sartipi.
+\newblock Hl7 fhir: An agile and restful approach to healthcare information
+  exchange.
+\newblock In ``Proceedings of the 26th IEEE International Symposium on
+  Computer-Based Medical Systems (CBMS)'', pages 326--331, 2013.
+
+\bibitem{dixon}
+B.~E. Dixon.
+\newblock ``Health Information Exchange: Navigating and Managing a Network of
+  Health Information Systems''.
+\newblock Academic Press, London, UK, 2016.
+
+\bibitem{adler}
+J.~Adler-Milstein, A.~J. Holmgren, P.~Kralovec, C.~Worzala, T.~Searcy, and
+  V.~Patel.
+\newblock ``Electronic health record adoption in us hospitals: The emergence of
+  a digital ``advanced use'' divide''.
+\newblock {\\em Journal of the American Medical Informatics Association},
+  24(6):1142--1148, 2017.
+
+\bibitem{kuperman}
+G.~J. Kuperman, A.~Bobb, T.~H. Payne, A.~J. Avery, T.~K. Gandhi, G.~Burns,
+  D.~W. Bates, and D.~K. Kaushal.
+\newblock ``Medication-related clinical decision support in computerized
+  provider order entry systems: A review''.
+\newblock {\\em Journal of the American Medical Informatics Association},
+  14(1):29--40, 2007.
+
+\bibitem{vandersijs}
+H.~van~der Sijs, J.~Aarts, A.~Vulto, and M.~Berg.
+\newblock ``Overriding of drug safety alerts in computerized physician order
+  entry''.
+\newblock {\\em Journal of the American Medical Informatics Association},
+  13(2):138--147, 2006.
+
+\bibitem{topaz}
+M.~Topaz, D.~L. Seger, S.~P. Slight, A.~Goss, T.~Lai, and D.~W. Bates.
+\newblock ``Rising drug allergy alert overrides in electronic health records:
+  An observational retrospective study of a decade of experience''.
+\newblock {\\em Journal of the American Medical Informatics Association},
+  23(3):601--608, 2016.
+
+\bibitem{mandel}
+J.~C. Mandel, D.~A. Kreda, K.~D. Mandl, I.~S. Kohane, and R.~B. Ramoni.
+\newblock ``Smart on fhir: A standards-based, interoperable apps platform for
+  electronic health records''.
+\newblock {\\em Journal of the American Medical Informatics Association},
+  23(5):899--908, 2016.
+
+\bibitem{loinc}
+C.~J. McDonald, S.~M. Huff, J.~G. Suico, G.~Hill, D.~Leavelle, R.~Aller,
+  A.~Forrey, K.~Mercer, B.~DeMoor, T.~Hook, et~al.
+\newblock ``Loinc, a universal standard for identifying laboratory
+  observations: A 5-year update''.
+\newblock {\\em Clinical Chemistry}, 49(4):624--633, 2003.
+
+\bibitem{possible}
+{Possible Health}.
+\newblock Open-source electronic health record deployment at bayalpata
+  hospital, nepal.
+\newblock \url{https://possiblehealth.org/}.
+\newblock Accessed: 2026-03-15.
+
+\bibitem{dhis2}
+{HISP Centre, University of Oslo}.
+\newblock Dhis2: District health information software 2.
+\newblock \url{https://dhis2.org/}.
+\newblock Accessed: 2026-03-15.
+
+\end{thebibliography}

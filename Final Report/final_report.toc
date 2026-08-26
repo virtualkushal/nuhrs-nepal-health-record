@@ -1,0 +1,63 @@
+\contentsline {chapter}{Page of Approval}{II}{chapter*.1}%
+\contentsline {chapter}{Copyright}{III}{chapter*.2}%
+\contentsline {chapter}{Acknowledgements}{IV}{chapter*.3}%
+\contentsline {chapter}{Abstract}{V}{chapter*.4}%
+\contentsline {chapter}{List of Figures}{IX}{chapter*.4}%
+\contentsline {chapter}{List of Tables}{X}{chapter*.4}%
+\contentsline {chapter}{List of Abbreviations}{XI}{chapter*.5}%
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.6}%
+\contentsline {section}{\numberline {1.1}Background}{1}{section.7}%
+\contentsline {section}{\numberline {1.2}Problem statements}{2}{section.8}%
+\contentsline {section}{\numberline {1.3}Objectives}{2}{section.9}%
+\contentsline {section}{\numberline {1.4}Scope}{2}{section.10}%
+\contentsline {chapter}{\numberline {2}Literature Review}{4}{chapter.11}%
+\contentsline {section}{\numberline {2.1}Related work}{4}{section.12}%
+\contentsline {section}{\numberline {2.2}Related theory}{7}{section.13}%
+\contentsline {subsection}{\numberline {2.2.1}Healthcare Data Standards (HL7 FHIR)}{7}{subsection.14}%
+\contentsline {subsection}{\numberline {2.2.2}Federated Health Information Exchange Architecture}{7}{subsection.21}%
+\contentsline {subsection}{\numberline {2.2.3}The Nepal National Identity Number (NID)}{8}{subsection.26}%
+\contentsline {subsection}{\numberline {2.2.4}Access Control and User Roles}{8}{subsection.27}%
+\contentsline {subsection}{\numberline {2.2.5}Web Application Framework}{9}{subsection.33}%
+\contentsline {subsection}{\numberline {2.2.6}Frontend User Interface}{9}{subsection.34}%
+\contentsline {chapter}{\numberline {3}Methodology}{10}{chapter.35}%
+\contentsline {section}{\numberline {3.1}Requirement Analysis and Data Collection}{10}{section.36}%
+\contentsline {section}{\numberline {3.2}System Design and Implementation}{10}{section.37}%
+\contentsline {section}{\numberline {3.3}Testing Strategy}{10}{section.39}%
+\contentsline {chapter}{\numberline {4}Experimental Setup}{12}{chapter.44}%
+\contentsline {section}{\numberline {4.1}Host Environment}{12}{section.45}%
+\contentsline {section}{\numberline {4.2}Containers and Ports}{12}{section.46}%
+\contentsline {section}{\numberline {4.3}Deployment Procedure}{12}{section.48}%
+\contentsline {chapter}{\numberline {5}System Design}{14}{chapter.54}%
+\contentsline {section}{\numberline {5.1}Requirement Specification}{14}{section.55}%
+\contentsline {subsection}{\numberline {5.1.1}Functional Requirements}{14}{subsection.56}%
+\contentsline {subsection}{\numberline {5.1.2}Non-Functional Requirements}{16}{subsection.81}%
+\contentsline {section}{\numberline {5.2}System Architecture}{17}{section.90}%
+\contentsline {section}{\numberline {5.3}Use Case Diagram}{18}{section.92}%
+\contentsline {section}{\numberline {5.4}Data Flow Diagram}{19}{section.94}%
+\contentsline {subsection}{\numberline {5.4.1}Level 0 Data Flow Diagram}{19}{subsection.95}%
+\contentsline {subsection}{\numberline {5.4.2}Level 1 Data Flow Diagram}{21}{subsection.97}%
+\contentsline {section}{\numberline {5.5}System Flowchart}{23}{section.99}%
+\contentsline {section}{\numberline {5.6}Entity-Relationship Diagram}{25}{section.101}%
+\contentsline {section}{\numberline {5.7}Sequence Diagram}{26}{section.103}%
+\contentsline {section}{\numberline {5.8}Security and Audit Flow}{28}{section.105}%
+\contentsline {section}{\numberline {5.9}Implementation Details}{30}{section.107}%
+\contentsline {subsection}{\numberline {5.9.1}National Platform Backend}{30}{subsection.108}%
+\contentsline {subsection}{\numberline {5.9.2}The Exchange and Routing Engine}{30}{subsection.109}%
+\contentsline {subsection}{\numberline {5.9.3}Hospital and Laboratory Data Adapters}{30}{subsection.110}%
+\contentsline {subsection}{\numberline {5.9.4}Frontend}{31}{subsection.111}%
+\contentsline {chapter}{\numberline {6}Results and Discussion}{32}{chapter.112}%
+\contentsline {section}{\numberline {6.1}Experiment setup}{32}{section.113}%
+\contentsline {section}{\numberline {6.2}Software Development Approach}{32}{section.114}%
+\contentsline {section}{\numberline {6.3}Deployment}{32}{section.115}%
+\contentsline {section}{\numberline {6.4}Testing and Evaluation}{33}{section.116}%
+\contentsline {subsection}{\numberline {6.4.1}Functional Validation}{33}{subsection.117}%
+\contentsline {subsection}{\numberline {6.4.2}Longitudinal Trends}{33}{subsection.118}%
+\contentsline {subsection}{\numberline {6.4.3}Audit and Accountability}{33}{subsection.119}%
+\contentsline {subsection}{\numberline {6.4.4}Security Validation}{33}{subsection.120}%
+\contentsline {subsection}{\numberline {6.4.5}Resilience Validation}{33}{subsection.121}%
+\contentsline {chapter}{\numberline {7}Conclusions}{34}{chapter.122}%
+\contentsline {chapter}{\numberline {8}Limitations and Future Enhancement}{35}{chapter.123}%
+\contentsline {section}{\numberline {8.1}Limitations}{35}{section.124}%
+\contentsline {section}{\numberline {8.2}Future Enhancement}{35}{section.125}%
+\contentsline {section}{References}{35}{section.125}%
+\contentsline {section}{Appendices}{38}{chapter*.127}%
