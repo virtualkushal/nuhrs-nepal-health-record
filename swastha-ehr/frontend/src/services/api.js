@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// Central axios instance. Auth is carried by httpOnly cookies (access_token /
-// refresh_token) set by the backend on login — never by JavaScript-readable
+// Central axios instance. Auth is carried by httpOnly cookies (swasthya_access_token /
+// swasthya_refresh_token) set by the backend on login — never by JavaScript-readable
 // tokens — so an XSS payload cannot exfiltrate a session. The SPA is served
 // same-origin with the API (the "/api" prefix is proxied to Django by Vite in
 // dev and nginx in prod), so the SameSite=Lax cookies and the double-submit
@@ -18,6 +18,11 @@ const api = axios.create({
 // hard refresh can render the right screen before the first API call returns.
 export const USER_KEY = "swasthya_user";
 
+// App-prefixed CSRF cookie name — must match CSRF_COOKIE_NAME in the backend
+// settings (browsers scope cookies by host, not port, so a generic "csrftoken"
+// would collide with the NUHRS portal when both run on localhost).
+const CSRF_COOKIE = "swasthya_csrf";
+
 const UNSAFE_METHODS = new Set(["post", "put", "patch", "delete"]);
 
 function getCookie(name) {
@@ -31,7 +36,7 @@ function getCookie(name) {
 // state-changing request after a cold load already has a token to echo.
 let csrfPrimed = false;
 export async function ensureCsrf() {
-  if (csrfPrimed || getCookie("csrftoken")) {
+  if (csrfPrimed || getCookie(CSRF_COOKIE)) {
     csrfPrimed = true;
     return;
   }
@@ -48,7 +53,7 @@ export async function ensureCsrf() {
 api.interceptors.request.use(async (config) => {
   if (UNSAFE_METHODS.has((config.method || "get").toLowerCase())) {
     await ensureCsrf();
-    const csrf = getCookie("csrftoken");
+    const csrf = getCookie(CSRF_COOKIE);
     if (csrf) config.headers["X-CSRFToken"] = csrf;
   }
   return config;
@@ -93,10 +98,10 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // Refresh reads the refresh_token cookie and rotates the access cookie;
+        // Refresh reads the refresh cookie and rotates the access cookie;
         // no body needed. Send CSRF explicitly (the clean instance has no
         // interceptor to add it).
-        const csrf = getCookie("csrftoken");
+        const csrf = getCookie(CSRF_COOKIE);
         await refreshApi.post("/v1/auth/refresh/", null, {
           headers: csrf ? { "X-CSRFToken": csrf } : {},
         });

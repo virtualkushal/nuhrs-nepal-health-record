@@ -167,6 +167,12 @@ CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", "http://localhost:3090,h
 # httpOnly JWT cookies (see core.jwt_cookies): keep the csrftoken cookie
 # readable by JS for the X-CSRFToken double-submit header; SameSite=Lax + the
 # same-origin proxy block cross-site use; Secure is forced on when DEBUG is off.
+#
+# Cookie NAMES are app-prefixed ("swasthya_" vs "nuhrs_") because browsers scope
+# cookies by host, not port — shared default names would let the two local apps
+# clobber each other's CSRF token and admin session.
+CSRF_COOKIE_NAME = "swasthya_csrf"
+SESSION_COOKIE_NAME = "swasthya_session"
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_SAMESITE = "Lax"

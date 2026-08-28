@@ -3,8 +3,8 @@ httpOnly-cookie JWT transport for the National Platform.
 
 simplejwt 5.3.1 ships no cookie transport, so this small module adds one:
 
-  * Access + refresh JWTs live in httpOnly cookies (``access_token`` /
-    ``refresh_token``) instead of the JSON response body, so client-side
+  * Access + refresh JWTs live in httpOnly cookies (``nuhrs_access_token`` /
+    ``nuhrs_refresh_token``) instead of the JSON response body, so client-side
     JavaScript — and therefore an XSS payload — can never read them.
   * ``CookieJWTAuthentication`` authenticates from the access cookie when no
     ``Authorization: Bearer`` header is present, and enforces CSRF on unsafe
@@ -20,10 +20,12 @@ from rest_framework import exceptions
 from rest_framework.authentication import CSRFCheck
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-# Cookie names. Kept identical across both NUHRS backends so the behaviour is
-# uniform; each app serves its own cookies on its own (proxied) origin.
-ACCESS_COOKIE = "access_token"
-REFRESH_COOKIE = "refresh_token"
+# Cookie names are prefixed per app ("nuhrs_" vs "swasthya_"). Browsers scope
+# cookies by HOST only — NOT by port — so when both apps run on localhost at
+# the same time, generic names like "access_token" would let whichever backend
+# responded last silently overwrite the other's session.
+ACCESS_COOKIE = "nuhrs_access_token"
+REFRESH_COOKIE = "nuhrs_refresh_token"
 
 # Methods that never mutate state and therefore never require a CSRF token.
 SAFE_METHODS = ("GET", "HEAD", "OPTIONS", "TRACE")
@@ -89,7 +91,7 @@ def enforce_csrf(request):
 
 
 class CookieJWTAuthentication(JWTAuthentication):
-    """Authenticate from the ``access_token`` cookie.
+    """Authenticate from the ``nuhrs_access_token`` cookie.
 
     A real ``Authorization: Bearer`` header still wins (service-to-service calls
     and tests keep working) and is exempt from CSRF, because a header is not an

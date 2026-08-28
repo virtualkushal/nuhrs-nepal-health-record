@@ -1,18 +1,22 @@
 // Thin fetch wrapper around the National Platform API.
 //
-// Auth is carried by httpOnly cookies (access_token / refresh_token) set by the
-// backend on login — never by JavaScript-readable tokens — so an XSS payload
-// cannot exfiltrate a session. The SPA is served same-origin with the API via
-// an /api proxy (Vite in dev, nginx in prod), which is why first-party cookies
-// and a SameSite=Lax CSRF token work over plain http on localhost.
+// Auth is carried by httpOnly cookies (nuhrs_access_token / nuhrs_refresh_token)
+// set by the backend on login — never by JavaScript-readable tokens — so an XSS
+// payload cannot exfiltrate a session. The SPA is served same-origin with the
+// API via an /api proxy (Vite in dev, nginx in prod), which is why first-party
+// cookies and a SameSite=Lax CSRF token work over plain http on localhost.
 //
-// Every request sends credentials; unsafe methods echo the csrftoken cookie in
+// Every request sends credentials; unsafe methods echo the nuhrs_csrf cookie in
 // an X-CSRFToken header (double-submit). A 401 triggers one silent refresh +
 // retry. Only the non-sensitive `user` object is mirrored into localStorage,
 // purely so a hard refresh can render the right dashboard before the first API
 // call returns.
 const API_BASE = "/api";
 const USER_KEY = "nuhrs_user";
+// App-prefixed CSRF cookie name — must match CSRF_COOKIE_NAME in the National
+// Platform settings (browsers scope cookies by host, not port, so a generic
+// "csrftoken" would collide with SwasthyaEHR when both run on localhost).
+const CSRF_COOKIE = "nuhrs_csrf";
 
 const UNSAFE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 // Auth endpoints must never trigger the refresh-on-401 retry (they either issue
@@ -36,7 +40,7 @@ function getCookie(name) {
 // before a cold-start refresh). Cached after the first successful prime.
 let csrfPrimed = false;
 async function ensureCsrf() {
-  if (csrfPrimed || getCookie("csrftoken")) {
+  if (csrfPrimed || getCookie(CSRF_COOKIE)) {
     csrfPrimed = true;
     return;
   }
@@ -50,7 +54,7 @@ async function ensureCsrf() {
 
 async function tryRefresh() {
   await ensureCsrf();
-  const csrf = getCookie("csrftoken");
+  const csrf = getCookie(CSRF_COOKIE);
   try {
     const res = await fetch(API_BASE + "/auth/refresh/", {
       method: "POST",
@@ -70,7 +74,7 @@ async function request(method, path, body, auth = true) {
     const headers = { "Content-Type": "application/json" };
     if (UNSAFE_METHODS.has(method)) {
       await ensureCsrf();
-      const csrf = getCookie("csrftoken");
+      const csrf = getCookie(CSRF_COOKIE);
       if (csrf) headers["X-CSRFToken"] = csrf;
     }
     return fetch(API_BASE + path, {
