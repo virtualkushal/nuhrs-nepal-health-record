@@ -134,6 +134,38 @@ docker compose exec swastha-backend python manage.py seed_demo
    database engines* (PostgreSQL vs MySQL). Every cross-org access is written to the audit log.
 
 
+## Supported FHIR Resources
+
+The federation exchanges the following HL7 FHIR R4 resources across all integrated organizations:
+
+| Resource | Description | Source |
+|---|---|---|
+| `Patient` | Patient demographics and identity (linked by NID) | All facilities |
+| `Encounter` | Hospital visits, consultations, and admissions | All facilities |
+| `Condition` | Diagnoses, including Nepal-endemic conditions | All facilities |
+| `Observation` | Vital signs (BP, HR, temp) and lab results | All facilities |
+| `Medication` | Prescribed and dispensed medications | All facilities |
+| `MedicationStatement` | Medication history and adherence | All facilities |
+| `AllergyIntolerance` | Documented allergies and adverse reactions | All facilities |
+| `DiagnosticReport` | Lab reports, imaging results, pathology | All facilities |
+| `Immunization` | Vaccination records | Norvic Hospital (HOSP002) |
+| `Procedure` | Surgical and clinical procedures | Norvic Hospital (HOSP002) |
+
+**Nepal-endemic conditions tracked:** Dengue, Typhoid, Tuberculosis, Scrub Typhus, Hepatitis B, Leprosy.
+
+**Lab panels included:** Widal, Febrile Illness, Viral Markers, CBC, Metabolic Panel, Lipid Panel.
+
+
+## Authentication & Security
+
+The system implements a **multi-layered authentication architecture** to ensure secure federation:
+
+- **User Authentication:** JWT-based tokens with role-based access control (RBAC)
+- **Service-to-Service Auth:** API keys and mutual TLS for inter-facility communication
+- **Audit Logging:** All cross-organizational data access is logged with actor, timestamp, patient NID, and organizations contacted
+- **Data Ownership:** Clinical records remain at the originating facility; the National Platform never stores them
+
+
 ## Core Concepts
 
 - **Federation:** the National Platform never stores clinical records — only pointers (the
@@ -149,4 +181,4 @@ docker compose exec swastha-backend python manage.py seed_demo
 
 ---
 
-*Prototype for academic purposes. Not for production clinical use.*
+*Prototype for academic purposes.*
