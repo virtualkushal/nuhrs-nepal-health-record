@@ -152,6 +152,12 @@ CSRF_TRUSTED_ORIGINS = env_list(
 # must stay readable by JS so the SPA can echo it back in the X-CSRFToken header
 # (double-submit). SameSite=Lax + the same-origin /api proxy block cross-site
 # use; Secure is forced on whenever DEBUG is off.
+#
+# Cookie NAMES are app-prefixed ("nuhrs_" vs "swasthya_") because browsers scope
+# cookies by host, not port — shared default names would let the two local apps
+# clobber each other's CSRF token and admin session.
+CSRF_COOKIE_NAME = "nuhrs_csrf"
+SESSION_COOKIE_NAME = "nuhrs_session"
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_SAMESITE = "Lax"

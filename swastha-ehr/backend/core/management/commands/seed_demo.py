@@ -55,6 +55,13 @@ DEMO_STAFF = [
     ("doctor@demo.np", "Dr. Anjali Sharma", Role.DOCTOR, Department.ENDOCRINOLOGY),
     ("doctor2@demo.np", "Dr. Bikram Thapa", Role.DOCTOR, Department.CARDIOLOGY),
     ("doctor3@demo.np", "Dr. Sabina Gurung", Role.DOCTOR, Department.INFECTIOUS_DISEASES),
+    # One doctor per remaining department so reception can check patients into
+    # ANY of the 7 departments and a doctor queue exists to receive them
+    # (the doctor queue filters encounters to the doctor's own department).
+    ("doctor4@demo.np", "Dr. Prakash Neupane", Role.DOCTOR, Department.NEPHROLOGY),
+    ("doctor5@demo.np", "Dr. Sunita Karki", Role.DOCTOR, Department.INTERNAL_MEDICINE),
+    ("doctor6@demo.np", "Dr. Rajesh Hamal", Role.DOCTOR, Department.GASTROENTEROLOGY),
+    ("doctor7@demo.np", "Dr. Mina Shrestha", Role.DOCTOR, Department.HEMATOLOGY),
     ("labtech@demo.np", "Lab Technician Bikash", Role.LAB_TECH, None),
     ("pharmacist@demo.np", "Pharmacist Rojina", Role.PHARMACIST, None),
 ]
